@@ -213,18 +213,19 @@ $.validationEngine = {
 		//orefalo: there should be a way around all these $(caller) calls
 		function _required(caller,rules){   // VALIDATE BLANK FIELD
 			
-			switch($(caller).attr("type")) {
+			var obj=$(caller);
+			switch(obj.attr("type")) {
 			case "test":
 			case "password":
 			case "textarea":
-				if(!$(caller).val()){
+				if(!obj.val()){
 					$.validationEngine.isError = true;
 					promptText += $.validationEngine.settings.allrules[rules[i]].alertText+"<br />";
 				}	
 				break;
 			case "radio":
 			case "checkbox":
-				callerName = $(caller).attr("name");
+				var callerName = obj.attr("name");
 				
 				if($("input[name='"+callerName+"']:checked").size() === 0) {
 					$.validationEngine.isError = true;
@@ -237,32 +238,36 @@ $.validationEngine = {
 				break;
 			case "select-one":
 				// added by paul@kinetek.net for select boxes, Thank you	
-				if(!$(caller).val()) {
+				if(!obj.val()) {
 					$.validationEngine.isError = true;
 					promptText += $.validationEngine.settings.allrules[rules[i]].alertText+"<br />";
 				}
 				break;
 			case "select-multiple":
 				 // added by paul@kinetek.net for select boxes, Thank you
-				if(!$(caller).find("option:selected").val()) {
+				if(!obj.find("option:selected").val()) {
 					$.validationEngine.isError = true;
 					promptText += $.validationEngine.settings.allrules[rules[i]].alertText+"<br />";
 				}
 				break;
 			}
 		}
-		function _customRegex(caller,rules,position){		 // VALIDATE REGEX RULES
+		// VALIDATE REGEX RULES
+		function _customRegex(caller,rules,position){
+			var obj=$(caller);
 			var customRule = rules[position+1];
 			var pattern = eval($.validationEngine.settings.allrules[customRule].regex);
 			
-			if(!pattern.test($(caller).attr('value'))){
+			if(!pattern.test(obj.attr('value'))){
 				$.validationEngine.isError = true;
 				promptText += $.validationEngine.settings.allrules[customRule].alertText+"<br />";
 			}
 		}
-		function _exemptString(caller,rules,position){		 // VALIDATE REGEX RULES
+		// VALIDATE REGEX RULES
+		function _exemptString(caller,rules,position){
+			var obj=$(caller);
 			var customString = rules[position+1];
-			if(customString == $(caller).attr('value')){
+			if(customString == obj.attr('value')){
 				$.validationEngine.isError = true;
 				promptText += $.validationEngine.settings.allrules['required'].alertText+"<br />";
 			}
@@ -424,8 +429,10 @@ $.validationEngine = {
 	submitForm : function(caller){
 
 		if ($.validationEngine.settings.success) {	// AJAX SUCCESS, STOP THE LOCATION UPDATE
-			if($.validationEngine.settings.unbindEngine) $(caller).unbind("submit");
+			if($.validationEngine.settings.unbindEngine)
+				$(caller).unbind("submit");
 			var serializedForm = $(caller).serialize();
+			// orefalo: weird settings.seccess is a boolean -> should be beforeSuccess()
 			$.validationEngine.settings.success && $.validationEngine.settings.success(serializedForm);
 			return true;
 		}
@@ -519,10 +526,13 @@ $.validationEngine = {
 		calculatedPosition.marginTopSize +="px";
 		$(updateThisPrompt).animate({ "top":calculatedPosition.callerTopPosition,"marginTop":calculatedPosition.marginTopSize });
 	},
+	
+	// Calculates prompt position
 	calculatePosition : function(caller,promptText,type,ajaxed,divFormError){
 		
+		var elmt=$(caller);
 		var callerTopPosition,callerleftPosition,marginTopSize;
-		var callerWidth = $(caller).width();
+		var callerWidth = elmt.width();
 		var inputHeight =$(divFormError).height(); 
 		
 		var overflow=$.validationEngine.settings.containerOverflow;
@@ -530,8 +540,8 @@ $.validationEngine = {
 			callerTopPosition = callerleftPosition = 0;
 			marginTopSize = "-"+inputHeight; // compasation for the triangle
 		}else{
-			callerTopPosition = $(caller).offset().top;
-			callerleftPosition = $(caller).offset().left;
+			callerTopPosition = elmt.offset().top;
+			callerleftPosition = elmt.offset().left;
 			marginTopSize = 0;
 		}
 		
@@ -554,11 +564,11 @@ $.validationEngine = {
 			callerleftPosition +=  callerWidth +13;
 			break;
 		case "bottomLeft":
-			callerTopPosition = callerTopPosition + $(caller).height() + 15;
+			callerTopPosition = callerTopPosition + elmt.height() + 15;
 			break;
 		case "bottomRight":
 			callerleftPosition +=  callerWidth -30;
-			callerTopPosition +=  $(caller).height() +5;
+			callerTopPosition +=  elmt.height() +5;
 		}
 
 		return {
