@@ -479,13 +479,18 @@ $.validationEngine = {
 			var arrow = $('<div/>');
 			arrow.addClass("formErrorArrow");
 			divFormError.append(arrow.get());
-			if($.validationEngine.settings.promptPosition == "bottomLeft" || $.validationEngine.settings.promptPosition == "bottomRight") {
+			switch($.validationEngine.settings.promptPosition)
+			{
+			case "bottomLeft":
+			case "bottomRight":
 				arrow.addClass("formErrorArrowBottom");
 				arrow.html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
-			}
-			else if($.validationEngine.settings.promptPosition == "topLeft" || $.validationEngine.settings.promptPosition == "topRight"){
+				break;
+			case "topLeft":
+			case "topRight":
 				divFormError.append(arrow);
 				arrow.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
+				break;
 			}
 		}
 		formErrorContent.html(promptText);
@@ -539,9 +544,11 @@ $.validationEngine = {
 		var inputHeight =$(divFormError).height(); 
 		
 		var overflow=$.validationEngine.settings.containerOverflow;
-		if(overflow){ // Is the form contained in an overflown container?
+		if(overflow){
+			// Is the form contained in an overflown container?
 			callerTopPosition = callerleftPosition = 0;
-			marginTopSize = "-"+inputHeight; // compasation for the triangle
+			// compasation for the triangle
+			marginTopSize = "-"+inputHeight; 
 		}else{
 			callerTopPosition = elmt.offset().top;
 			callerleftPosition = elmt.offset().left;
@@ -564,7 +571,7 @@ $.validationEngine = {
 			callerTopPosition += -inputHeight -10;
 			break;
 		case "centerRight":
-			callerleftPosition +=  callerWidth +13;
+			callerleftPosition += callerWidth +13;
 			break;
 		case "bottomLeft":
 			callerTopPosition = callerTopPosition + elmt.height() + 15;
@@ -615,13 +622,15 @@ $.validationEngine = {
 			$("body").append("<div id='debugMode'><div class='debugError'><strong>This is a debug mode, you got a problem with your form, it will try to help you, refresh when you think you nailed down the problem</strong></div></div>");
 		}
 		$(".debugError").append("<div class='debugerror'>"+error+"</div>");
-	},			
-	submitValidation : function(caller) { // FORM SUBMIT VALIDATION LOOPING INLINE VALIDATION
+	},
+	// FORM SUBMIT VALIDATION LOOPING INLINE VALIDATION
+	submitValidation : function(caller) {
+		var obj=$(caller);
 		var stopForm = false;
 		$.validationEngine.ajaxValid = true;
-		var toValidateSize = $(caller).find("[class*=validate]").size();
+		var toValidateSize = obj.find("[class*=validate]").size();
 		
-		$(caller).find("[class*=validate]").each(function(){
+		obj.find("[class*=validate]").each(function(){
 			var linkTofield = $.validationEngine.linkTofield(this);
 			
 			if(!$("."+linkTofield).hasClass("ajaxed")){	// DO NOT UPDATE ALREADY AJAXED FIELDS (only happen if no normal errors, don't worry)
