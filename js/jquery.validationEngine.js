@@ -38,11 +38,10 @@
 	$.validationEngine.settings = settings;
 	$.validationEngine.ajaxValidArray = [];	// ARRAY FOR AJAX: VALIDATION MEMORY 
 	
-	if(settings.inlineValidation === true){ 		// Validating Inline ?
-		if(!settings.returnIsValid){					// NEEDED FOR THE SETTING returnIsValid
-			// what the hell! orefalo
-			//allowReturnIsvalid = false;
-			if(settings.liveEvent){						// LIVE event, vast performance improvement over BIND
+	if(settings.inlineValidation === true){ // Validating Inline ?
+		if(!settings.returnIsValid){ // NEEDED FOR THE SETTING returnIsValid
+
+			if(settings.liveEvent){	// LIVE event, vast performance improvement over BIND
 				$(this).find("[class*=validate]").live(settings.validationEventTriggers,
 					function(caller){ 
 						if($(caller).attr("type") != "checkbox")
@@ -54,8 +53,6 @@
 				$(this).find("[class*=validate][type=checkbox]").bind("click", function(caller){ _inlinEvent(this); });
 			}
 			
-			// what the hell orefalo
-			//firstvalid = false;
 		}
 		
 		function _inlinEvent(caller){
@@ -82,7 +79,7 @@
 			if($.validationEngine.submitForm(this,settings) === true)
 				return false;
 		}else{
-			// orefalo: what the hell is that ?
+			// call the failure() callback
 			settings.failure && settings.failure(); 
 			return false;
 		}		
@@ -134,8 +131,6 @@ $.validationEngine = {
 		if(!$(caller).attr("id"))
 			$.validationEngine.debug("This field have no ID attribut( name & class displayed): "+$(caller).attr("name")+" "+$(caller).attr("class"));
 
-		// what the hell!
-		//caller = caller;
 		ajaxValidate = false;
 		var callerName = $(caller).attr("name");
 		$.validationEngine.isError = false;
@@ -218,7 +213,7 @@ $.validationEngine = {
 					promptText += $.validationEngine.settings.allrules[rules[i]].alertText+"<br />";
 				}	
 			}	
-			if (callerType == "radio" || callerType == "checkbox" ){
+			else if (callerType == "radio" || callerType == "checkbox" ){
 				callerName = $(caller).attr("name");
 		
 				if($("input[name='"+callerName+"']:checked").size() === 0) {
@@ -230,13 +225,13 @@ $.validationEngine = {
 					}	
 				}
 			}	
-			if (callerType == "select-one") { // added by paul@kinetek.net for select boxes, Thank you		
+			else if (callerType == "select-one") { // added by paul@kinetek.net for select boxes, Thank you		
 				if(!$(caller).val()) {
 					$.validationEngine.isError = true;
 					promptText += $.validationEngine.settings.allrules[rules[i]].alertText+"<br />";
 				}
 			}
-			if (callerType == "select-multiple") { // added by paul@kinetek.net for select boxes, Thank you	
+			else if (callerType == "select-multiple") { // added by paul@kinetek.net for select boxes, Thank you	
 				if(!$(caller).find("option:selected").val()) {
 					$.validationEngine.isError = true;
 					promptText += $.validationEngine.settings.allrules[rules[i]].alertText+"<br />";
@@ -363,6 +358,7 @@ $.validationEngine = {
 			}
 		}
 		function _length(caller,rules,position){    	  // VALIDATE LENGTH
+			// orefalo: there should be a way around the use of eval
 			var startLength = eval(rules[position+1]);
 			var endLength = eval(rules[position+2]);
 			var feildLength = $(caller).attr('value').length;
@@ -464,8 +460,7 @@ $.validationEngine = {
 			"marginTop":calculatedPosition.marginTopSize,
 			"opacity":0
 		});
-		//orefalo - what the hell
-		//return $(divFormError).animate({"opacity":0.87},function(){return true;});
+
 		return $(divFormError).animate({"opacity":0.87});	
 	},
 	updatePromptText : function(caller,promptText,type,ajaxed) {	// UPDATE TEXT ERROR IF AN ERROR IS ALREADY DISPLAYED
@@ -498,41 +493,46 @@ $.validationEngine = {
 	},
 	calculatePosition : function(caller,promptText,type,ajaxed,divFormError){
 		
-		var callerTopPosition,callerleftPosition,inputHeight,marginTopSize;
-		var callerWidth =  $(caller).width();
+		var callerTopPosition,callerleftPosition,marginTopSize;
+		var callerWidth = $(caller).width();
+		var inputHeight =$(divFormError).height(); 
 		
-		if($.validationEngine.settings.containerOverflow){		// Is the form contained in an overflown container?
-			callerTopPosition = 0;
-			callerleftPosition = 0;
-			inputHeight = $(divFormError).height();					// compasation for the triangle
-			marginTopSize = "-"+inputHeight;
+		var overflow=$.validationEngine.settings.containerOverflow;
+		if(overflow){ // Is the form contained in an overflown container?
+			callerTopPosition = callerleftPosition = 0;
+			marginTopSize = "-"+inputHeight; // compasation for the triangle
 		}else{
 			callerTopPosition = $(caller).offset().top;
 			callerleftPosition = $(caller).offset().left;
-			inputHeight = $(divFormError).height();
 			marginTopSize = 0;
 		}
 		
 		/* POSITIONNING */
-		if($.validationEngine.settings.promptPosition == "topRight"){ 
-			if($.validationEngine.settings.containerOverflow){		// Is the form contained in an overflown container?
+		switch($.validationEngine.settings.promptPosition) {
+		
+		default:
+		case "topRight":
+			if(overflow){		// Is the form contained in an overflown container?
 				callerleftPosition += callerWidth -30;
 			}else{
 				callerleftPosition +=  callerWidth -30; 
 				callerTopPosition += -inputHeight; 
 			}
-		}
-		if($.validationEngine.settings.promptPosition == "topLeft"){ callerTopPosition += -inputHeight -10; }
-		
-		if($.validationEngine.settings.promptPosition == "centerRight"){ callerleftPosition +=  callerWidth +13; }
-		
-		if($.validationEngine.settings.promptPosition == "bottomLeft"){
+			break;
+		case "topLeft":
+			callerTopPosition += -inputHeight -10;
+			break;
+		case "centerRight":
+			callerleftPosition +=  callerWidth +13;
+			break;
+		case "bottomLeft":
 			callerTopPosition = callerTopPosition + $(caller).height() + 15;
-		}
-		if($.validationEngine.settings.promptPosition == "bottomRight"){
+			break;
+		case "bottomRight":
 			callerleftPosition +=  callerWidth -30;
 			callerTopPosition +=  $(caller).height() +5;
 		}
+
 		return {
 			"callerTopPosition":callerTopPosition,
 			"callerleftPosition":callerleftPosition,
@@ -556,9 +556,10 @@ $.validationEngine = {
 			return false;
 		}
 		
-		// orefalo -- review conditions non sense
+		// orefalo -- rdo we even need this check? in the test below ajaxValidate === false should do it, right ?
 		if(typeof(ajaxValidate)=='undefined')
 		{ ajaxValidate = false; }
+		
 		if(!ajaxValidate){
 			var linkTofield = $.validationEngine.linkTofield(caller);
 			var closingPrompt = "."+linkTofield;
@@ -574,7 +575,7 @@ $.validationEngine = {
 		}
 		$(".debugError").append("<div class='debugerror'>"+error+"</div>");
 	},			
-	submitValidation : function(caller) {					// FORM SUBMIT VALIDATION LOOPING INLINE VALIDATION
+	submitValidation : function(caller) { // FORM SUBMIT VALIDATION LOOPING INLINE VALIDATION
 		var stopForm = false;
 		$.validationEngine.ajaxValid = true;
 		var toValidateSize = $(caller).find("[class*=validate]").size();
@@ -587,12 +588,12 @@ $.validationEngine = {
 				return(validationPass) ? stopForm = true : "";					
 			};
 		});
-		var ajaxErrorLength = $.validationEngine.ajaxValidArray.length;		// LOOK IF SOME AJAX IS NOT VALIDATE
+		var ajaxErrorLength = $.validationEngine.ajaxValidArray.length; // LOOK IF SOME AJAX IS NOT VALIDATE
 		for(var x=0;x<ajaxErrorLength;x++){
 	 		if($.validationEngine.ajaxValidArray[x][1] == false)
 	 			$.validationEngine.ajaxValid = false;
  		}
-		if(stopForm || !$.validationEngine.ajaxValid){		// GET IF THERE IS AN ERROR OR NOT FROM THIS VALIDATION FUNCTIONS
+		if(stopForm || !$.validationEngine.ajaxValid){ // GET IF THERE IS AN ERROR OR NOT FROM THIS VALIDATION FUNCTIONS
 			if($.validationEngine.settings.scroll){
 				if(!$.validationEngine.settings.containerOverflow){
 					var destination = $(".formError:not('.greenPopup'):first").offset().top;
