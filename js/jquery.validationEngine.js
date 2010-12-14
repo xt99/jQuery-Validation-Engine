@@ -439,63 +439,66 @@ $.validationEngine = {
 		return false;
 	},
 	// Creates an error prompt and display it, also used for ajax loading prompts
-	buildPrompt : function(caller,promptText,type,ajaxed) {	
+	buildPrompt : function(caller,promptText,type,ajaxed) {
+		
+		var obj=$(caller);
+		
 		if(!$.validationEngine.settings) {
 			$.validationEngine.defaultSetting();
 		}
-		var deleteItself = "." + $(caller).attr("id") + "formError";
+		var deleteItself = "." + obj.attr("id") + "formError";
 	
 		if($(deleteItself)[0]) {
 			$(deleteItself).stop();
 			$(deleteItself).remove();
 		}
-		var divFormError = document.createElement('div');
-		var formErrorContent = document.createElement('div');
+		var divFormError = $('<div/>');
+		var formErrorContent = $('<div/>');
 		var linkTofield = $.validationEngine.linkTofield(caller);
-		$(divFormError).addClass("formError");
+		divFormError.addClass("formError");
 		
 		if(type == "pass")
-			$(divFormError).addClass("greenPopup");
+			divFormError.addClass("greenPopup");
 		if(type == "load")
-			$(divFormError).addClass("blackPopup");
+			divFormError.addClass("blackPopup");
 		if(ajaxed)
-			$(divFormError).addClass("ajaxed");
+			divFormError.addClass("ajaxed");
 		
-		$(divFormError).addClass(linkTofield);
-		$(formErrorContent).addClass("formErrorContent");
+		divFormError.addClass(linkTofield);
+		formErrorContent.addClass("formErrorContent");
 		
 		if($.validationEngine.settings.containerOverflow)		// Is the form contained in an overflown container?
 			$(caller).before(divFormError);
 		else
 			$("body").append(divFormError);
 				
-		$(divFormError).append(formErrorContent);
+		divFormError.append(formErrorContent);
 			
 		// NO TRIANGLE ON MAX CHECKBOX AND RADIO
 		if($.validationEngine.showTriangle != false){		
-			var arrow = document.createElement('div');
-			$(arrow).addClass("formErrorArrow");
-			$(divFormError).append(arrow);
+			var arrow = $('<div/>');
+			arrow.addClass("formErrorArrow");
+			divFormError.append(arrow.get());
 			if($.validationEngine.settings.promptPosition == "bottomLeft" || $.validationEngine.settings.promptPosition == "bottomRight") {
-				$(arrow).addClass("formErrorArrowBottom");
-				$(arrow).html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
+				arrow.addClass("formErrorArrowBottom");
+				arrow.html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
 			}
 			else if($.validationEngine.settings.promptPosition == "topLeft" || $.validationEngine.settings.promptPosition == "topRight"){
-				$(divFormError).append(arrow);
-				$(arrow).html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
+				divFormError.append(arrow);
+				arrow.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
 			}
 		}
-		$(formErrorContent).html(promptText);
+		formErrorContent.html(promptText);
 		
-		var calculatedPosition = $.validationEngine.calculatePosition(caller,promptText,type,ajaxed,divFormError);
-		$(divFormError).css({
+		var calculatedPosition = $.validationEngine.calculatePosition(caller,promptText,type,ajaxed,divFormError.get());
+		divFormError.css({
 			"top":calculatedPosition.callerTopPosition+"px",
 			"left":calculatedPosition.callerleftPosition+"px",
 			"marginTop":calculatedPosition.marginTopSize+"px",
 			"opacity":0
 		});
 
-		return $(divFormError).animate({"opacity":0.87});
+		return divFormError.animate({"opacity":0.87});
 	},
 	// UPDATE TEXT ERROR IF AN ERROR IS ALREADY DISPLAYED
 	updatePromptText : function(caller,promptText,type,ajaxed) {
