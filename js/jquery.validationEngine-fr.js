@@ -36,8 +36,8 @@
 						"regex": /^[\-\+]?\d+$/,
 						"alertText":"* Nombre entier invalide"},
 					"number":{
-						// Number, including positive, negative, and floating decimal. Credit: bassistance
-						"regex": /^[\-\+]?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)$/,
+						// Number, including positive, negative, and floating decimal. credit: orefalo
+						"regex": /^[\-\+]?(([0-9]+)([\.,]([0-9]+))?|([\.,]([0-9]+))?)$/,
 						"alertText":"* Nombre flottant invalide"},
 					"date":{
 						// Date in ISO format. Credit: bassistance

@@ -20,25 +20,31 @@
 		}
 		settings = jQuery.extend({
 			allrules : allRules,
+			// orefalo: works with liveEvent - figure it out
 			validationEventTriggers : "focusout",
-			inlineValidation : true,
-			returnIsValid : false,
+			// When set to false, validation only happens when you submit the form
+			ontheflyValidation : true,
+			// if set to true, you can call the validation manually in JS
+			// form.validationEngine({evaluate:true}) -> return true if no error and displays prompts otherwise
+			evaluate : false,
 			liveEvent : false,
-			// opens a debug div for logging
+			// Opens a debug DIV for logging
 			openDebug : false,
-
-			// by default, the engine unbinds itself once the submit button is
-			// clicked
+			// By default, the engine unbinds itself once the submit button is clicked
 			unbindEngine : true,
+			
+			// used when the form is displayed within a frame
 			containerOverflow : false,
 			containerOverflowDOM : "",
+			
 			ajaxSubmit : false,
-			// automatically scroll viewport to the first error
+			// Automatically scroll viewport to the first error
 			scroll : true,
 			// Opening box position, possible locations are: topLeft, topRight,
 			// bottomLeft, centerRight, bottomRight
 			promptPosition : "topRight",
 			success : false,
+			// callback method when the validation fails
 			failure : $.noop()
 		}, settings);
 		$.validationEngine.settings = settings;
@@ -46,9 +52,8 @@
 		$.validationEngine.ajaxValidArray = [];
 
 		// Validating Inline ?
-		if (settings.inlineValidation === true) {
-			// NEEDED FOR THE SETTING returnIsValid
-			if (!settings.returnIsValid) {
+		if (settings.ontheflyValidation === true) {
+			if (!settings.evaluate) {
 
 				// LIVE event, vast performance improvement over BIND
 				if (settings.liveEvent) {
@@ -84,12 +89,9 @@
 			}
 		}
 		// Do validation and return true or false, it bypass everything;
-		if (settings.returnIsValid) {
-			if ($.validationEngine.submitValidation(this, settings)) {
-				return false;
-			} else {
-				return true;
-			}
+		if (settings.evaluate) {
+			// important: return true if NO errors
+			return !$.validationEngine.submitValidation(this, settings);
 		}
 		// ON FORM SUBMIT, CONTROL AJAX FUNCTION IF SPECIFIED ON DOCUMENT READY
 		$(this).bind("submit", function(caller) {
@@ -123,10 +125,10 @@
 			settings = {
 				allrules : allRules,
 				validationEventTriggers : "blur",
-				inlineValidation : true,
+				ontheflyValidation : true,
 				containerOverflow : false,
 				containerOverflowDOM : "",
-				returnIsValid : false,
+				evaluate : false,
 				scroll : true,
 				unbindEngine : true,
 				ajaxSubmit : false,
@@ -531,7 +533,8 @@
 
 			divFormError.append(formErrorContent);
 
-			// NO TRIANGLE ON MAX CHECKBOX AND RADIO
+			// The triangle typically shows at the bottom of prompt, to point the error form
+			// note that there is no triangle on max-checkbox and radio
 			if ($.validationEngine.showTriangle != false) {
 				var arrow = $('<div/>');
 				arrow.addClass("formErrorArrow");
@@ -657,6 +660,9 @@
 			linkTofield = linkTofield.replace(/\]/g, "");
 			return linkTofield;
 		},
+		closeAllPrompt : function() {
+			$.validationEngine.closePrompt('.formError',true);
+		},
 		// CLOSE PROMPT WHEN ERROR CORRECTED
 		closePrompt : function(caller, outside) {
 			if (!$.validationEngine.settings) {
@@ -693,7 +699,7 @@
 			}
 			$(".debugError").append("<div class='debugerror'>" + error + "</div>");
 		},
-		// FORM SUBMIT VALIDATION LOOPING INLINE VALIDATION
+		// evaluate the form for errors, display prompts and returns true if error
 		submitValidation : function(caller) {
 			var obj = $(caller);
 			var stopForm = false;
@@ -703,21 +709,21 @@
 			obj.find("[class*=validate]").each(function() {
 				var linkTofield = $.validationEngine.linkTofield(this);
 
-				// DO NOT UPDATE ALREADY AJAXED FIELDS (only happen if
-				// no normal errors, don't worry)
+				// DO NOT UPDATE ALREADY AJAXED FIELDS (only happen if no normal errors, don't worry)
 				if (!$("." + linkTofield).hasClass("ajaxed")) {
 
 					var validationPass = $.validationEngine.loadValidation(this);
 					return (validationPass) ? stopForm = true : "";
 				}
-				;
 			});
+			
 			// LOOK IF SOME AJAX IS NOT VALIDATE
 			var ajaxErrorLength = $.validationEngine.ajaxValidArray.length;
 			for ( var x = 0; x < ajaxErrorLength; x++) {
 				if ($.validationEngine.ajaxValidArray[x][1] == false)
 					$.validationEngine.ajaxValid = false;
 			}
+			
 			// GET IF THERE IS AN ERROR OR NOT FROM THIS VALIDATION FUNCTIONS
 			if (stopForm || !$.validationEngine.ajaxValid) {
 				if ($.validationEngine.settings.scroll) {

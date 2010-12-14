@@ -35,8 +35,8 @@
 						"regex": /^[\-\+]?\d+$/,
 						"alertText":"* No es un valor entero válido"},
 					"number":{
-						// Number, including positive, negative, and floating decimal. Credit: bassistance
-						"regex": /^[\-\+]?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)$/,
+						// Number, including positive, negative, and floating decimal. credit: orefalo
+						"regex": /^[\-\+]?(([0-9]+)([\.,]([0-9]+))?|([\.,]([0-9]+))?)$/,
 						"alertText":"* No es un valor decimal válido"},
 					"date":{
 						// Date in ISO format. Credit: bassistance
