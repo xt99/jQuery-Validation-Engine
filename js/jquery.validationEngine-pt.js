@@ -73,12 +73,12 @@
 					"validate2fields":{
     					"nname":"validate2fields",
     					"alertText":"* Deve inserir o primeiro e último nome"}	
-					}	
+					};
 					
 		}
-	}
+	};
 })(jQuery);
 
 $(document).ready(function() {	
-	$.validationEngineLanguage.newLang()
+	$.validationEngineLanguage.newLang();
 });
