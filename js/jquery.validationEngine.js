@@ -24,16 +24,18 @@
 		inlineValidation: true,	
 		returnIsValid:false,
 		liveEvent:false,
-		openDebug: true,
+		openDebug: false,
 		unbindEngine:true,
 		containerOverflow:false,
 		containerOverflowDOM:"",
 		ajaxSubmit: false,
 		scroll:true,
-		promptPosition: "topRight",	// OPENNING BOX POSITION, IMPLEMENTED: topLeft, topRight, bottomLeft, centerRight, bottomRight
+		// OPENNING BOX POSITION, IMPLEMENTED: topLeft, topRight, bottomLeft, centerRight, bottomRight
+		promptPosition: "topRight",
 		success : false,
-		beforeSuccess :  function() {},
-		failure : function() {}
+		// orefalo: not used?
+		beforeSuccess :  $.noop(),
+		failure : $.noop()
 	}, settings);	
 	$.validationEngine.settings = settings;
 	$.validationEngine.ajaxValidArray = [];	// ARRAY FOR AJAX: VALIDATION MEMORY 
@@ -52,12 +54,14 @@
 				$(this).find("[class*=validate]").not("[type=checkbox]").bind(settings.validationEventTriggers, function(caller){ _inlinEvent(this); });
 				$(this).find("[class*=validate][type=checkbox]").bind("click", function(caller){ _inlinEvent(this); });
 			}
-			
 		}
 		
 		function _inlinEvent(caller){
 			$.validationEngine.settings = settings;
-			if($.validationEngine.intercept === false || !$.validationEngine.intercept){		// STOP INLINE VALIDATION THIS TIME ONLY
+			
+			// orefalo: does this test make sense?
+			// STOP INLINE VALIDATION THIS TIME ONLY
+			if($.validationEngine.intercept === false || !$.validationEngine.intercept){
 				$.validationEngine.onSubmitValid=false;
 				$.validationEngine.loadValidation(caller); 
 			}else{
@@ -79,7 +83,7 @@
 			if($.validationEngine.submitForm(this,settings) === true)
 				return false;
 		}else{
-			// call the failure() callback
+			// give control to the callback method, if defined
 			settings.failure && settings.failure(); 
 			return false;
 		}		
@@ -107,7 +111,7 @@ $.validationEngine = {
 			ajaxSubmit: false,
 			promptPosition: "topRight",	// OPENNING BOX POSITION, IMPLEMENTED: topLeft, topRight, bottomLeft, centerRight, bottomRight
 			success : false,
-			failure : function() {}
+			failure : $.noop()
 		};	
 		$.validationEngine.settings = settings;
 	},
@@ -115,32 +119,33 @@ $.validationEngine = {
 		if(!$.validationEngine.settings)
 			$.validationEngine.defaultSetting();
 		var rulesParsing = $(caller).attr('class');
-		var rulesRegExp = /\[(.*)\]/;
-		var getRules = rulesRegExp.exec(rulesParsing);
+		var getRules = /\[(.*)\]/.exec(rulesParsing);
 		if(getRules === null)
 			return false;
 		var str = getRules[1];
 		var pattern = /\[|,|\]/;
 		var result= str.split(pattern);	
-		var validateCalll = $.validationEngine.validateCall(caller,result);
-		return validateCalll;
+		return $.validationEngine.validateCall(caller,result);
 	},
 	validateCall : function(caller,rules) {	// EXECUTE VALIDATION REQUIRED BY THE USER FOR THIS FIELD
+		
+		// orefalo: rewrite the logic, each method should return a string
 		var promptText ="";	
 		
-		if(!$(caller).attr("id"))
-			$.validationEngine.debug("This field have no ID attribut( name & class displayed): "+$(caller).attr("name")+" "+$(caller).attr("class"));
+		var elmt=$(caller);
+		if(!elmt.attr("id"))
+			$.validationEngine.debug("This field have no ID attribut( name & class displayed): "+elmt.attr("name")+" "+elmt.attr("class"));
 
 		ajaxValidate = false;
-		var callerName = $(caller).attr("name");
+		var callerName = elmt.attr("name");
 		$.validationEngine.isError = false;
 		$.validationEngine.showTriangle = true;
-		var callerType = $(caller).attr("type");
+		var callerType = elmt.attr("type");
 
 		for (var i=0; i<rules.length;i++){
 			switch (rules[i]){
 			case "optional": 
-				if(!$(caller).val()){
+				if(!elmt.val()){
 					$.validationEngine.closePrompt(caller);
 					return $.validationEngine.isError;
 				}
@@ -163,12 +168,12 @@ $.validationEngine = {
 			break;
 			case "maxCheckbox": 
 				_maxCheckbox(caller,rules,i);
-			 	groupname = $(caller).attr("name");
+			 	groupname = elmt.attr("name");
 			 	caller = $("input[name='"+groupname+"']");
 			break;
 			case "minCheckbox": 
 				_minCheckbox(caller,rules,i);
-				groupname = $(caller).attr("name");
+				groupname = elmt.attr("name");
 			 	caller = $("input[name='"+groupname+"']");
 			break;
 			case "equals": 
@@ -204,6 +209,8 @@ $.validationEngine = {
 	      }      
 	    }
 		/* VALIDATION FUNCTIONS */
+		
+		//orefalo: there should be a way around all these $(caller) calls
 		function _required(caller,rules){   // VALIDATE BLANK FIELD
 			var callerType = $(caller).attr("type");
 			if (callerType == "text" || callerType == "password" || callerType == "textarea"){
@@ -463,7 +470,8 @@ $.validationEngine = {
 
 		return $(divFormError).animate({"opacity":0.87});	
 	},
-	updatePromptText : function(caller,promptText,type,ajaxed) {	// UPDATE TEXT ERROR IF AN ERROR IS ALREADY DISPLAYED
+	// UPDATE TEXT ERROR IF AN ERROR IS ALREADY DISPLAYED
+	updatePromptText : function(caller,promptText,type,ajaxed) {
 		
 		var linkTofield = $.validationEngine.linkTofield(caller);
 		var updateThisPrompt =  "."+linkTofield;
@@ -507,7 +515,7 @@ $.validationEngine = {
 			marginTopSize = 0;
 		}
 		
-		/* POSITIONNING */
+		// POSITIONNING
 		switch($.validationEngine.settings.promptPosition) {
 		
 		default:
