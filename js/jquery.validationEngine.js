@@ -24,17 +24,19 @@
 		inlineValidation: true,	
 		returnIsValid:false,
 		liveEvent:false,
+		// opens a debug div for logging
 		openDebug: false,
+		
+		// by default, the engine unbinds itself once the submit button is clicked 
 		unbindEngine:true,
 		containerOverflow:false,
 		containerOverflowDOM:"",
 		ajaxSubmit: false,
+		// automatically scroll viewport to the first error
 		scroll:true,
-		// OPENNING BOX POSITION, IMPLEMENTED: topLeft, topRight, bottomLeft, centerRight, bottomRight
+		// Opening box position, possible locations are: topLeft, topRight, bottomLeft, centerRight, bottomRight
 		promptPosition: "topRight",
 		success : false,
-		// orefalo: not used?
-		beforeSuccess :  $.noop(),
 		failure : $.noop()
 	}, settings);	
 	$.validationEngine.settings = settings;
@@ -88,7 +90,9 @@
 			return false;
 		}		
 	});
-	$(".formError").live("click",function(){	 // REMOVE BOX ON CLICK
+	
+	// bind all formError to close on click
+	$(".formError").live("click",function() {
 		$(this).fadeOut(150,function(){ $(this).remove(); });
 	});
 };	
@@ -427,11 +431,11 @@ $.validationEngine = {
 		return ($.validationEngine.isError) ? $.validationEngine.isError : false;
 	},
 	submitForm : function(caller){
-
+		var obj=$(caller);
 		if ($.validationEngine.settings.success) {	// AJAX SUCCESS, STOP THE LOCATION UPDATE
 			if($.validationEngine.settings.unbindEngine)
-				$(caller).unbind("submit");
-			var serializedForm = $(caller).serialize();
+				obj.unbind("submit");
+			var serializedForm = obj.serialize();
 			// orefalo: weird settings.seccess is a boolean -> should be beforeSuccess()
 			$.validationEngine.settings.success && $.validationEngine.settings.success(serializedForm);
 			return true;
@@ -633,19 +637,25 @@ $.validationEngine = {
 		obj.find("[class*=validate]").each(function(){
 			var linkTofield = $.validationEngine.linkTofield(this);
 			
-			if(!$("."+linkTofield).hasClass("ajaxed")){	// DO NOT UPDATE ALREADY AJAXED FIELDS (only happen if no normal errors, don't worry)
+			// DO NOT UPDATE ALREADY AJAXED FIELDS (only happen if no normal errors, don't worry)
+			if(!$("."+linkTofield).hasClass("ajaxed")){	
+				
 				var validationPass = $.validationEngine.loadValidation(this);
 				return(validationPass) ? stopForm = true : "";					
 			};
 		});
-		var ajaxErrorLength = $.validationEngine.ajaxValidArray.length; // LOOK IF SOME AJAX IS NOT VALIDATE
+		// LOOK IF SOME AJAX IS NOT VALIDATE
+		var ajaxErrorLength = $.validationEngine.ajaxValidArray.length; 
 		for(var x=0;x<ajaxErrorLength;x++){
 	 		if($.validationEngine.ajaxValidArray[x][1] == false)
 	 			$.validationEngine.ajaxValid = false;
  		}
-		if(stopForm || !$.validationEngine.ajaxValid){ // GET IF THERE IS AN ERROR OR NOT FROM THIS VALIDATION FUNCTIONS
+		// GET IF THERE IS AN ERROR OR NOT FROM THIS VALIDATION FUNCTIONS
+		if(stopForm || !$.validationEngine.ajaxValid){ 
 			if($.validationEngine.settings.scroll){
 				if(!$.validationEngine.settings.containerOverflow){
+					
+					// get the position of the first error
 					var destination = $(".formError:not('.greenPopup'):first").offset().top;
 					$(".formError:not('.greenPopup')").each(function(){
 						var testDestination = $(this).offset().top;
