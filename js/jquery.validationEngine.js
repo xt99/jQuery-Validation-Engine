@@ -9,6 +9,8 @@
  * and everyone helping me find bugs on the forum
  * Licenced under the MIT Licence
  */
+
+// orefalo:TODO: create an attach() and detach() method
 (function($) {
 
 	$.fn.validationEngine = function(settings) {
@@ -48,7 +50,9 @@
 			// callback method when the validation fails
 			failure : $.noop()
 		}, settings);
+		
 		$.validationEngine.settings = settings;
+		
 		// ARRAY FOR AJAX: VALIDATION MEMORY
 		$.validationEngine.ajaxValidArray = [];
 
@@ -108,14 +112,144 @@
 			}
 		});
 
-		// bind all formError to close on click
+		// bind all formError elemets to close on click
 		$(".formError").live("click", function() {
 			$(this).fadeOut(150, function() {
 				$(this).remove();
 			});
 		});
 	};
+	
+	
+	// orefalo: refactoring
+	$.fn.validationEngine2 = function(settings) {
+		// IS THERE A LANGUAGE LOCALISATION ?
+		if ($.validationEngineLanguage) {
+			allRules = $.validationEngineLanguage.allRules;
+		} else {
+			$.validationEngine.debug("Validation engine rules are not loaded check your external file");
+		}
+		settings = jQuery.extend({
+			allrules : allRules,
+			// orefalo: works with liveEvent - figure it out
+			validationEventTriggers : "focusout",
+			// When set to false, validation only happens when you submit the form
+			ontheflyValidation : true,
+			// if set to true, you can call the validation manually in JS
+			// form.validationEngine({evaluate:true}) -> return true if no error and displays prompts otherwise
+			// orefalo: this field should not even be visible -> create a method validate()
+			evaluate : false,
+			liveEvent : false,
+			// Opens a debug DIV for logging
+			openDebug : false,
+			// By default, the engine unbinds itself once the submit button is clicked
+			unbindEngine : true,
+			
+			// used when the form is displayed within a frame
+			containerOverflow : false,
+			containerOverflowDOM : "",
+			
+			ajaxSubmit : false,
+			// Automatically scroll viewport to the first error
+			scroll : true,
+			// Opening box position, possible locations are: topLeft, topRight,
+			// bottomLeft, centerRight, bottomRight
+			promptPosition : "topRight",
+			success : false,
+			// callback method when the validation fails
+			failure : $.noop()
+		}, settings);
+		
+		$.validationEngine.settings = settings;
+		
+		// ARRAY FOR AJAX: VALIDATION MEMORY
+		$.validationEngine.ajaxValidArray = [];
+
+		// Validating Inline ?
+		if (settings.ontheflyValidation === true) {
+			if (!settings.evaluate) {
+
+				// LIVE event, vast performance improvement over BIND
+				if (settings.liveEvent) {
+					$(this).find("[class*=validate]").live(settings.validationEventTriggers, function(caller) {
+						if ($(caller).attr("type") != "checkbox")
+							_inlinEvent(this);
+					});
+					$(this).find("[class*=validate][type=checkbox]").live("click", function(caller) {
+						_inlinEvent(this);
+					});
+				} else {
+					$(this).find("[class*=validate]").not("[type=checkbox]").bind(settings.validationEventTriggers,
+							function(caller) {
+								_inlinEvent(this);
+							});
+					$(this).find("[class*=validate][type=checkbox]").bind("click", function(caller) {
+						_inlinEvent(this);
+					});
+				}
+			}
+
+			function _inlinEvent(caller) {
+				$.validationEngine.settings = settings;
+
+				// orefalo: does this test make sense?
+				// STOP INLINE VALIDATION THIS TIME ONLY
+				if ($.validationEngine.intercept === false || !$.validationEngine.intercept) {
+					$.validationEngine.onSubmitValid = false;
+					$.validationEngine.loadValidation(caller);
+				} else {
+					$.validationEngine.intercept = false;
+				}
+			}
+		}
+		// Do validation and return true or false, it bypass everything;
+		if (settings.evaluate) {
+			// important: return true if NO errors
+			return !$.validationEngine.submitValidation(this, settings);
+		}
+		// ON FORM SUBMIT, CONTROL AJAX FUNCTION IF SPECIFIED ON DOCUMENT READY
+		$(this).bind("submit", function(caller) {
+			$.validationEngine.onSubmitValid = true;
+			$.validationEngine.settings = settings;
+			if ($.validationEngine.submitValidation(this, settings) === false) {
+				if ($.validationEngine.submitForm(this, settings) === true)
+					return false;
+			} else {
+				// give control to the callback method, if defined
+				settings.failure && settings.failure();
+				return false;
+			}
+		});
+
+		// bind all formError elemets to close on click
+		$(".formError").live("click", function() {
+			$(this).fadeOut(150, function() {
+				$(this).remove();
+			});
+		});
+	};
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	$.validationEngine = {
+		
+		
+		
 		// NOT GENERALLY USED, NEEDED FOR THE API, DO NOT TOUCH
 		defaultSetting : function(caller) {
 			if ($.validationEngineLanguage) {
@@ -695,8 +829,7 @@
 				 * RULES
 				 */
 				if (!ajaxisError) {
-					$
-							.ajax({
+					$.ajax({
 								type : "POST",
 								url : postfile,
 								async : true,
@@ -835,6 +968,10 @@
 			return $.validationEngine.isError === true;
 		},
 
+
+
+
+
 		submitForm : function(caller) {
 			var obj = $(caller);
 			// AJAX SUCCESS, STOP THE LOCATION UPDATE
@@ -849,6 +986,27 @@
 			}
 			return false;
 		},
+		
+		// orefalo: review this method, how is it used? it doesn't do much
+		submitForm2 : function(elmt) {
+
+			// AJAX SUCCESS, STOP THE LOCATION UPDATE
+			if ($.validationEngine.settings.success) {
+				if ($.validationEngine.settings.unbindEngine)
+					elmt.unbind("submit");
+				var serializedForm = elmt.serialize();
+				// orefalo: weird settings.seccess is a boolean -> should be
+				// beforeSuccess()
+				$.validationEngine.settings.success && $.validationEngine.settings.success(serializedForm);
+				return true;
+			}
+			return false;
+		},
+		
+		
+		
+		
+		
 		// Creates an error prompt and display it, also used for ajax loading prompts
 		buildPrompt : function(caller, promptText, type, ajaxed) {
 
@@ -890,8 +1048,7 @@
 			// The triangle typically shows at the bottom of prompt, to point the error form
 			// note that there is no triangle on max-checkbox and radio
 			if ($.validationEngine.showTriangle != false) {
-				var arrow = $('<div/>');
-				arrow.addClass("formErrorArrow");
+				var arrow = $('<div/>').addClass("formErrorArrow");
 				divFormError.append(arrow.get());
 				switch ($.validationEngine.settings.promptPosition) {
 				case "bottomLeft":
@@ -921,6 +1078,77 @@
 			return divFormError.animate({
 				"opacity" : 0.87
 			});
+		},
+		
+		// orefalo: refactoring
+		buildPrompt2 : function(elmt, promptText, type, ajaxed) {
+
+			// orefalo: this condition should never apply
+			if (!$.validationEngine.settings)
+				$.validationEngine.defaultSetting();
+			
+			// discard prompt if already in document
+			// orefalo: getErrorClassFromId() if !=null -> delete
+			var promptClass= elmt.attr("id") + "formError";
+			var deleteItself = "." + promptClass;
+			if ($(deleteItself)[0]) {
+				$(deleteItself).stop();
+				$(deleteItself).remove();
+			}
+			
+			// create the prompt
+			var prompt = $('<div/>').addClass("formError").addClass(promptClass);
+			if (type == "pass")
+				prompt.addClass("greenPopup");
+			else if (type == "load")
+				prompt.addClass("blackPopup");
+			
+			if (ajaxed)
+				prompt.addClass("ajaxed");
+
+			// create the prompt content
+			var promptContent = $('<div/>');
+			promptContent.addClass("formErrorContent");
+			promptContent.html(promptText);
+			prompt.append(promptContent);
+
+			// Inser prompt in the form contained in an overflown container?
+			if ($.validationEngine.settings.containerOverflow)
+				elmt.before(prompt);
+			else
+				$("body").append(prompt);
+
+			// triangles (or arrow) typically shows at the bottom of prompts and help pin point the invalid form fiel
+			// note that there is no triangle on max-checkbox and radio
+			if ($.validationEngine.showTriangle != false) {
+				var arrow = $('<div/>');
+				arrow.addClass("formErrorArrow");
+				prompt.append(arrow);
+				switch ($.validationEngine.settings.promptPosition) {
+				case "bottomLeft":
+				case "bottomRight":
+					arrow.addClass("formErrorArrowBottom");
+					arrow
+							.html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
+					break;
+				case "topLeft":
+				case "topRight":
+					prompt.append(arrow);
+					arrow
+							.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
+					break;
+				}
+			}
+
+			var pos = $.validationEngine.calculatePosition2(caller, prompt);
+			prompt.css({
+				"top" : pos.callerTopPosition + "px",
+				"left" : pos.callerleftPosition + "px",
+				"marginTop" : pos.marginTopSize + "px",
+				"opacity" : 0
+			});
+
+			return prompt.animate({	"opacity" : 0.87 });
 		},
 		
 		
@@ -1113,7 +1341,7 @@
 		// constructs a string from th element's id myid -> myidformError
 		// orefalo: same as linkTofield, refactoring
 		// todo: this class is used to go from the element.id to the prompt.class[id+formError]
-		// do the job in this method
+		// do the job in this method : should be called getPrompt
 		getErrorClassFromId : function(elmt, omitDot) {
 			var className = elmt.attr("id") + "formError";
 			// remove any [ or ] caracters, which migh be used if we use minCheckbox validations
@@ -1124,8 +1352,8 @@
 			else
 				return "."+className;
 		},
-		
-		
+
+
 		
 		
 		closeAllPrompt : function() {
@@ -1135,13 +1363,13 @@
 		
 		
 		
-		// CLOSE PROMPT WHEN ERROR CORRECTED
+		// Closes and removes a prompt
 		closePrompt : function(caller, outside) {
 			if (!$.validationEngine.settings) {
 				$.validationEngine.defaultSetting();
 			}
 			if (outside) {
-				$(caller).fadeTo("fast", 0, function() {
+				$(caller).fadeTo("fast", 0.3, function() {
 					$(caller).remove();
 				});
 				return false;
@@ -1264,6 +1492,69 @@
 			} else {
 				return false;
 			}
+		},
+		
+		// orefalo: refactoring
+		// evaluate the form for errors, display prompts and returns true if error
+		submitValidation2: function(elmt) {
+			
+			// this variable is set to true if an error is found
+			var errorFound = false;
+			$.validationEngine.ajaxValid = true;
+
+			// for each of the validations in the form, evaluate its status
+			obj.find("[class*=validate]").each(function() {
+				
+				var elmt=$(this);
+				
+			//	var linkTofield = $.validationEngine.linkTofield(this);
+
+				// skip ajax fields for now
+			//	if (!$("." + linkTofield).hasClass("ajaxed"))
+			//		errorFound |= $.validationEngine.loadValidation(this);
+				if (!elmt.hasClass("ajaxed"))
+				    errorFound |= $.validationEngine.validateField(elmt);
+			});
+			
+			// LOOK IF SOME AJAX IS NOT VALIDATE
+			var ajaxErrorLength = $.validationEngine.ajaxValidArray.length;
+			for ( var x = 0; x < ajaxErrorLength; x++) {
+				if ($.validationEngine.ajaxValidArray[x][1] == false)
+					$.validationEngine.ajaxValid = false;
+			}
+			
+			// if an error was raised, display the prompts
+			if (errorFound || !$.validationEngine.ajaxValid) {
+				if ($.validationEngine.settings.scroll) {
+					if (!$.validationEngine.settings.containerOverflow) {
+
+						// get the position of the first error
+						var destination = $(".formError:not('.greenPopup'):first").offset().top;
+						$(".formError:not('.greenPopup')").each(function() {
+							var testDestination = $(this).offset().top;
+							if (destination > testDestination)
+								destination = $(this).offset().top;
+						});
+						$("html:not(:animated),body:not(:animated)").animate({
+							scrollTop : destination
+						}, 1100);
+					} else {
+						var destination = $(".formError:not('.greenPopup'):first").offset().top;
+						var scrollContainerScroll = $($.validationEngine.settings.containerOverflowDOM).scrollTop();
+						var scrollContainerPos = -parseInt($($.validationEngine.settings.containerOverflowDOM).offset().top);
+						destination = scrollContainerScroll + destination + scrollContainerPos - 5;
+						var scrollContainer = $.validationEngine.settings.containerOverflowDOM + ":not(:animated)";
+
+						$(scrollContainer).animate({
+							scrollTop : destination
+						}, 1100);
+					}
+				}
+				return true;
+			} else {
+				return false;
+			}
 		}
+		
 	};
 })(jQuery);
