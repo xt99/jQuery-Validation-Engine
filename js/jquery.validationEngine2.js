@@ -15,12 +15,14 @@
     
         init: function(options){
         
-            if ($(this).data('jqv')) {
-                methods._saveOptions(options);
+			var form=this;
+            if (form.data('jqv') == undefined) {
+                methods._saveOptions(form, options);
                 
                 // bind all formError elements to close on click
                 $(".formError").live("click", function(){
                     $(this).fadeOut(150, function(){
+						
                         // remove prompt once invisible
                         $(this).remove();
                     });
@@ -28,52 +30,60 @@
             }
         },
         
-        attach: function(options){
-            var f = $(this);
-            
-            var data = f.data('jqv');
-            if (data && !data.binded) {
-            
-                var options = methods._saveOptions(options);
+        attach: function(){
+            var form = this;
+
+            var options = form.data('jqv');
+            if (!options.binded) {
                 
                 // bind fields
-                f.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTriggers, methods._onTiggerEvent);
-                f.find("[class*=validate][type=checkbox]").bind("click", methods._onTiggerEvent);
+                form.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTriggers, methods._onFieldEvent);
+                form.find("[class*=validate][type=checkbox]").bind("click", methods._onFieldEvent);
                 
                 // bind form.submit
-                f.bind("submit", methods._onSubmitEvent);
-                data.binded = true;
+                form.bind("submit", methods._onSubmitEvent);
+                options.binded = true;
             }
             
         },
         
         detach: function(){
-            var f = $(this);
-            var data = f.data('jqv', userOptions);
-            if (data.binded) {
+            var form = this;
+            var options = f.data('jqv');
+            if (options.binded) {
                 // unbind fields
-                f.find("[class*=validate]").not("[type=checkbox]").unbind(options.validationEventTriggers, methods._onTiggerEvent);
-                f.find("[class*=validate][type=checkbox]").unbind("click", methods._onTiggerEvent);
+                form.find("[class*=validate]").not("[type=checkbox]").unbind(options.validationEventTriggers, methods._onFieldEvent);
+                form.find("[class*=validate][type=checkbox]").unbind("click", methods._onFieldEvent);
                 
                 // unbind form.submit
-                f.unbind("submit", methods._onSubmitEvent);
-                f.removeData('jqv');
+                form.unbind("submit", methods._onSubmitEvent);
+                form.removeData('jqv');
             }
         },
         
         // return true if form validates
         validate: function(){
+			alert('validate');
             return true;
         },
         
+		// closes all error prompts
+		closePrompts : function() {
+			$('.formError').fadeTo("fast", 0.3, function() {
+					$(this).remove();
+				});
+		},
+		
         // called when user exists a field
-        _onTiggerEvent: function(){
+        _onFieldEvent: function(){
+			alert( "_onFieldEvent " + this);
             // validate the current field
             methods._validateField($(this));
         },
         
         // calledwhen form is submited, shows prompts accordingly
         _onSubmitEvent: function(form){
+			alert( "_onSubmitEvent " + this);
             if (methods.validate() === false) {
                 // give control to the callback method, if defined
                 settings.onFailure();
@@ -82,11 +92,49 @@
             }
         },
         // returns true if field is valid, shows prompts accordingly
-        _validateField: function(fieldElmt){
-            return true;
+        _validateField: function(field){
+
+			var rulesParsing = field.attr('class');
+			var getRules = /\[(.*)\]/.exec(rulesParsing);
+			if (getRules === null)
+				return false;
+			var str = getRules[1];
+			var inputRules = str.split(/\[|,|\]/);
+			return methods._validateRules(field, inputRules);
+
         },
-        
-        _saveOptions: function(options){
+		// returns true if field is valid against the given rules, shows prompts accordingly
+ 		_validateField: function(field, rules){
+
+			var form=field.closest('form');
+			var options = form.data('jqv');
+			
+			
+			
+			
+		},
+		
+		// closes the prompt associated with the given field
+		_closePrompt : function(field) {
+			var prompt=methods._getPrompt(field);
+			if (prompt) {
+				prompt.fadeTo("fast", 0, function() {
+					prompt.remove();
+				});
+			}
+		},
+		
+		
+        // returns the error prompt matching the field if any
+		_getPrompt: function(field) {
+		
+			var className = field.attr("id") + "formError";
+			// remove any [ or ] caracters, which migh be used with minCheckbox validations
+			className = className.replace(/\[/g, "").replace(/\]/g, "");
+			return $("."+className);
+		},
+		// saves the user options and variables in the form.data, returns the instance
+        _saveOptions: function(form, options){
         
             // is there a language localisation ?
             if ($.validationEngineLanguage) 
@@ -120,7 +168,7 @@
             
             }, options);
             
-            $(this).data('jqv', userOptions);
+            form.data('jqv', userOptions);
             return userOptions;
         }
         
@@ -128,12 +176,18 @@
     
     $.fn.validationEngine = function(method){
     
-        if (methods[method]) {
-            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+		var form=$(this);	
+		// skip _methods
+        if (method && method.charAt(0)!='_' && methods[method]) {
+			// make sure init is being called at least once
+			methods.init.apply(form);
+			return methods[method].apply(form, Array.prototype.slice.call(arguments, 1));
         }
         else 
             if (typeof method === 'object' || !method) {
-                return methods.init.apply(this, arguments);
+				//todo: ya un bug, il faut ahouter le form
+				arguments.unshift(form);
+                return methods.init.apply(form, arguments);
             }
             else {
                 $.error('Method ' + method + ' does not exist on jQuery.validationEngine');
