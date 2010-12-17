@@ -67,10 +67,8 @@
          * @returns true if the form validates
          */
         validate: function(){
-            alert('validate');
-            return true;
+            return methods._validateForm(this);
         },
-        
         
         /**
          * Closes all error prompts
@@ -85,18 +83,18 @@
          * Called when user exists a field, typically triggers a field validation
          */
         _onFieldEvent: function(){
-            alert("_onFieldEvent " + this);
             // validate the current field
             methods._validateField($(this));
         },
         
         
         /**
-         * Called when form is submited, shows prompts accordingly
+         * Called when the form is submited, shows prompts accordingly
+         * @param {jqObject} form
          * @returns false if form submission needs to be cancelled
          */
         _onSubmitEvent: function(form){
-            alert("_onSubmitEvent " + this);
+        
             if (methods.validate() === false) {
                 // give control to the callback method, if defined
                 settings.onFailure();
@@ -106,10 +104,77 @@
         },
         
         /**
-         * validates field, shows prompts accordingly
+         * Validates form, shows prompts accordingly
+         * @param {jqObject} form
+         * @returns true if form is valid
+         */
+        _validateForm: function(form){
+        
+            var options = form.data('jqv');
+            
+            // this variable is set to true if an error is found
+            var errorFound = false;
+            var ajaxValid = true;
+            
+            // evaluate status of each non ajax fields
+            obj.find("[class*=validate]").each(function(){
+            
+                var field = $(this);
+				// fields being valiated though ajax are marked with 'ajaxed', skip them
+                if (!field.hasClass("ajaxed")) 
+                    errorFound |= _methods.validateField(field);
+            });
+            
+            // Check to see if all ajax calls completed
+            var ajaxErrorLength = options.ajaxValidArray.length;
+            for (var x = 0; x < ajaxErrorLength; x++) {
+                if (options.ajaxValidArray[x][1] == false) {
+					ajaxValid = false;
+					break;
+				}
+            }
+            
+            // if an error was raised, scroll the container
+            if (errorFound || !ajaxValid) {
+                if (options.scroll) {
+                    if (!options.containerOverflow) {
+                    
+                        // get the position of the first error
+                        var destination = $(".formError:not('.greenPopup'):first", form).offset().top;
+                        $(".formError:not('.greenPopup')").each(function(){
+                            var testDestination = $(this).offset().top;
+                            if (destination > testDestination) 
+                                destination = $(this).offset().top;
+                        });
+                        $("html:not(:animated),body:not(:animated)").animate({
+                            scrollTop: destination
+                        }, 1100);
+                    }
+                    else {
+                        var destination = $(".formError:not('.greenPopup'):first", form).offset().top;
+                        var scrollContainerScroll = $(options.containerOverflowDOM).scrollTop();
+                        var scrollContainerPos = -parseInt($(options.containerOverflowDOM).offset().top);
+                        
+                        destination += scrollContainerScroll + scrollContainerPos - 5;
+                        var scrollContainer = options.containerOverflowDOM + ":not(:animated)";
+                        
+                        $(scrollContainer).animate({
+                            scrollTop: destination
+                        }, 1100);
+                    }
+                }
+                return false;
+            }
+            return true;
+            
+            
+        },
+        /**
+         * Validates field, shows prompts accordingly
+         * @param {jqObject} field
          * @returns true if field is valid
          */
-        _validateField: function(field){
+        _validateField: function(field, options){
         
             var rulesParsing = field.attr('class');
             var getRules = /\[(.*)\]/.exec(rulesParsing);
@@ -117,26 +182,109 @@
                 return false;
             var str = getRules[1];
             var inputRules = str.split(/\[|,|\]/);
-            return methods._validateRules(field, inputRules);
+            return methods._validateRules(field, inputRules, options);
             
         },
         
         
         /**
-         * validates field against the given rules, shows prompts accordingly
+         * Validates field against the given rules, shows prompts accordingly
+         * @param {jqObject} field
          * @returns true if field is valid
          */
-        _validateField: function(field, rules){
+        _validateRules: function(field, rules, options){
         
-            var form = field.closest('form');
-            var options = form.data('jqv');
-            
+            var form = field.closest('form');        
+			
+			// because of the async nature of the ajax call, we need to use a global
+			var promptText = "";
+
+			if (!elmt.attr("id"))
+				$.validationEngine.debug("This field has no ID attribute name: " + elmt.attr("name") + " class:"
+						+ elmt.attr("class"));
+
+			ajaxValidate = false;
+			var callerName = elmt.attr("name");
+			
+			// orefalo: this should be moved to the default settings
+			$.validationEngine.isError = false;
+			$.validationEngine.showTriangle = true;
+			
+			var callerType = elmt.attr("type");
+
+			for ( var i = 0; i < rules.length; i++) {
+				switch (rules[i]) {
+				case "optional":
+					if (!elmt.val()) {
+						$.validationEngine.closePrompt2(elmt);
+						return $.validationEngine.isError;
+					}
+					break;
+				case "required":
+					_required(elmt, rules);
+					break;
+				case "custom":
+					_customRegex(elmt, rules, i);
+					break;
+				case "exemptString":
+					_exemptString(elmt, rules, i);
+					break;
+				case "ajax":
+					if (!$.validationEngine.onSubmitValid)
+						_ajax(elmt, rules, i);
+					break;
+				case "length":
+					_length(elmt, rules, i);
+					break;
+				case "maxCheckbox":
+					_maxCheckbox(elmt, rules, i);
+					groupname = elmt.attr("name");
+					caller = $("input[name='" + groupname + "']");
+					break;
+				case "minCheckbox":
+					_minCheckbox(elmt, rules, i);
+					groupname = elmt.attr("name");
+					caller = $("input[name='" + groupname + "']");
+					break;
+				case "equals":
+					_equals(elmt, rules, i);
+					break;
+				case "funcCall":
+					_funcCall(elmt, rules, i);
+					break;
+				default:
+				}
+			}
+			radioHack();
+			if ($.validationEngine.isError === true) {
+				var linkTofieldText = "." + $.validationEngine.linkTofield(caller);
+				if (linkTofieldText != ".") {
+					if (!$(linkTofieldText)[0]) {
+						$.validationEngine.buildPrompt(caller, promptText, "error");
+					} else {
+						$.validationEngine.updatePromptText(caller, promptText);
+					}
+				} else {
+					$.validationEngine.updatePromptText(caller, promptText);
+				}
+			} else {
+				$.validationEngine.closePrompt(caller);
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
         },
         
         
         /**
          * Builds a prompt for the given field
-         *
+         * @param {jqObject} field
          */
         _buildPrompt: function(field, promptText, type, ajaxed, options){
         
@@ -154,7 +302,7 @@
                     prompt.addClass("greenPopup");
                     break;
                 case "load":
-                    prompt.addClass("blackPopup");     
+                    prompt.addClass("blackPopup");
             }
             
             if (ajaxed) 
@@ -249,7 +397,8 @@
         },
         
         /**
-         * closes the prompt associated with the given field
+         * Closes the prompt associated with the given field
+         * @param {jqObject} field
          */
         _closePrompt: function(field){
             var prompt = methods._getPrompt(field);
@@ -263,6 +412,7 @@
         
         /**
          * Returns the error prompt matching the field if any
+         * @param {jqObject} field
          * @returns undefined or error prompt jquery object
          */
         _getPrompt: function(field){
@@ -276,6 +426,9 @@
         
         /**
          * Calculates prompt position
+         * @param {jqObject} field
+         * @param {jqObject} promptElmt
+         * @param {Map} options
          * @returns positions
          */
         _calculatePosition: function(field, promptElmt, options){
@@ -338,14 +491,19 @@
         },
         
         
-        // saves the user options and variables in the form.data, returns the instance
+        /***
+         * Saves the user options and variables in the form.data
+         * @param {jqObject} form - the form where the user option should be saved
+         * @param {Map} options - the user options
+         * @returns the user options (extended from the defaults)
+         */
         _saveOptions: function(form, options){
         
             // is there a language localisation ?
             if ($.validationEngineLanguage) 
                 var allRules = $.validationEngineLanguage.allRules;
             else 
-                $.error("Validation engine rules are not loaded, plz check the localization js is included in the page");
+                $.error("jQuery.validationEngine rules are not loaded, plz add localization files to the page");
             
             var userOptions = $.extend({
             
@@ -368,6 +526,7 @@
                 allrules: allRules,
                 ajaxSubmit: false,
                 ajaxValidArray: [],
+                ajaxValid: true,
                 // true when for and fields are binded
                 binded: false,
                 // orefalo: rename showPromptArrow
@@ -381,6 +540,10 @@
         
     };
     
+    /***
+     * Plugin entry point
+     * @param {String} method (optional) action
+     */
     $.fn.validationEngine = function(method){
     
         var form = $(this);
@@ -392,8 +555,6 @@
         }
         else 
             if (typeof method === 'object' || !method) {
-                //todo: ya un bug, il faut ahouter le form
-                arguments.unshift(form);
                 return methods.init.apply(form, arguments);
             }
             else {
