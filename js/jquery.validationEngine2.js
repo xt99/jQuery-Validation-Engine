@@ -69,7 +69,7 @@
 		 * @return true if the form validates
 		 */
 		validate : function() {
-			return methods._validateForm(this);
+			return methods._validateForm($(this));
 		},
 
 		/**
@@ -97,12 +97,15 @@
 		 *            form
 		 * @return false if form submission needs to be cancelled
 		 */
-		_onSubmitEvent : function(form) {
+		_onSubmitEvent : function() {
 
-			if (methods.validate() === false) {
+			var form=$(this);
+			if (methods._validateForm(form) === false) {
 				// if the form is invalid, give control to the callback method
 				// and prevent the form submission
-				settings.onFailure();
+				//orefalo: bug undefined
+				var options = form.data('jqv');
+				options.onFailure();
 				return false;
 			}
 		},
@@ -123,12 +126,12 @@
 			var ajaxValid = true;
 
 			// evaluate status of each non ajax fields
-			obj.find("[class*=validate]").each(function() {
+			form.find("[class*=validate]").each(function() {
 				var field = $(this);
 				// fields being valiated though ajax are marked with 'ajaxed',
 				// skip them
 				if (!field.hasClass("ajaxed"))
-					errorFound |= _methods._validateField(field, options);
+					errorFound = errorFound || methods._validateField(field, options);
 			});
 
 			// Check to see if all ajax calls completed
@@ -156,7 +159,8 @@
 							scrollTop : destination
 						}, 1100);
 					} else {
-						var destination = $(".formError:not('.greenPopup'):first", form).offset().top;
+						// orefalo: debug, search in the form
+						var destination = $(".formError:not('.greenPopup'):first").offset().top;
 						var scrollContainerScroll = $(options.containerOverflowDOM).scrollTop();
 						var scrollContainerPos = -parseInt($(options.containerOverflowDOM).offset().top);
 
@@ -201,16 +205,15 @@
 		 */
 		_validateRules : function(field, rules, options) {
 
-			var form = field.closest('form');
-
 			var promptText = "";
 
 			if (!field.attr("id"))
 				$.error("jQueryValidate: an ID attribute is required for this field: " + field.attr("name") + " class:"
 						+ field.attr("class"));
 
+			
 			var ajaxValidate = false;
-			var fieldName = field.attr("name");
+	
 
 			// orefalo: this should be moved to the default settings
 			options.isError = false;
@@ -218,7 +221,7 @@
 
 			for ( var i = 0; i < rules.length; i++) {
 
-				var errorMsg;
+				var errorMsg = undefined;
 				switch (rules[i]) {
 				
 				// orefalo: review do we need this case ?
@@ -229,42 +232,43 @@
 					}
 					break;
 				case "required":
-					errorMsg=_required(field, rules);
+					errorMsg=methods._required(field, rules, i, options);
 					break;
 				case "custom":
-					errorMsg=_customRegex(field, rules, i);
+					errorMsg=methods._customRegex(field, rules, i, options);
 					break;
 				// orefalo: review do we need this case ?
 				case "exemptString":
-					errorMsg=_exemptString(field, rules, i);
+					errorMsg=methods._exemptString(field, rules, i, options);
 					break;
 				case "ajax":
 					// ajax has its own prompts handling technique
 					if (!options.onSubmitValid)
-						_ajax(field, rules, i);
+						methods._ajax(field, rules, i, options);
 					break;
 				case "length":
-					errorMsg=_length(field, rules, i);
+					errorMsg=methods._length(field, rules, i, options);
 					break;
 				case "maxCheckbox":
-					errorMsg=_maxCheckbox(field, rules, i);
+					errorMsg=methods._maxCheckbox(field, rules, i, options);
 					var groupname = field.attr("name");
 					// orefalo a revoir
 					caller = $("input[name='" + groupname + "']");
 					break;
 				case "minCheckbox":
-					errorMsg=_minCheckbox(field, rules, i);
+					errorMsg=methods._minCheckbox(field, rules, i, options);
 					var groupname = field.attr("name");
 					// orefalo a revoir
 					caller = $("input[name='" + groupname + "']");
 					break;
 				case "equals":
-					errorMsg=_equals(field, rules, i);
+					errorMsg=methods._equals(field, rules, i, options);
 					break;
 				case "funcCall":
-					errorMsg=_funcCall(field, rules, i);
+					errorMsg=methods._funcCall(field, rules, i, options);
 					break;
 				default:
+					//$.error("jQueryValidator rule not found"+rules[i]);
 				}
 				
 				if(errorMsg !== undefined) {
@@ -276,6 +280,7 @@
 			// Hack for radio/checkbox group button, the validation go into the
 			// first radio/checkbox of the group
 			var fieldType = field.attr("type");
+			var fieldName = field.attr("name");
 			if ((fieldType == "radio" || fieldType == "checkbox") && $("input[name='" + fieldName + "']").size() > 1) {
 				caller = $("input[name='" + callerName + "'][type!=hidden]:first");
 				options.showTriangle = false;
@@ -284,13 +289,16 @@
 			if (options.isError === true) {
 				var prompt = methods._getPrompt(field);
 				if (prompt)
-					methods._updatePromptText(field, promptText);
+					methods._updatePrompt(field, promptText);
 				else
 					methods._buildPrompt(field, promptText);
 			} else
 				methods._closePrompt(field);
 
-			
+			return options.isError === true;
+		},
+
+	
 			/**
 			 * Required validation
 			 *
@@ -299,10 +307,10 @@
 			 * @param {int} i
 			 * @return an error string if validation failed
 			 */
-			function _required(field, rules) {
+			 _required: function(field, rules, i, options) {
 				
 				switch (field.attr("type")) {
-				case "test":
+				case "text":
 				case "password":
 				case "textarea":
 					if (!field.val()) {
@@ -335,7 +343,7 @@
 					}
 					break;
 				}
-			}
+			},
 			
 			/**
 			 * Validate Regex rules
@@ -345,7 +353,7 @@
 			 * @param {int} i
 			 * @return an error string if validation failed
 			 */
-			function _customRegex(field, rules, i) {
+			_customRegex: function(field, rules, i, options) {
 				var customRule = rules[i + 1];
 				var pattern = new RegExp(options.allrules[customRule].regex);
 
@@ -353,7 +361,7 @@
 				if (!pattern.test(field.attr('value'))) {	
 					return options.allrules[customRule].alertText;
 				}
-			}
+			},
 			/**
 			 * Validate exempt
 			 *
@@ -362,12 +370,12 @@
 			 * @param {int} i
 			 * @return an error string if validation failed
 			 */
-			function _exemptString(field, rules, i) {
+			 _exemptString:function(field, rules, i, options) {
 				var customString = rules[i + 1];
 				if (field.attr('value') == customString ) {
 					return options.allrules.required.alertText;
 				}
-			}
+			},
 			
 			/**
 			 * Validate custom function outside of the engine scope
@@ -377,7 +385,7 @@
 			 * @param {int} i
 			 * @return an error string if validation failed
 			 */
-			function _funcCall(field, rules, i){
+			_funcCall:function (field, rules, i, options){
 				var customRule = rules[i + 1];
 				var funce = options.allrules[customRule].name;
 				
@@ -388,7 +396,7 @@
 						return fn_result;
 					}
 				}
-			}
+			},
 				
 			/**
 			 * Field match
@@ -398,13 +406,13 @@
 			 * @param {int} i
 			 * @return an error string if validation failed
 			 */
-				function _equals(field, rules, i){
+			_equals:	function (field, rules, i, options){
 					var equalsField = rules[i + 1];
 					
 					if (field.attr('value') != $("#" + equalsField).attr('value')) {
 						return options.allrules["equals"].alertText;
 					}
-				}
+				},
 								/**
 			 * Field length
 			 *
@@ -413,7 +421,7 @@
 			 * @param {int} i
 			 * @return an error string if validation failed
 			 */
-				function _length(field, rules, i){
+			_length:	function (field, rules, i, options){
 					var startLength = rules[i + 1];
 					var endLength = rules[i + 2];
 					var len = field.attr('value').length;
@@ -423,7 +431,7 @@
 						return rule.alertText + startLength +
 						rule.alertText2 + endLength + rule.alertText3;
 					}
-				}
+				},
 				
 				/**
 			 * Max number of checkbox selected
@@ -433,7 +441,7 @@
 			 * @param {int} i
 			 * @return an error string if validation failed
 			 */
-				function _maxCheckbox(field, rules, i){
+			_maxCheckbox:	function (field, rules, i, options){
 				
 					var nbCheck = eval(rules[i + 1]);
 					var groupname = field.attr("name");
@@ -443,7 +451,7 @@
 						options.showTriangle = false;
 						return options.allrules.maxCheckbox.alertText;
 					}
-				}
+				},
 						/**
 			 * Min number of checkbox selected
 			 *
@@ -452,7 +460,7 @@
 			 * @param {int} i
 			 * @return an error string if validation failed
 			 */
-				function _minCheckbox(field, rules, i){
+			_minCheckbox:	function (field, rules, i, options){
 				
 					var nbCheck = eval(rules[i + 1]);
 					var groupname = $(field).attr("name");
@@ -462,7 +470,7 @@
 						return options.allrules.minCheckbox.alertText + " " + nbCheck + " " +
 						options.allrules.minCheckbox.alertText2;
 					}
-				}
+				},
 				
 				/**
 				 * Validate AJAX rules
@@ -472,14 +480,14 @@
 				 * @param {Object} position
 				 * @return NOT SURE an error string if validation failed
 				 */
-				function _ajax(field, rules, i){
+			_ajax:	function (field, rules, i, options){
 				
 					// orefalo: review variable scope
 					var customAjaxRule = rules[i + 1];
 					var posturl = options.allrules[customAjaxRule].file;
-					var fieldValue = field.val();
-					var ajaxCaller = field;
-					var fieldId = field.attr("id");
+					//var fieldValue = field.val();
+					//var ajaxCaller = field;
+					//var fieldId = field.attr("id");
 					var ajaxValidate = true;
 					var ajaxisError = option.isError;
 					
@@ -500,17 +508,13 @@
 							beforeSend: function(){
 							
 								// BUILD A LOADING PROMPT IF LOAD TEXT EXIST
-								var loadingPrompt = options.allrules[customAjaxRule].alertTextLoad;
-								if (loadingPrompt) {
-									
-									if (!$("div." + fieldId + "formError")[0]) {
-										// orefalo: how come this one
-										// returns and not the else
-										return $.validationEngine.buildPrompt(ajaxCaller, loadingPrompt, "load");
-									}
-									else {
-										$.validationEngine.updatePromptText(ajaxCaller, loadingPrompt, "load");
-									}
+								var loadingText = options.allrules[customAjaxRule].alertTextLoad;
+								if (loadingText) {
+									var prompt=methods._getPrompt(field);
+									if(prompt)
+										methods._updatePrompt(field,promptText, "load", true, options);
+									else
+										methods._buildPrompt(field,promptText, "load", true, options);
 								}
 							},
 							error: function(data, transport){
@@ -576,12 +580,7 @@
 							}
 						});
 					}
-				}
-				
-				return $.validationEngine.isError === true;
-			
-			
-		},
+				},
 
 		/**
 		 * Builds a prompt for the given field
@@ -625,10 +624,10 @@
 
 			// Inser prompt in the form or in the overflown container?
 			// orefalo: is this really required.. test it
-			if (options.containerOverflow)
+			//if (options.containerOverflow)
 				field.before(prompt);
-			else
-				$("body").append(prompt);
+			//else
+			//	$("body").append(prompt);
 
 			// create the css arrow pointing at the field
 			// note that there is no triangle on max-checkbox and radio
@@ -672,7 +671,8 @@
 		 * 'pass' (green), 'load' (green) ajaxted - if true options - the form
 		 * options (optional) - which be resolved if not present
 		 */
-		_updatePromptText : function(field, promptText, type, ajaxed, options) {
+		//orefalo:rename this method updatePrompt
+		_updatePrompt : function(field, promptText, type, ajaxed, options) {
 
 			var prompt = methods._getPrompt(field);
 			if (prompt) {
@@ -726,7 +726,9 @@
 			// remove any [ or ] caracters, which migh be used with minCheckbox
 			// validations
 			className = className.replace(/\[/g, "").replace(/\]/g, "");
-			return $("." + className);
+			var match=$(className)[0];
+			if (match)
+				return $(match);
 		},
 
 		/**
