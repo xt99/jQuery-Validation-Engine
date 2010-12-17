@@ -96,9 +96,8 @@
         _onSubmitEvent: function(form){
         
             if (methods.validate() === false) {
-                // give control to the callback method, if defined
+                // if the form is invalid, give control to the callback method and prevent the form submission
                 settings.onFailure();
-                // prevent the form submission
                 return false;
             }
         },
@@ -118,7 +117,6 @@
             
             // evaluate status of each non ajax fields
             obj.find("[class*=validate]").each(function(){
-            
                 var field = $(this);
 				// fields being valiated though ajax are marked with 'ajaxed', skip them
                 if (!field.hasClass("ajaxed")) 
@@ -199,85 +197,77 @@
 			// because of the async nature of the ajax call, we need to use a global
 			var promptText = "";
 
-			if (!elmt.attr("id"))
-				$.validationEngine.debug("This field has no ID attribute name: " + elmt.attr("name") + " class:"
-						+ elmt.attr("class"));
+			if (!field.attr("id"))
+				$.error("jQueryValidate: an ID attribute is required for this field: " + field.attr("name") + " class:"
+						+ field.attr("class"));
 
-			ajaxValidate = false;
-			var callerName = elmt.attr("name");
+			var ajaxValidate = false;
+			var fieldName = field.attr("name");
 			
 			// orefalo: this should be moved to the default settings
-			$.validationEngine.isError = false;
-			$.validationEngine.showTriangle = true;
-			
-			var callerType = elmt.attr("type");
+			options.isError = false;
+			options.showTriangle = true;
 
 			for ( var i = 0; i < rules.length; i++) {
 				switch (rules[i]) {
 				case "optional":
-					if (!elmt.val()) {
-						$.validationEngine.closePrompt2(elmt);
-						return $.validationEngine.isError;
+					if (!field.val()) {
+						methods._closePrompt(field);
+						return options.isError;
 					}
 					break;
 				case "required":
-					_required(elmt, rules);
+					_required(field, rules);
 					break;
 				case "custom":
-					_customRegex(elmt, rules, i);
+					_customRegex(field, rules, i);
 					break;
 				case "exemptString":
-					_exemptString(elmt, rules, i);
+					_exemptString(field, rules, i);
 					break;
 				case "ajax":
-					if (!$.validationEngine.onSubmitValid)
-						_ajax(elmt, rules, i);
+					if (!options.onSubmitValid)
+						_ajax(field, rules, i);
 					break;
 				case "length":
-					_length(elmt, rules, i);
+					_length(field, rules, i);
 					break;
 				case "maxCheckbox":
-					_maxCheckbox(elmt, rules, i);
-					groupname = elmt.attr("name");
+					_maxCheckbox(field, rules, i);
+					var groupname = field.attr("name");
 					caller = $("input[name='" + groupname + "']");
 					break;
 				case "minCheckbox":
-					_minCheckbox(elmt, rules, i);
-					groupname = elmt.attr("name");
+					_minCheckbox(field, rules, i);
+					var groupname = field.attr("name");
 					caller = $("input[name='" + groupname + "']");
 					break;
 				case "equals":
-					_equals(elmt, rules, i);
+					_equals(field, rules, i);
 					break;
 				case "funcCall":
-					_funcCall(elmt, rules, i);
+					_funcCall(field, rules, i);
 					break;
 				default:
 				}
 			}
-			radioHack();
-			if ($.validationEngine.isError === true) {
-				var linkTofieldText = "." + $.validationEngine.linkTofield(caller);
-				if (linkTofieldText != ".") {
-					if (!$(linkTofieldText)[0]) {
-						$.validationEngine.buildPrompt(caller, promptText, "error");
-					} else {
-						$.validationEngine.updatePromptText(caller, promptText);
-					}
-				} else {
-					$.validationEngine.updatePromptText(caller, promptText);
-				}
-			} else {
-				$.validationEngine.closePrompt(caller);
+			// Hack for radio/checkbox group button, the validation go into the first radio/checkbox of the group
+			var fieldType = field.attr("type");
+			if ((fieldType == "radio" || fieldType == "checkbox") && $("input[name='" + fieldName + "']").size() > 1 ) 
+			{
+				caller = $("input[name='" + callerName + "'][type!=hidden]:first");
+				options.showTriangle = false;
 			}
-			
-			
-			
-			
-			
-			
-			
-			
+
+			if (options.isError === true) {
+				var prompt = methods._getPrompt(field);
+				if(prompt)
+					 methods._updatePromptText(field, promptText);
+				else
+					 methods._buildPrompt(field, promptText);
+			} else {
+				methods._closePrompt(field);
+			}		
 			
         },
         
@@ -530,7 +520,9 @@
                 // true when for and fields are binded
                 binded: false,
                 // orefalo: rename showPromptArrow
-                showTriangle: true
+                showTriangle: true,
+				isError: false,
+				onSubmitValid: true
             
             }, options);
             
