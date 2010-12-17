@@ -277,25 +277,24 @@
 					methods._updatePromptText(field, promptText);
 				else
 					methods._buildPrompt(field, promptText);
-			} else {
+			} else
 				methods._closePrompt(field);
-			}
 			
 			
 			
 			
 			
-			/* VALIDATION FUNCTIONS */
-			// orefalo: there should be a way around all these $(caller) calls
+			
+			/* VALIDATION FUNCTIONS, will return undefined if passed, an error msg if not */
+			// orefalo: there should be a way around all these $(caller) calls, get the <br/> out of the way
 			// VALIDATE BLANK FIELD
-			function _required(obj, rules) {
-				switch (obj.attr("type")) {
+			function _required(field, rules) {
+				switch (field.attr("type")) {
 				case "test":
 				case "password":
 				case "textarea":
-					if (!obj.val()) {
-						isError = true;
-						promptText += options.allrules[rules[i]].alertText + "<br />";
+					if (!field.val()) {
+						return options.allrules[rules[i]].alertText + "<br />";
 					}
 					break;
 				case "radio":
@@ -303,26 +302,24 @@
 					var callerName = obj.attr("name");
 
 					if ($("input[name='" + callerName + "']:checked").size() === 0) {
-						$.validationEngine.isError = true;
+						
 						if ($("input[name='" + callerName + "']").size() == 1) {
-							promptText += options.allrules[rules[i]].alertTextCheckboxe + "<br />";
+							return options.allrules[rules[i]].alertTextCheckboxe + "<br />";
 						} else {
-							promptText += options.allrules[rules[i]].alertTextCheckboxMultiple + "<br />";
+							return options.allrules[rules[i]].alertTextCheckboxMultiple + "<br />";
 						}
 					}
 					break;
 				case "select-one":
 					// added by paul@kinetek.net for select boxes, Thank you
-					if (!obj.val()) {
-						$.validationEngine.isError = true;
-						promptText += options.allrules[rules[i]].alertText + "<br />";
+					if (!field.val()) {
+						return options.allrules[rules[i]].alertText + "<br />";
 					}
 					break;
 				case "select-multiple":
 					// added by paul@kinetek.net for select boxes, Thank you
-					if (!obj.find("option:selected").val()) {
-						$.validationEngine.isError = true;
-						promptText += options.allrules[rules[i]].alertText + "<br />";
+					if (!field.find("option:selected").val()) {
+						return options.allrules[rules[i]].alertText + "<br />";
 					}
 					break;
 				}
@@ -332,201 +329,204 @@
 			
 			
 			// VALIDATE REGEX RULES
-			function _customRegex(caller, rules, position) {
-				var obj = $(caller);
-				var customRule = rules[position + 1];
-				var pattern = eval(options.allrules[customRule].regex);
+			function _customRegex(field, rules, i) {
+				var customRule = rules[i + 1];
+				var pattern = new RegExp(options.allrules[customRule].regex);
 
-				if (!pattern.test(obj.attr('value'))) {
-					$.validationEngine.isError = true;
-					promptText += options.allrules[customRule].alertText + "<br />";
+				if (!pattern.test(field.attr('value'))) {	
+					return options.allrules[customRule].alertText + "<br />";
 				}
 			}
 			// VALIDATE REGEX RULES
-			function _exemptString(caller, rules, position) {
-				var obj = $(caller);
-				var customString = rules[position + 1];
-				if (customString == obj.attr('value')) {
-					$.validationEngine.isError = true;
-					promptText += options.allrules['required'].alertText + "<br />";
+			function _exemptString(field, rules, i) {
+				var customString = rules[i + 1];
+				if (customString == field.attr('value')) {
+					return options.allrules.required.alertText + "<br />";
 				}
 			}
 			// VALIDATE CUSTOM FUNCTIONS OUTSIDE OF THE ENGINE SCOPE
-			function _funcCall(caller, rules, position) {
-				var customRule = rules[position + 1];
-				var funce = options.allrules[customRule].nname;
-
+			function _funcCall(field, rules, i){
+				var customRule = rules[i + 1];
+				var funce = options.allrules[customRule].name;
+				
 				var fn = window[funce];
-				if (typeof (fn) === 'function') {
+				if (typeof(fn) === 'function') {
 					var fn_result = fn();
 					if (!fn_result) {
-						$.validationEngine.isError = true;
+						return options.allrules[customRule].alertText + "<br />";
 					}
-
-					promptText += options.allrules[customRule].alertText + "<br />";
 				}
-			}
-			// VALIDATE AJAX RULES
-			function _ajax(caller, rules, position) {
-
-				// orefalo: review variable scope
-				customAjaxRule = rules[position + 1];
-				postfile = options.allrules[customAjaxRule].file;
-				fieldValue = $(caller).val();
-				ajaxCaller = caller;
-				fieldId = $(caller).attr("id");
-				ajaxValidate = true;
-				ajaxisError = $.validationEngine.isError;
-
-				if (options.allrules[customAjaxRule].extraData) {
-					extraData = options.allrules[customAjaxRule].extraData;
-				} else {
-					extraData = "";
+				
+				// VALIDATE FIELD MATCH
+				function _equals(field, rules, i){
+					var equalsField = rules[i + 1];
+					
+					if (field.attr('value') != $("#" + equalsField).attr('value')) {
+						return options.allrules["equals"].alertText + "<br />";
+					}
 				}
-				/*
-				 * AJAX VALIDATION HAS ITS OWN UPDATE AND BUILD UNLIKE OTHER
-				 * RULES
+				// VALIDATE LENGTH
+				function _length(field, rules, i){
+					// orefalo: there should be a way around the use of eval
+					var startLength = rules[i + 1];
+					var endLength = rules[i + 2];
+					var feildLength = field.attr('value').length;
+					
+					if (feildLength < startLength || feildLength > endLength) {
+						return options.allrules["length"].alertText + startLength +
+						options.allrules["length"].alertText2 +
+						endLength +
+						options.allrules["length"].alertText3 +
+						"<br />";
+					}
+				}
+				// VALIDATE CHECKBOX NUMBER
+				function _maxCheckbox(field, rules, i){
+				
+					var nbCheck = eval(rules[i + 1]);
+					var groupname = field.attr("name");
+					var groupSize = $("input[name='" + groupname + "']:checked").size();
+					if (groupSize > nbCheck) {
+						options.showTriangle = false;
+						return options.allrules["maxCheckbox"].alertText + "<br />";
+					}
+				}
+				// VALIDATE CHECKBOX NUMBER
+				function _minCheckbox(field, rules, i){
+				
+					var nbCheck = eval(rules[i + 1]);
+					var groupname = $(field).attr("name");
+					var groupSize = $("input[name='" + groupname + "']:checked").size();
+					if (groupSize < nbCheck) {
+						options.showTriangle = false;
+						return options.allrules["minCheckbox"].alertText + " " + nbCheck + " " +
+						options.allrules["minCheckbox"].alertText2 +
+						"<br />";
+					}
+				}
+				
+				/**
+				 * Validate AJAX rules
+				 * @param {Object} caller
+				 * @param {Object} rules
+				 * @param {Object} position
 				 */
-				if (!ajaxisError) {
-					$
-							.ajax({
-								type : "POST",
-								url : postfile,
-								async : true,
-								cache : false,
-								data : "validateValue=" + fieldValue + "&validateId=" + fieldId + "&validateError="
-										+ customAjaxRule + "&extraData=" + extraData,
-								beforeSend : function() {
-
-									// BUILD A LOADING PROMPT IF LOAD TEXT EXIST
-									var loadingPrompt = options.allrules[customAjaxRule].alertTextLoad;
-									if (loadingPrompt) {
-
-										if (!$("div." + fieldId + "formError")[0]) {
-											// orefalo: how come this one
-											// returns and not the else
-											return $.validationEngine.buildPrompt(ajaxCaller, loadingPrompt, "load");
-										} else {
-											$.validationEngine.updatePromptText(ajaxCaller, loadingPrompt, "load");
-										}
+				function _ajax(caller, rules, position){
+				
+					// orefalo: review variable scope
+					customAjaxRule = rules[position + 1];
+					postfile = options.allrules[customAjaxRule].file;
+					fieldValue = $(caller).val();
+					ajaxCaller = caller;
+					fieldId = $(caller).attr("id");
+					ajaxValidate = true;
+					ajaxisError = $.validationEngine.isError;
+					
+					if (options.allrules[customAjaxRule].extraData) {
+						extraData = options.allrules[customAjaxRule].extraData;
+					}
+					else {
+						extraData = "";
+					}
+					/*
+		 * AJAX VALIDATION HAS ITS OWN UPDATE AND BUILD UNLIKE OTHER
+		 * RULES
+		 */
+					if (!ajaxisError) {
+						$.ajax({
+							type: "POST",
+							url: postfile,
+							async: true,
+							cache: false,
+							data: "validateValue=" + fieldValue + "&validateId=" + fieldId + "&validateError=" +
+							customAjaxRule +
+							"&extraData=" +
+							extraData,
+							beforeSend: function(){
+							
+								// BUILD A LOADING PROMPT IF LOAD TEXT EXIST
+								var loadingPrompt = options.allrules[customAjaxRule].alertTextLoad;
+								if (loadingPrompt) {
+								
+									if (!$("div." + fieldId + "formError")[0]) {
+										// orefalo: how come this one
+										// returns and not the else
+										return $.validationEngine.buildPrompt(ajaxCaller, loadingPrompt, "load");
 									}
-								},
-								error : function(data, transport) {
-									$.validationEngine.debug("error in the ajax: " + data.status + " " + transport);
-								},
-								success : function(data) {
-									// GET SUCCESS DATA RETURN JSON
-									data = eval("(" + data + ")");
-
-									// GET JSON DATA FROM PHP AND PARSE IT
-									ajaxCaller = $("#" + data.jsonValidateReturn[0])[0];
-									customAjaxRule = data.jsonValidateReturn[1];
-									ajaxisError = data.jsonValidateReturn[2];
-									var fieldId = ajaxCaller;
-									var existInarray;
-
-									// DATA FALSE UPDATE PROMPT WITH ERROR;
-									if (ajaxisError == "false") {
-
-										// Check if ajax validation already used
-										// on this field
-										existInarray = _checkInArray(fieldId, false);
-
-										// Simulate an ajax error to stop submit
-										if (!existInarray) {
-											var len = $.validationEngine.ajaxValidArray.length;
-											$.validationEngine.ajaxValidArray[len] = new Array(2);
-											$.validationEngine.ajaxValidArray[len][0] = fieldId;
-											$.validationEngine.ajaxValidArray[len][1] = false;
-											existInarray = false;
-										}
-
-										$.validationEngine.ajaxValid = false;
-										promptText += options.allrules[customAjaxRule].alertText + "<br />";
-										$.validationEngine.updatePromptText(ajaxCaller, promptText, "", true);
-									} else {
-
-										existInarray = _checkInArray(fieldId, true);
-										$.validationEngine.ajaxValid = true;
-										if (!customAjaxRule) {
-											$.validationEngine
-													.debug("wrong ajax response, are you on a server or in xampp? if not delete de ajax[ajaxUser] validating rule from your form ");
-										}
-										// NO OK TEXT MEANs CLOSE PROMPT
-										if (options.allrules[customAjaxRule].alertTextOk) {
-											$.validationEngine.updatePromptText(ajaxCaller,
-													options.allrules[customAjaxRule].alertTextOk, "pass",
-													true);
-										} else {
-											ajaxValidate = false;
-											$.validationEngine.closePrompt(ajaxCaller);
-										}
-									}
-									function _checkInArray(fieldId, validate) {
-										var array = $.validationEngine.ajaxValidArray;
-										for ( var x = 0; x < array.length; x++) {
-											if (array[x][0] == fieldId) {
-												array[x][1] = validate;
-												return true;
-											}
-										}
-										return false;
+									else {
+										$.validationEngine.updatePromptText(ajaxCaller, loadingPrompt, "load");
 									}
 								}
-							});
+							},
+							error: function(data, transport){
+								$.validationEngine.debug("error in the ajax: " + data.status + " " + transport);
+							},
+							success: function(data){
+								// GET SUCCESS DATA RETURN JSON
+								data = eval("(" + data + ")");
+								
+								// GET JSON DATA FROM PHP AND PARSE IT
+								ajaxCaller = $("#" + data.jsonValidateReturn[0])[0];
+								customAjaxRule = data.jsonValidateReturn[1];
+								ajaxisError = data.jsonValidateReturn[2];
+								var fieldId = ajaxCaller;
+								var existInarray;
+								
+								// DATA FALSE UPDATE PROMPT WITH ERROR;
+								if (ajaxisError == "false") {
+								
+									// Check if ajax validation already used
+									// on this field
+									existInarray = _checkInArray(fieldId, false);
+									
+									// Simulate an ajax error to stop submit
+									if (!existInarray) {
+										var len = $.validationEngine.ajaxValidArray.length;
+										$.validationEngine.ajaxValidArray[len] = new Array(2);
+										$.validationEngine.ajaxValidArray[len][0] = fieldId;
+										$.validationEngine.ajaxValidArray[len][1] = false;
+										existInarray = false;
+									}
+									
+									$.validationEngine.ajaxValid = false;
+									promptText += options.allrules[customAjaxRule].alertText + "<br />";
+									$.validationEngine.updatePromptText(ajaxCaller, promptText, "", true);
+								}
+								else {
+								
+									existInarray = _checkInArray(fieldId, true);
+									$.validationEngine.ajaxValid = true;
+									if (!customAjaxRule) {
+										$.validationEngine.debug("wrong ajax response, are you on a server or in xampp? if not delete de ajax[ajaxUser] validating rule from your form ");
+									}
+									// NO OK TEXT MEANs CLOSE PROMPT
+									if (options.allrules[customAjaxRule].alertTextOk) {
+										$.validationEngine.updatePromptText(ajaxCaller, options.allrules[customAjaxRule].alertTextOk, "pass", true);
+									}
+									else {
+										ajaxValidate = false;
+										$.validationEngine.closePrompt(ajaxCaller);
+									}
+								}
+								function _checkInArray(fieldId, validate){
+									var array = $.validationEngine.ajaxValidArray;
+									for (var x = 0; x < array.length; x++) {
+										if (array[x][0] == fieldId) {
+											array[x][1] = validate;
+											return true;
+										}
+									}
+									return false;
+								}
+							}
+						});
+					}
 				}
+				
+				return $.validationEngine.isError === true;
 			}
-			// VALIDATE FIELD MATCH
-			function _equals(caller, rules, position) {
-				var equalsField = rules[position + 1];
-
-				if ($(caller).attr('value') != $("#" + equalsField).attr('value')) {
-					$.validationEngine.isError = true;
-					promptText += options.allrules["equals"].alertText + "<br />";
-				}
-			}
-			// VALIDATE LENGTH
-			function _length(caller, rules, position) {
-				// orefalo: there should be a way around the use of eval
-				var startLength = eval(rules[position + 1]);
-				var endLength = eval(rules[position + 2]);
-				var feildLength = $(caller).attr('value').length;
-
-				if (feildLength < startLength || feildLength > endLength) {
-					$.validationEngine.isError = true;
-					promptText += options.allrules["length"].alertText + startLength
-							+ options.allrules["length"].alertText2 + endLength
-							+ options.allrules["length"].alertText3 + "<br />";
-				}
-			}
-			// VALIDATE CHECKBOX NUMBER
-			function _maxCheckbox(caller, rules, position) {
-
-				var nbCheck = eval(rules[position + 1]);
-				var groupname = $(caller).attr("name");
-				var groupSize = $("input[name='" + groupname + "']:checked").size();
-				if (groupSize > nbCheck) {
-					$.validationEngine.showTriangle = false;
-					$.validationEngine.isError = true;
-					promptText += options.allrules["maxCheckbox"].alertText + "<br />";
-				}
-			}
-			// VALIDATE CHECKBOX NUMBER
-			function _minCheckbox(caller, rules, position) {
-
-				var nbCheck = eval(rules[position + 1]);
-				var groupname = $(caller).attr("name");
-				var groupSize = $("input[name='" + groupname + "']:checked").size();
-				if (groupSize < nbCheck) {
-
-					$.validationEngine.isError = true;
-					$.validationEngine.showTriangle = false;
-					promptText += options.allrules["minCheckbox"].alertText + " " + nbCheck + " "
-							+ options.allrules["minCheckbox"].alertText2 + "<br />";
-				}
-			}
-			return $.validationEngine.isError === true;
-		},
+			
+			},
 
 		/**
 		 * Builds a prompt for the given field
