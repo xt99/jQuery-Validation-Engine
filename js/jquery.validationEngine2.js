@@ -32,7 +32,6 @@
 
 		attach : function() {
 			var form = this;
-
 			var options = form.data('jqv');
 			if (!options.binded) {
 
@@ -86,8 +85,10 @@
 		 * validation
 		 */
 		_onFieldEvent : function() {
+			var form = $(this).closest('form');
+			var options = form.data('jqv');
 			// validate the current field
-			methods._validateField($(this));
+			methods._validateField(form, options);
 		},
 
 		/**
@@ -149,7 +150,7 @@
 					if (!options.containerOverflow) {
 
 						// get the position of the first error
-						var destination = $(".formError:not('.greenPopup'):first", form).offset().top;
+						var destination = $(".formError:not('.greenPopup'):first").offset().top;
 						$(".formError:not('.greenPopup')").each(function() {
 							var testDestination = $(this).offset().top;
 							if (destination > testDestination)
@@ -289,13 +290,13 @@
 			if (options.isError === true) {
 				var prompt = methods._getPrompt(field);
 				if (prompt)
-					methods._updatePrompt(field, promptText);
+					methods._updatePrompt(field, promptText,"",false, options);
 				else
-					methods._buildPrompt(field, promptText);
+					methods._buildPrompt(field, promptText,"",false, options);
 			} else
 				methods._closePrompt(field);
 
-			return options.isError === true;
+			return options.isError;
 		},
 
 	
@@ -598,7 +599,10 @@
 			}
 
 			// create the prompt
-			prompt = $('<div/>').addClass("formError").addClass(field.attr("id") + "formError");
+			prompt = $('<div>');
+			prompt.addClass(field.attr("id") + "formError");
+			prompt.addClass("formError");
+			
 			
 			switch (type) {
 			case "pass":
@@ -611,10 +615,8 @@
 				prompt.addClass("ajaxed");
 
 			// create the prompt content
-			var promptContent = $('<div/>');
-			promptContent.addClass("formErrorContent");
-			promptContent.html(promptText);
-			prompt.append(promptContent);
+			var promptContent = $('<div>').addClass("formErrorContent").html(promptText).appendTo(prompt);
+			//prompt.append(promptContent);
 
 			if (!options) {
 				// get the options if they were not passed as parameters
@@ -622,33 +624,22 @@
 				options = form.data('jqv');
 			}
 
-			// Inser prompt in the form or in the overflown container?
-			// orefalo: is this really required.. test it
-			//if (options.containerOverflow)
-				field.before(prompt);
-			//else
-			//	$("body").append(prompt);
-
 			// create the css arrow pointing at the field
 			// note that there is no triangle on max-checkbox and radio
 			if (options.showTriangle) {
-				var arrow = $('<div/>');
-				arrow.addClass("formErrorArrow");
-				prompt.append(arrow);
+				var arrow = $('<div>').addClass("formErrorArrow");
+				
 				switch (options.promptPosition) {
 				case "bottomLeft":
 				case "bottomRight":
-					arrow.addClass("formErrorArrowBottom");
-					arrow
-							.html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
+					arrow.addClass("formErrorArrowBottom").html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
 					break;
 				case "topLeft":
 				case "topRight":
-					prompt.append(arrow);
-					arrow
-							.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
+					arrow.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
 					break;
 				}
+				prompt.append(arrow);
 			}
 
 			var pos = methods._calculatePosition(field, prompt, options);
@@ -658,6 +649,13 @@
 				"marginTop" : pos.marginTopSize,
 				"opacity" : 0
 			});
+
+			// Inser prompt in the form or in the overflown container?
+			// orefalo: is this really required.. test it
+			if (options.containerOverflow)
+				field.before(prompt.get());
+			else
+				$("body").append(prompt.get());
 
 			return prompt.animate({
 				"opacity" : 0.87
@@ -749,9 +747,7 @@
 			var inputHeight = promptElmt.height();
 
 			if (!options) {
-				// get the options if they were not passed as parameters
-				var form = field.closest('form');
-				options = form.data('jqv');
+				$.error("NO OPTIONS!");
 			}
 
 			var overflow = options.containerOverflow;
@@ -828,7 +824,7 @@
 				// topRight, bottomLeft, centerRight, bottomRight
 				promptPosition : "topRight",
 				// callback method when the validation fails
-				onFailure : $.noop(),
+				onFailure : $.noop,
 
 				// used when the form is displayed within a frame
 				containerOverflow : false,
