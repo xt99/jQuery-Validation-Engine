@@ -218,7 +218,10 @@
 
 			for ( var i = 0; i < rules.length; i++) {
 
+				var errorMsg;
 				switch (rules[i]) {
+				
+				// orefalo: review do we need this case ?
 				case "optional":
 					if (!field.val()) {
 						methods._closePrompt(field);
@@ -226,40 +229,47 @@
 					}
 					break;
 				case "required":
-					 _required(field, rules);
+					errorMsg=_required(field, rules);
 					break;
 				case "custom":
-					_customRegex(field, rules, i);
+					errorMsg=_customRegex(field, rules, i);
 					break;
+				// orefalo: review do we need this case ?
 				case "exemptString":
-					_exemptString(field, rules, i);
+					errorMsg=_exemptString(field, rules, i);
 					break;
 				case "ajax":
+					// ajax has its own prompts handling technique
 					if (!options.onSubmitValid)
 						_ajax(field, rules, i);
 					break;
 				case "length":
-					_length(field, rules, i);
+					errorMsg=_length(field, rules, i);
 					break;
 				case "maxCheckbox":
-					_maxCheckbox(field, rules, i);
+					errorMsg=_maxCheckbox(field, rules, i);
 					var groupname = field.attr("name");
 					// orefalo a revoir
 					caller = $("input[name='" + groupname + "']");
 					break;
 				case "minCheckbox":
-					_minCheckbox(field, rules, i);
+					errorMsg=_minCheckbox(field, rules, i);
 					var groupname = field.attr("name");
 					// orefalo a revoir
 					caller = $("input[name='" + groupname + "']");
 					break;
 				case "equals":
-					_equals(field, rules, i);
+					errorMsg=_equals(field, rules, i);
 					break;
 				case "funcCall":
-					_funcCall(field, rules, i);
+					errorMsg=_funcCall(field, rules, i);
 					break;
 				default:
+				}
+				
+				if(errorMsg !== undefined) {
+					promptText += errorMsg + "<br/>";
+					options.isError = true;
 				}
 
 			}
@@ -279,14 +289,6 @@
 					methods._buildPrompt(field, promptText);
 			} else
 				methods._closePrompt(field);
-			
-			
-			
-			
-			
-			
-			/* VALIDATION FUNCTIONS, will return undefined if passed, an error msg if not */
-			// orefalo: there should be a way around all these $(caller) calls, get the <br/> out of the way
 
 			
 			/**
@@ -298,37 +300,38 @@
 			 * @return an error string if validation failed
 			 */
 			function _required(field, rules) {
+				
 				switch (field.attr("type")) {
 				case "test":
 				case "password":
 				case "textarea":
 					if (!field.val()) {
-						return options.allrules[rules[i]].alertText + "<br />";
+						return options.allrules[rules[i]].alertText;
 					}
 					break;
 				case "radio":
 				case "checkbox":
-					var callerName = obj.attr("name");
+					var name = obj.attr("name");
 
-					if ($("input[name='" + callerName + "']:checked").size() === 0) {
+					if ($("input[name='" + name + "']:checked").size() === 0) {
 						
-						if ($("input[name='" + callerName + "']").size() == 1) {
-							return options.allrules[rules[i]].alertTextCheckboxe + "<br />";
+						if ($("input[name='" + name + "']").size() === 1) {
+							return options.allrules[rules[i]].alertTextCheckboxe;
 						} else {
-							return options.allrules[rules[i]].alertTextCheckboxMultiple + "<br />";
+							return options.allrules[rules[i]].alertTextCheckboxMultiple;
 						}
 					}
 					break;
 				case "select-one":
 					// added by paul@kinetek.net for select boxes, Thank you
 					if (!field.val()) {
-						return options.allrules[rules[i]].alertText + "<br />";
+						return options.allrules[rules[i]].alertText;
 					}
 					break;
 				case "select-multiple":
 					// added by paul@kinetek.net for select boxes, Thank you
 					if (!field.find("option:selected").val()) {
-						return options.allrules[rules[i]].alertText + "<br />";
+						return options.allrules[rules[i]].alertText;
 					}
 					break;
 				}
@@ -340,22 +343,29 @@
 			 * @param {jqObject} field
 			 * @param {Array[String]} rules
 			 * @param {int} i
-			  * @return an error string if validation failed
+			 * @return an error string if validation failed
 			 */
 			function _customRegex(field, rules, i) {
 				var customRule = rules[i + 1];
 				var pattern = new RegExp(options.allrules[customRule].regex);
 
-				// orefalo todo: field.vol()
+				// orefalo todo: field.val()
 				if (!pattern.test(field.attr('value'))) {	
-					return options.allrules[customRule].alertText + "<br />";
+					return options.allrules[customRule].alertText;
 				}
 			}
-			// VALIDATE REGEX RULES
+			/**
+			 * Validate exempt
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i
+			 * @return an error string if validation failed
+			 */
 			function _exemptString(field, rules, i) {
 				var customString = rules[i + 1];
-				if (customString == field.attr('value')) {
-					return options.allrules.required.alertText + "<br />";
+				if (field.attr('value') == customString ) {
+					return options.allrules.required.alertText;
 				}
 			}
 			
@@ -373,14 +383,14 @@
 				
 				var fn = window[funce];
 				if (typeof(fn) === 'function') {
-					var fn_result = fn(field);
+					var fn_result = fn(field, rules, i);
 					if (fn_result !== undefined ) {
-						return fn_result + "<br />";
+						return fn_result;
 					}
 				}
+			}
 				
-				
-					/**
+			/**
 			 * Field match
 			 *
 			 * @param {jqObject} field
@@ -392,7 +402,7 @@
 					var equalsField = rules[i + 1];
 					
 					if (field.attr('value') != $("#" + equalsField).attr('value')) {
-						return options.allrules["equals"].alertText + "<br />";
+						return options.allrules["equals"].alertText;
 					}
 				}
 								/**
@@ -404,17 +414,14 @@
 			 * @return an error string if validation failed
 			 */
 				function _length(field, rules, i){
-					// orefalo: there should be a way around the use of eval
 					var startLength = rules[i + 1];
 					var endLength = rules[i + 2];
 					var len = field.attr('value').length;
 					
 					if (len < startLength || len > endLength) {
-						return options.allrules["length"].alertText + startLength +
-						options.allrules["length"].alertText2 +
-						endLength +
-						options.allrules["length"].alertText3 +
-						"<br />";
+						var rule=options.allrules["length"];
+						return rule.alertText + startLength +
+						rule.alertText2 + endLength + rule.alertText3;
 					}
 				}
 				
@@ -434,7 +441,7 @@
 					var groupSize = $("input[name='" + groupname + "']:checked").size();
 					if (groupSize > nbCheck) {
 						options.showTriangle = false;
-						return options.allrules["maxCheckbox"].alertText + "<br />";
+						return options.allrules.maxCheckbox.alertText;
 					}
 				}
 						/**
@@ -452,9 +459,8 @@
 					var groupSize = $("input[name='" + groupname + "']:checked").size();
 					if (groupSize < nbCheck) {
 						options.showTriangle = false;
-						return options.allrules["minCheckbox"].alertText + " " + nbCheck + " " +
-						options.allrules["minCheckbox"].alertText2 +
-						"<br />";
+						return options.allrules.minCheckbox.alertText + " " + nbCheck + " " +
+						options.allrules.minCheckbox.alertText2;
 					}
 				}
 				
@@ -470,12 +476,12 @@
 				
 					// orefalo: review variable scope
 					var customAjaxRule = rules[i + 1];
-					var postfile = options.allrules[customAjaxRule].file;
-					fieldValue = field.val();
-					ajaxCaller = field;
-					fieldId = field.attr("id");
-					ajaxValidate = true;
-					ajaxisError = $.validationEngine.isError;
+					var posturl = options.allrules[customAjaxRule].file;
+					var fieldValue = field.val();
+					var ajaxCaller = field;
+					var fieldId = field.attr("id");
+					var ajaxValidate = true;
+					var ajaxisError = option.isError;
 					
 					if (options.allrules[customAjaxRule].extraData) {
 						extraData = options.allrules[customAjaxRule].extraData;
@@ -487,8 +493,7 @@
 					if (!ajaxisError) {
 						$.ajax({
 							type: "POST",
-							url: postfile,
-							async: true,
+							url: posturl,
 							cache: false,
 							data: "validateValue=" + fieldValue + "&validateId=" + fieldId + "&validateError=" +
 							customAjaxRule +"&extraData=" +	extraData,
@@ -497,7 +502,7 @@
 								// BUILD A LOADING PROMPT IF LOAD TEXT EXIST
 								var loadingPrompt = options.allrules[customAjaxRule].alertTextLoad;
 								if (loadingPrompt) {
-								
+									
 									if (!$("div." + fieldId + "formError")[0]) {
 										// orefalo: how come this one
 										// returns and not the else
@@ -539,7 +544,7 @@
 									}
 									
 									$.validationEngine.ajaxValid = false;
-									promptText += options.allrules[customAjaxRule].alertText + "<br />";
+									promptText += options.allrules[customAjaxRule].alertText;
 									$.validationEngine.updatePromptText(ajaxCaller, promptText, "", true);
 								}
 								else {
@@ -547,7 +552,7 @@
 									existInarray = _checkInArray(fieldId, true);
 									$.validationEngine.ajaxValid = true;
 									if (!customAjaxRule) {
-										$.validationEngine.debug("wrong ajax response, are you on a server or in xampp? if not delete de ajax[ajaxUser] validating rule from your form ");
+										$.error("wrong ajax response, are you on a server or in xampp? if not delete de ajax[ajaxUser] validating rule from your form ");
 									}
 									// NO OK TEXT MEANs CLOSE PROMPT
 									if (options.allrules[customAjaxRule].alertTextOk) {
@@ -574,9 +579,9 @@
 				}
 				
 				return $.validationEngine.isError === true;
-			}
 			
-			},
+			
+		},
 
 		/**
 		 * Builds a prompt for the given field
@@ -595,6 +600,7 @@
 
 			// create the prompt
 			prompt = $('<div/>').addClass("formError").addClass(field.attr("id") + "formError");
+			
 			switch (type) {
 			case "pass":
 				prompt.addClass("greenPopup");
@@ -602,7 +608,6 @@
 			case "load":
 				prompt.addClass("blackPopup");
 			}
-
 			if (ajaxed)
 				prompt.addClass("ajaxed");
 
@@ -619,6 +624,7 @@
 			}
 
 			// Inser prompt in the form or in the overflown container?
+			// orefalo: is this really required.. test it
 			if (options.containerOverflow)
 				field.before(prompt);
 			else
@@ -626,7 +632,7 @@
 
 			// create the css arrow pointing at the field
 			// note that there is no triangle on max-checkbox and radio
-			if (options.showTriangle !== false) {
+			if (options.showTriangle) {
 				var arrow = $('<div/>');
 				arrow.addClass("formErrorArrow");
 				prompt.append(arrow);
@@ -657,6 +663,7 @@
 			return prompt.animate({
 				"opacity" : 0.87
 			});
+			
 		},
 
 		/**
@@ -768,7 +775,7 @@
 				else {
 					callerleftPosition += callerWidth - 30;
 					callerTopPosition += -inputHeight;
-				}
+				}	
 				break;
 			case "topLeft":
 				callerTopPosition += -inputHeight - 10;
@@ -846,7 +853,7 @@
 
 	};
 
-	/***************************************************************************
+	/***
 	 * Plugin entry point
 	 * 
 	 * @param {String}
