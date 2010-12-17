@@ -16,7 +16,7 @@
 		init : function(options) {
 
 			var form = this;
-			if (form.data('jqv') == undefined) {
+			if (form.data('jqv') === undefined) {
 				methods._saveOptions(form, options);
 
 				// bind all formError elements to close on click
@@ -66,7 +66,7 @@
 		/**
 		 * Validates the form, shows prompts accordingly
 		 * 
-		 * @returns true if the form validates
+		 * @return true if the form validates
 		 */
 		validate : function() {
 			return methods._validateForm(this);
@@ -95,7 +95,7 @@
 		 * 
 		 * @param {jqObject}
 		 *            form
-		 * @returns false if form submission needs to be cancelled
+		 * @return false if form submission needs to be cancelled
 		 */
 		_onSubmitEvent : function(form) {
 
@@ -112,7 +112,7 @@
 		 * 
 		 * @param {jqObject}
 		 *            form
-		 * @returns true if form is valid
+		 * @return true if form is valid
 		 */
 		_validateForm : function(form) {
 
@@ -134,7 +134,7 @@
 			// Check to see if all ajax calls completed
 			var ajaxErrorLength = options.ajaxValidArray.length;
 			for ( var x = 0; x < ajaxErrorLength; x++) {
-				if (options.ajaxValidArray[x][1] == false) {
+				if (options.ajaxValidArray[x][1] === false) {
 					ajaxValid = false;
 					break;
 				}
@@ -178,7 +178,7 @@
 		 * 
 		 * @param {jqObject}
 		 *            field
-		 * @returns true if field is valid
+		 * @return true if field is valid
 		 */
 		_validateField : function(field, options) {
 
@@ -197,7 +197,7 @@
 		 * 
 		 * @param {jqObject}
 		 *            field
-		 * @returns true if field is valid
+		 * @return true if field is valid
 		 */
 		_validateRules : function(field, rules, options) {
 
@@ -287,7 +287,16 @@
 			
 			/* VALIDATION FUNCTIONS, will return undefined if passed, an error msg if not */
 			// orefalo: there should be a way around all these $(caller) calls, get the <br/> out of the way
-			// VALIDATE BLANK FIELD
+
+			
+			/**
+			 * Required validation
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i
+			 * @return an error string if validation failed
+			 */
 			function _required(field, rules) {
 				switch (field.attr("type")) {
 				case "test":
@@ -325,14 +334,19 @@
 				}
 			}
 			
-			
-			
-			
-			// VALIDATE REGEX RULES
+			/**
+			 * Validate Regex rules
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i
+			  * @return an error string if validation failed
+			 */
 			function _customRegex(field, rules, i) {
 				var customRule = rules[i + 1];
 				var pattern = new RegExp(options.allrules[customRule].regex);
 
+				// orefalo todo: field.vol()
 				if (!pattern.test(field.attr('value'))) {	
 					return options.allrules[customRule].alertText + "<br />";
 				}
@@ -344,20 +358,36 @@
 					return options.allrules.required.alertText + "<br />";
 				}
 			}
-			// VALIDATE CUSTOM FUNCTIONS OUTSIDE OF THE ENGINE SCOPE
+			
+			/**
+			 * Validate custom function outside of the engine scope
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i
+			 * @return an error string if validation failed
+			 */
 			function _funcCall(field, rules, i){
 				var customRule = rules[i + 1];
 				var funce = options.allrules[customRule].name;
 				
 				var fn = window[funce];
 				if (typeof(fn) === 'function') {
-					var fn_result = fn();
-					if (!fn_result) {
-						return options.allrules[customRule].alertText + "<br />";
+					var fn_result = fn(field);
+					if (fn_result !== undefined ) {
+						return fn_result + "<br />";
 					}
 				}
 				
-				// VALIDATE FIELD MATCH
+				
+					/**
+			 * Field match
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i
+			 * @return an error string if validation failed
+			 */
 				function _equals(field, rules, i){
 					var equalsField = rules[i + 1];
 					
@@ -365,14 +395,21 @@
 						return options.allrules["equals"].alertText + "<br />";
 					}
 				}
-				// VALIDATE LENGTH
+								/**
+			 * Field length
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i
+			 * @return an error string if validation failed
+			 */
 				function _length(field, rules, i){
 					// orefalo: there should be a way around the use of eval
 					var startLength = rules[i + 1];
 					var endLength = rules[i + 2];
-					var feildLength = field.attr('value').length;
+					var len = field.attr('value').length;
 					
-					if (feildLength < startLength || feildLength > endLength) {
+					if (len < startLength || len > endLength) {
 						return options.allrules["length"].alertText + startLength +
 						options.allrules["length"].alertText2 +
 						endLength +
@@ -380,18 +417,34 @@
 						"<br />";
 					}
 				}
-				// VALIDATE CHECKBOX NUMBER
+				
+				/**
+			 * Max number of checkbox selected
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i
+			 * @return an error string if validation failed
+			 */
 				function _maxCheckbox(field, rules, i){
 				
 					var nbCheck = eval(rules[i + 1]);
 					var groupname = field.attr("name");
+					// orefalo:fix bug, look in the current form
 					var groupSize = $("input[name='" + groupname + "']:checked").size();
 					if (groupSize > nbCheck) {
 						options.showTriangle = false;
 						return options.allrules["maxCheckbox"].alertText + "<br />";
 					}
 				}
-				// VALIDATE CHECKBOX NUMBER
+						/**
+			 * Min number of checkbox selected
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i
+			 * @return an error string if validation failed
+			 */
 				function _minCheckbox(field, rules, i){
 				
 					var nbCheck = eval(rules[i + 1]);
@@ -407,18 +460,20 @@
 				
 				/**
 				 * Validate AJAX rules
+				 * 
 				 * @param {Object} caller
 				 * @param {Object} rules
 				 * @param {Object} position
+				 * @return NOT SURE an error string if validation failed
 				 */
-				function _ajax(caller, rules, position){
+				function _ajax(field, rules, i){
 				
 					// orefalo: review variable scope
-					customAjaxRule = rules[position + 1];
-					postfile = options.allrules[customAjaxRule].file;
-					fieldValue = $(caller).val();
-					ajaxCaller = caller;
-					fieldId = $(caller).attr("id");
+					var customAjaxRule = rules[i + 1];
+					var postfile = options.allrules[customAjaxRule].file;
+					fieldValue = field.val();
+					ajaxCaller = field;
+					fieldId = field.attr("id");
 					ajaxValidate = true;
 					ajaxisError = $.validationEngine.isError;
 					
@@ -428,10 +483,7 @@
 					else {
 						extraData = "";
 					}
-					/*
-		 * AJAX VALIDATION HAS ITS OWN UPDATE AND BUILD UNLIKE OTHER
-		 * RULES
-		 */
+
 					if (!ajaxisError) {
 						$.ajax({
 							type: "POST",
@@ -439,9 +491,7 @@
 							async: true,
 							cache: false,
 							data: "validateValue=" + fieldValue + "&validateId=" + fieldId + "&validateError=" +
-							customAjaxRule +
-							"&extraData=" +
-							extraData,
+							customAjaxRule +"&extraData=" +	extraData,
 							beforeSend: function(){
 							
 								// BUILD A LOADING PROMPT IF LOAD TEXT EXIST
@@ -459,7 +509,7 @@
 								}
 							},
 							error: function(data, transport){
-								$.validationEngine.debug("error in the ajax: " + data.status + " " + transport);
+								$.error("ajax error: " + data.status + " " + transport);
 							},
 							success: function(data){
 								// GET SUCCESS DATA RETURN JSON
@@ -576,7 +626,7 @@
 
 			// create the css arrow pointing at the field
 			// note that there is no triangle on max-checkbox and radio
-			if (options.showTriangle != false) {
+			if (options.showTriangle !== false) {
 				var arrow = $('<div/>');
 				arrow.addClass("formErrorArrow");
 				prompt.append(arrow);
@@ -652,11 +702,8 @@
 		 */
 		_closePrompt : function(field) {
 			var prompt = methods._getPrompt(field);
-			if (prompt) {
-				prompt.fadeTo("fast", 0, function() {
-					prompt.remove();
-				});
-			}
+			if (prompt)
+				prompt.fadeTo("fast", 0, function() { prompt.remove(); });
 		},
 
 		/**
@@ -664,7 +711,7 @@
 		 * 
 		 * @param {jqObject}
 		 *            field
-		 * @returns undefined or error prompt jquery object
+		 * @return undefined or error prompt jquery object
 		 */
 		_getPrompt : function(field) {
 
@@ -684,7 +731,7 @@
 		 *            promptElmt
 		 * @param {Map}
 		 *            options
-		 * @returns positions
+		 * @return positions
 		 */
 		_calculatePosition : function(field, promptElmt, options) {
 
@@ -751,7 +798,7 @@
 		 *            form - the form where the user option should be saved
 		 * @param {Map}
 		 *            options - the user options
-		 * @returns the user options (extended from the defaults)
+		 * @return the user options (extended from the defaults)
 		 */
 		_saveOptions : function(form, options) {
 
