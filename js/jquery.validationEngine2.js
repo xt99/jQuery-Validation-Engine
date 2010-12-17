@@ -104,7 +104,6 @@
 			if (methods._validateForm(form) === false) {
 				// if the form is invalid, give control to the callback method
 				// and prevent the form submission
-				//orefalo: bug undefined
 				var options = form.data('jqv');
 				options.onFailure();
 				return false;
@@ -132,7 +131,7 @@
 				// fields being valiated though ajax are marked with 'ajaxed',
 				// skip them
 				if (!field.hasClass("ajaxed"))
-					errorFound = errorFound || methods._validateField(field, options);
+					errorFound |= methods._validateField(field, options);
 			});
 
 			// Check to see if all ajax calls completed
@@ -642,6 +641,14 @@
 				prompt.append(arrow);
 			}
 
+			// Inser prompt in the form or in the overflown container?
+			// orefalo: is this really required.. test it
+			if (options.containerOverflow)
+				field.before(prompt);
+			else
+				$("body").append(prompt);
+
+
 			var pos = methods._calculatePosition(field, prompt, options);
 			prompt.css({
 				"top" : pos.callerTopPosition,
@@ -650,13 +657,7 @@
 				"opacity" : 0
 			});
 
-			// Inser prompt in the form or in the overflown container?
-			// orefalo: is this really required.. test it
-			if (options.containerOverflow)
-				field.before(prompt.get());
-			else
-				$("body").append(prompt.get());
-
+	
 			return prompt.animate({
 				"opacity" : 0.87
 			});
@@ -720,7 +721,7 @@
 		 */
 		_getPrompt : function(field) {
 
-			var className = field.attr("id") + "formError";
+			var className = "." + field.attr("id") + "formError";
 			// remove any [ or ] caracters, which migh be used with minCheckbox
 			// validations
 			className = className.replace(/\[/g, "").replace(/\]/g, "");
@@ -742,9 +743,9 @@
 		 */
 		_calculatePosition : function(field, promptElmt, options) {
 
-			var callerTopPosition, callerleftPosition, marginTopSize;
-			var callerWidth = field.width();
-			var inputHeight = promptElmt.height();
+			var promptTopPosition, promptleftPosition, marginTopSize;
+			var fieldWidth = field.width();
+			var promptHeight = promptElmt.height();
 
 			if (!options) {
 				$.error("NO OPTIONS!");
@@ -753,13 +754,13 @@
 			var overflow = options.containerOverflow;
 			if (overflow) {
 				// Is the form contained in an overflown container?
-				callerTopPosition = callerleftPosition = 0;
+				promptTopPosition = promptleftPosition = 0;
 				// compasation for the triangle
-				marginTopSize = -inputHeight;
+				marginTopSize = -promptHeight;
 			} else {
 				var offset = field.offset();
-				callerTopPosition = offset.top;
-				callerleftPosition = offset.left;
+				promptTopPosition = offset.top;
+				promptleftPosition = offset.left;
 				marginTopSize = 0;
 			}
 
@@ -769,34 +770,34 @@
 			case "topRight":
 				if (overflow)
 					// Is the form contained in an overflown container?
-					callerleftPosition += callerWidth - 30;
+					promptleftPosition += fieldWidth - 30;
 				else {
-					callerleftPosition += callerWidth - 30;
-					callerTopPosition += -inputHeight;
+					promptleftPosition += fieldWidth - 30;
+					promptTopPosition += -promptHeight;
 				}	
 				break;
 			case "topLeft":
-				callerTopPosition += -inputHeight - 10;
+				promptTopPosition += -promptHeight - 10;
 				break;
 			case "centerRight":
-				callerleftPosition += callerWidth + 13;
+				promptleftPosition += fieldWidth + 13;
 				break;
 			case "bottomLeft":
-				callerTopPosition = callerTopPosition + field.height() + 15;
+				promptTopPosition = promptTopPosition + field.height() + 15;
 				break;
 			case "bottomRight":
-				callerleftPosition += callerWidth - 30;
-				callerTopPosition += field.height() + 5;
+				promptleftPosition += fieldWidth - 30;
+				promptTopPosition += field.height() + 5;
 			}
 
 			return {
-				"callerTopPosition" : callerTopPosition + "px",
-				"callerleftPosition" : callerleftPosition + "px",
+				"callerTopPosition" : promptTopPosition + "px",
+				"callerleftPosition" : promptleftPosition + "px",
 				"marginTopSize" : marginTopSize + "px"
 			};
 		},
 
-		/***********************************************************************
+		/**
 		 * Saves the user options and variables in the form.data
 		 * 
 		 * @param {jqObject}
@@ -851,7 +852,7 @@
 
 	};
 
-	/***
+	/**
 	 * Plugin entry point
 	 * 
 	 * @param {String}
