@@ -26,9 +26,9 @@
              * @return an error string if validation failed
              */
             function checkHELLO(field, rules, i, options){
-                if ( field.val() != "HELLO") {
+                if (field.val() != "HELLO") {
                     // this allows to use i18 for the error msgs
-					return options.allrules.validate2fields.alertText;
+                    return options.allrules.validate2fields.alertText;
                 }
             }
         </script>
@@ -89,18 +89,16 @@
                 </legend>
                 <label>
                     <span>Write 'HELLO' : </span>
-                    <input value="" class="validate[required,custom[onlyLetter],funcCall[checkHELLO],length[0,100]] text-input" type="text" id="lastname" name="lastname" />
-                </label>
+                    <input value="" class="validate[required,funcCall[checkHELLO]] text-input" type="text" id="lastname" name="lastname" />
+               <br/>class="validate[required,funcCall[checkHELLO]] 
+			    </label>
             </fieldset>
             <fieldset>
                 <legend>
                     Checkbox
                 </legend>
                 <label>
-                    ISO 8601 dates only YYYY-mm-dd
-                    <br/>
-                    <span>Date: </span>
-                    <input value="201-12-01" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
+                    Check this <a href="demoCheckbox.html">[DEMO]</a>
                 </label>
             </fieldset>
             <fieldset>
@@ -110,19 +108,71 @@
                 <label>
                     Minimum field size
                     <br/>
-                    <input value="" class="validate[required,minSize[6]] text-input" type="text" name="date" id="date" /> 
-					<br/>class="validate[required,minSize[6]]"
+                    <input value="" class="validate[required,minSize[6]] text-input" type="text" name="minsize" id="minsize" />
+                    <br/>
+                    class="validate[required,minSize[6]]"
                 </label>
             </fieldset>
-			<fieldset>
+            <fieldset>
                 <legend>
                     MaxSize
                 </legend>
                 <label>
                     Maximum field size
                     <br/>
-                    <input value="0123456789" class="validate[required,maxSize[6]] text-input" type="text" name="date" id="date" /> 
-					<br/>class="validate[required,minSize[6]]"
+                    <input value="0123456789" class="validate[required,maxSize[6]] text-input" type="text" name="maxsize" id="maxsize" />
+                    <br/>
+                    class="validate[required,maxSize[6]]"
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Min
+                </legend>
+                <label>
+                    integer [-5,
+                    <br/>
+                    <input value="-7" class="validate[required,custom[integer],min[-5]] text-input" type="text" name="min" id="min" />
+                    <br/>
+                    class="validate[required,custom[integer],min[-5]]"
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Max
+                </legend>
+                <label>
+                    integer ,50]
+                    <br/>
+                    <input value="55" class="validate[required,custom[integer],max[50]] text-input" type="text" name="max" id="max" />
+                    <br/>
+                    class="validate[required,custom[integer],max[50]]"
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Past
+                </legend>
+                <label>
+                    Checks that the value is a date in the past
+                    <br/>
+					<span>Please enter a date ealier than 2010/01/01</span>
+                    <input value="55" class="validate[custom[date],past['2010/01/01']] text-input" type="text" name="past" id="past" />
+                    <br/>
+                    class="validate[custom[date],past['2010/01/01']] "
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Future
+                </legend>
+                <label>
+                    Checks that the value is a date in the future
+                    <br/>
+					<span>Please enter a date older than today's date</span>
+                    <input value="55" class="validate[custom[date],future[]] text-input" type="text" name="future" id="future" />
+                    <br/>
+                    validate[custom[date],future[]]"
                 </label>
             </fieldset>
             <fieldset>
@@ -130,10 +180,8 @@
                     Ajax
                 </legend>
                 <label>
-                    ISO 8601 dates only YYYY-mm-dd
-                    <br/>
-                    <span>Date: </span>
-                    <input value="201-12-01" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
+                Check this <a href="demoAjax.html">[DEMO]</a>
+                    
                 </label>
             </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
         </form>
