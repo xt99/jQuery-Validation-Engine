@@ -20,8 +20,9 @@
     </head>
     <body>
         <p>
-            <a href="#" onclick="alert('is the form valid? '+$('#formID').validationEngine('validate')">Evaluate form</a>
-            | <a href="#" onclick="$('#formID').validationEngine('showPrompt', 'This is an example', 'pass')">Build a prompt on a div</a>
+            <a href="#" onclick="$('#formID').validationEngine('showPrompt', 'This is an example', 'pass')">Build a prompt on form</a>
+            | <a href="#" onclick="$('#url').validationEngine('showPrompt', 'This a custom msg', 'error')">Build a prompt on field</a>
+            | <a href="#" onclick="$('#legendid').validationEngine('showPrompt', 'This a custom msg', 'load')">Build a prompt on something else</a>
             | <a href="#" onclick="$('#formID').validationEngine('hide')">Close all prompts</a>
         </p>
         <p>
@@ -50,7 +51,7 @@
                 </label>
             </fieldset>
             <fieldset>
-                <legend>
+                <legend id="legendid">
                     Email
                 </legend>
                 <label>

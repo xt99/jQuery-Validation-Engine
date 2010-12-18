@@ -81,7 +81,10 @@
 		// orefalo: TODO
 		showPrompt : function(message, type) {
 			var elmt=this;
-			methods._closePrompt(elmt);
+			var form = $(this).closest('form');
+			var options = form.data('jqv');
+			
+			methods._showPrompt(elmt,message, type, false, options);
 		},
 
 		/**
