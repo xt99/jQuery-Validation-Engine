@@ -38,6 +38,7 @@
             <a href="#" onclick="alert('is the form valid? '+$('#formID').validationEngine('validate')">Evaluate form</a>
             | <a href="#" onclick="$('#formID').validationEngine('showPrompt', 'This is an example', 'pass')">Build a prompt on a div</a>
             | <a href="#" onclick="$('#formID').validationEngine('hide')">Close all prompts</a>
+			| <a href="#" onclick="index.html">Back to index</a>
         </p>
         <p>
             This demonstration shows the different validators available
@@ -51,9 +52,27 @@
                 <label>
                     <span>Field is required : </span>
                     <input value="" class="validate[required] text-input" type="text" name="req" id="req" />
-                    <br/>
-                    class="validate[required]"
                 </label>
+                <label>
+                    <span>Favorite sport 1:</span>
+                    <select name="sport" id="sport" class="validate[required]" id="sport">
+                        <option value="">Choose a sport</option>
+                        <option value="option1">Tennis</option>
+                        <option value="option2">Football</option>
+                        <option value="option3">Golf</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Favorite sport 2:</span>
+                    <select name="sport2" id="sport2" multiple class="validate[required]" id="sport2">
+                        <option value="">Choose a sport</option>
+                        <option value="option1">Tennis</option>
+                        <option value="option2">Football</option>
+                        <option value="option3">Golf</option>
+                    </select>
+                </label>
+                <br/>
+                class="validate[required]"
             </fieldset>
             <fieldset>
                 <legend>
@@ -90,15 +109,8 @@
                 <label>
                     <span>Write 'HELLO' : </span>
                     <input value="" class="validate[required,funcCall[checkHELLO]] text-input" type="text" id="lastname" name="lastname" />
-               <br/>class="validate[required,funcCall[checkHELLO]] 
-			    </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    Checkbox
-                </legend>
-                <label>
-                    Check this <a href="demoCheckbox.html">[DEMO]</a>
+                    <br/>
+                    class="validate[required,funcCall[checkHELLO]] 
                 </label>
             </fieldset>
             <fieldset>
@@ -156,7 +168,7 @@
                 <label>
                     Checks that the value is a date in the past
                     <br/>
-					<span>Please enter a date ealier than 2010/01/01</span>
+                    <span>Please enter a date ealier than 2010/01/01</span>
                     <input value="55" class="validate[custom[date],past['2010/01/01']] text-input" type="text" name="past" id="past" />
                     <br/>
                     class="validate[custom[date],past['2010/01/01']] "
@@ -169,7 +181,7 @@
                 <label>
                     Checks that the value is a date in the future
                     <br/>
-					<span>Please enter a date older than today's date</span>
+                    <span>Please enter a date older than today's date</span>
                     <input value="55" class="validate[custom[date],future[]] text-input" type="text" name="future" id="future" />
                     <br/>
                     validate[custom[date],future[]]"
@@ -177,13 +189,21 @@
             </fieldset>
             <fieldset>
                 <legend>
+                    Checkbox
+                </legend>
+                <label>
+                    Check this <a href="demoCheckbox.html">[DEMO]</a>
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
                     Ajax
                 </legend>
                 <label>
-                Check this <a href="demoAjax.html">[DEMO]</a>
-                    
+                    Check this <a href="demoAjax.html">[DEMO]</a>
                 </label>
-            </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
+            </fieldset>
+            <input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
         </form>
     </body>
 </html>
