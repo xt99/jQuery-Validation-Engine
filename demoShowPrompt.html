@@ -24,26 +24,16 @@
             | <a href="#" onclick="$('#formID').validationEngine('showPrompt', 'This is an example', 'pass')">Build a prompt on a div</a>
             | <a href="#" onclick="$('#formID').validationEngine('hide')">Close all prompts</a>
         </p>
+        <p>
+            This demonstration shows how you can use the API to create prompts.
+            IMPORTANT: Prompts can only apply to elements with an ID
+        </p>
         <form id="formID" class="formular" method="post" action="">
             <fieldset>
                 <legend>
                     Phone
                 </legend>
                 <label>
-                    +103-304-340-4300-043
-                    <br/>
-                    +1 305 768 23 34 ext 23
-                    <br/>
-                    +1 (305) 768-2334 extension 703
-                    <br/>
-                    +1 (305) 768-2334 x703
-                    <br/>
-                    04312 / 777 777
-                    <br/>
-                    01-47.34/32 56
-                    <br/>
-                    (01865)  123456
-                    <br/>
                     <span>Phone : </span>
                     <input value="+1 305 768 23 34 ext 23 BUG" class="validate[required,custom[phone]] text-input" type="text" name="telephone" id="telephone" />
                 </label>
@@ -68,48 +58,6 @@
                     <input value="forced_error" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
                 </label>
             </fieldset>
-            <fieldset>
-                <legend>
-                    IP Address
-                </legend>
-                <label>
-                    <span>IP: </span>
-                    <input value="192.168.3." class="validate[required,custom[ipv4]] text-input" type="text" name="ip" id="ip" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    Date
-                </legend>
-                <label>
-                    ISO 8601 dates only YYYY-mm-dd
-                    <br/>
-                    <span>Date: </span>
-                    <input value="201-12-01" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    Number
-                </legend>
-                <label>
-                    a signed floating number, ie: -3849.354, 38.00, 38, .77
-                    <br/>
-                    <span>Number: </span>
-                    <input value="-33.87a" class="validate[required,custom[number]] text-input" type="text" name="number" id="number" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    Integer
-                </legend>
-                <label>
-                    an signed integer: ie +34, 34 or -1
-                    <br/>
-                    <span>Number: </span>
-                    <input value="10.1" class="validate[required,custom[integer]] text-input" type="text" name="integer" id="integer" />
-                </label>
-            </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
         </form>
     </body>
 </html>

@@ -80,7 +80,8 @@
 
 		// orefalo: TODO
 		showPrompt : function(message, type) {
-			methods._validateForm(this);
+			var elmt=this;
+			methods._closePrompt(elmt);
 		},
 
 		/**
@@ -296,66 +297,61 @@
 				options.showArrow = false;
 			}
 
-			if (options.isError === true) {
-				var prompt = methods._getPrompt(field);
-				if (prompt)
-					methods._updatePrompt(field, promptText,"",false, options);
-				else
-					methods._buildPrompt(field, promptText,"",false, options);
-			} else
+			if (options.isError)
+				methods._showPrompt(field, promptText,"",false, options);
+			else
 				methods._closePrompt(field);
 
 			return options.isError;
 		},
 
 	
-			/**
-			 * Required validation
-			 *
-			 * @param {jqObject} field
-			 * @param {Array[String]} rules
-			 * @param {int} i rules index
-			 * @param {Map}
-			 *            user options
-			 * @return an error string if validation failed
-			 */
-			 _required: function(field, rules, i, options) {
+		/**
+		 * Required validation
+		 *
+		 * @param {jqObject} field
+		 * @param {Array[String]} rules
+		 * @param {int} i rules index
+		 * @param {Map}
+		 *            user options
+		 * @return an error string if validation failed
+		 */
+		 _required: function(field, rules, i, options) {
 				
-				switch (field.attr("type")) {
-				case "text":
-				case "password":
-				case "textarea":
-					if (!field.val()) {
-						return options.allrules[rules[i]].alertText;
-					}
-					break;
-				case "radio":
-				case "checkbox":
-					var name = field.attr("name");
-
-					if ($("input[name='" + name + "']:checked").size() === 0) {
-						
-						if ($("input[name='" + name + "']").size() === 1) {
-							return options.allrules[rules[i]].alertTextCheckboxe;
-						} else {
-							return options.allrules[rules[i]].alertTextCheckboxMultiple;
-						}
-					}
-					break;
-				case "select-one":
-					// added by paul@kinetek.net for select boxes, Thank you
-					if (!field.val()) {
-						return options.allrules[rules[i]].alertText;
-					}
-					break;
-				case "select-multiple":
-					// added by paul@kinetek.net for select boxes, Thank you
-					if (!field.find("option:selected").val()) {
-						return options.allrules[rules[i]].alertText;
-					}
-					break;
+			switch (field.attr("type")) {
+			case "text":
+			case "password":
+			case "textarea":
+				if (!field.val()) {
+					return options.allrules[rules[i]].alertText;
 				}
-			},
+				break;
+			case "radio":
+			case "checkbox":
+				var name = field.attr("name");
+				if ($("input[name='" + name + "']:checked").size() === 0) {
+					
+					if ($("input[name='" + name + "']").size() === 1) {
+						return options.allrules[rules[i]].alertTextCheckboxe;
+					} else {
+						return options.allrules[rules[i]].alertTextCheckboxMultiple;
+					}
+				}
+				break;
+			case "select-one":
+				// added by paul@kinetek.net for select boxes, Thank you
+				if (!field.val()) {
+					return options.allrules[rules[i]].alertText;
+				}
+				break;
+			case "select-multiple":
+				// added by paul@kinetek.net for select boxes, Thank you
+				if (!field.find("option:selected").val()) {
+					return options.allrules[rules[i]].alertText;
+				}
+				break;
+			}
+		},
 			
 			/**
 			 * Validate Regex rules
@@ -529,13 +525,8 @@
 							
 								// BUILD A LOADING PROMPT IF LOAD TEXT EXIST
 								var loadingText = options.allrules[customAjaxRule].alertTextLoad;
-								if (loadingText) {
-									var prompt=methods._getPrompt(field);
-									if(prompt)
-										methods._updatePrompt(field,promptText, "load", true, options);
-									else
-										methods._buildPrompt(field,promptText, "load", true, options);
-								}
+								if (loadingText)
+									methods._showPrompt(field,promptText, "load", true, options);
 							},
 							error: function(data, transport){
 								$.error("ajax error: " + data.status + " " + transport);
@@ -603,10 +594,31 @@
 				},
 
 		/**
-		 * Builds a prompt for the given field
+		 * Builds or updates a prompt with the given information
 		 * 
-		 * @param {jqObject}
-		 *            field
+		 * @param {jqObject} field
+		 * @param {String} promptText html text to display type
+		 * @param {String} type the type of bubble: 'pass' (green), 'load' (black) anything else (red)
+		 * @param {boolean} ajaxed - use to mark fields than being validated with ajax
+		 * @param {Map} options user options
+		 */
+		_showPrompt: function(field, promptText, type, ajaxed, options)  {
+			// orefalo: change the methods, have them deal with the prompt
+			var prompt = methods._getPrompt(field);
+			if (prompt)
+				methods._updatePrompt(field, promptText, type, ajaxed, options);
+			else
+				methods._buildPrompt(field, promptText, type, ajaxed, options);
+		},
+
+		/**
+		 * Builds and shades a prompt for the given field.
+		 * 
+		 * @param {jqObject} field
+		 * @param {String} promptText html text to display type
+		 * @param {String} type the type of bubble: 'pass' (green), 'load' (black) anything else (red)
+		 * @param {boolean} ajaxed - use to mark fields than being validated with ajax
+		 * @param {Map} options user options
 		 */
 		_buildPrompt : function(field, promptText, type, ajaxed, options) {
 
@@ -659,7 +671,6 @@
 			//else
 			//	$("body").append(prompt);
 
-
 			var pos = methods._calculatePosition(field, prompt, options);
 			prompt.css({
 				"top" : pos.callerTopPosition,
@@ -677,9 +688,11 @@
 
 		/**
 		 * Updates the prompt text field - the field for which the prompt
-		 * applies promptText - html text to display type - the type of bubble:
-		 * 'pass' (green), 'load' (green) ajaxted - if true options - the form
-		 * options (optional) - which be resolved if not present
+		 * @param {jqObject} field
+		 * @param {String} promptText html text to display type
+		 * @param {String} type the type of bubble: 'pass' (green), 'load' (black) anything else (red)
+		 * @param {boolean} ajaxed - use to mark fields than being validated with ajax
+		 * @param {Map} options user options
 		 */
 		_updatePrompt : function(field, promptText, type, ajaxed, options) {
 
@@ -848,9 +861,8 @@
 				binded : false,
 				// set to true, when the prompt arrow needs to be displayed
 				showArrow : true,
-				
-				
-				
+
+
 				success : false,
 				ajaxSubmit : false,
 				ajaxValidArray : [],
@@ -862,7 +874,6 @@
 			form.data('jqv', userOptions);
 			return userOptions;
 		}
-
 	};
 
 	/**
