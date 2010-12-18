@@ -27,9 +27,8 @@
     </head>
     <body>
         <p>
-            <a href="#" onclick="alert('is the form valid? '+$('#formID').validationEngine('validate')">Evaluate form</a>
-            | <a href="#" onclick="$('#formID').validationEngine('showPrompt', 'This is an example', 'pass')">Build a prompt on a div</a>
-            | <a href="#" onclick="$('#formID').validationEngine('hide')">Close all prompts</a>
+            <a href="#" onclick="alert('is the form valid? '+$('#formID1').validationEngine('validate')">Evaluate form</a>
+           | <a href="#" onclick="$('#formID1').validationEngine('hideAll')">Close all prompts</a>
         </p>
 		<p>
 			This demonstration shows the use of multiple forms on the same page.<br/>
@@ -92,7 +91,9 @@
                                     <span>IP: </span>
                                     <input value="192.168.3." class="validate[required,custom[ipv4]] text-input" type="text" name="ip" id="ip" />
                                 </label>
-                            </fieldset><input class="submit" type="submit" value="Validate & Send the form!" /><hr/>
+                            </fieldset><input class="submit" type="submit" value="Validate & Send the form!" />
+							 <a href="#" onclick="$('#formID1').validationEngine('hide')">Hide prompts</a>
+							<hr/>
                         </form>
                     </td>
                     <td>
