@@ -331,7 +331,7 @@
 					break;
 				case "radio":
 				case "checkbox":
-					var name = obj.attr("name");
+					var name = field.attr("name");
 
 					if ($("input[name='" + name + "']:checked").size() === 0) {
 						
@@ -892,7 +892,7 @@
 
 		var form = $(this);
 		// skip _methods
-		if (method && method.charAt(0) != '_' && methods[method]) {
+		if (typeof(method)==='string' && method.charAt(0) != '_' && methods[method]) {
 			// make sure init is being called at least once
 			methods.init.apply(form);
 			return methods[method].apply(form, Array.prototype.slice.call(arguments, 1));
