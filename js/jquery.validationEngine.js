@@ -9,6 +9,13 @@
  * and everyone helping me find bugs on the forum
  * Licenced under the MIT Licence
  */
+// TODO: field hook doesn't work
+// TODO: hook browser resize -> reposition prompts
+// TODO: bug, prompt positioning 
+// TODO: multiple forms: positionning issue
+// TODO: test ajax using node.js
+// TODO: build demo pages
+// TODO: write documentation
 (function($) {
 
 	var methods = {
@@ -216,15 +223,13 @@
 		 */
 		_validateRules : function(field, rules, options) {
 
-			
-
 			if (!field.attr("id"))
 				$.error("jQueryValidate: an ID attribute is required for this field: " + field.attr("name") + " class:"
 						+ field.attr("class"));
 
 			var ajaxValidate = false;	
 
-			// orefalo: review if we shoudl store these variable in options
+			// orefalo: review if we should store these variable in options
 			options.isError = false;
 			options.showArrow = true;
 			var promptText = "";
@@ -247,14 +252,9 @@
 				case "custom":
 					errorMsg=methods._customRegex(field, rules, i, options);
 					break;
-				// orefalo: review do we need this case ?
-				case "exemptString":
-					errorMsg=methods._exemptString(field, rules, i, options);
-					break;
 				case "ajax":
 					// ajax has its own prompts handling technique
-					if (!options.onSubmitValid)
-						methods._ajax(field, rules, i, options);
+					methods._ajax(field, rules, i, options);
 					break;
 				case "length":
 					errorMsg=methods._length(field, rules, i, options);
@@ -388,9 +388,8 @@
 			 */
 			 _exemptString:function(field, rules, i, options) {
 				var customString = rules[i + 1];
-				if (field.attr('value') == customString ) {
+				if (field.attr('value') == customString )
 					return options.allrules.required.alertText;
-				}
 			},
 			
 			/**
@@ -404,16 +403,13 @@
 			 * @return an error string if validation failed
 			 */
 			_funcCall:function (field, rules, i, options){
-				var customRule = rules[i + 1];
-				var funce = options.allrules[customRule].name;
+				var functionName = rules[i + 1];
+				//var funce = options.allrules[customRule].name;
 				
-				var fn = window[funce];
-				if (typeof(fn) === 'function') {
-					var fn_result = fn(field, rules, i);
-					if (fn_result !== undefined ) {
-						return fn_result;
-					}
-				}
+				var fn = window[functionName];
+				if (typeof(fn) === 'function')
+					return fn(field, rules, i, options);
+				
 			},
 				
 			/**
@@ -429,9 +425,8 @@
 			_equals:	function (field, rules, i, options){
 					var equalsField = rules[i + 1];
 					
-					if (field.attr('value') != $("#" + equalsField).attr('value')) {
+					if (field.attr('value') != $("#" + equalsField).attr('value'))
 						return options.allrules["equals"].alertText;
-					}
 				},
 			/**
 			 * Field length
@@ -519,13 +514,10 @@
 					var ajaxValidate = true;
 					var ajaxisError = option.isError;
 					
-					if (options.allrules[customAjaxRule].extraData) {
+					var extraData = "";
+					if (options.allrules[customAjaxRule].extraData)
 						extraData = options.allrules[customAjaxRule].extraData;
-					}
-					else {
-						extraData = "";
-					}
-
+				
 					if (!ajaxisError) {
 						$.ajax({
 							type: "POST",
@@ -630,7 +622,6 @@
 			prompt.addClass(field.attr("id") + "formError");
 			prompt.addClass("formError");
 			
-			
 			switch (type) {
 			case "pass":
 				prompt.addClass("greenPopup");
@@ -643,19 +634,12 @@
 
 			// create the prompt content
 			var promptContent = $('<div>').addClass("formErrorContent").html(promptText).appendTo(prompt);
-			//prompt.append(promptContent);
-
-			if (!options) {
-				// get the options if they were not passed as parameters
-				var form = field.closest('form');
-				options = form.data('jqv');
-			}
-
+			
 			// create the css arrow pointing at the field
 			// note that there is no triangle on max-checkbox and radio
 			if (options.showArrow) {
 				var arrow = $('<div>').addClass("formErrorArrow");
-				
+				prompt.append(arrow);
 				switch (options.promptPosition) {
 				case "bottomLeft":
 				case "bottomRight":
@@ -666,7 +650,6 @@
 					arrow.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
 					break;
 				}
-				prompt.append(arrow);
 			}
 
 			// insert prompt in the form or in the overflown container?
@@ -866,12 +849,12 @@
 				// set to true, when the prompt arrow needs to be displayed
 				showArrow : true,
 				
+				
+				
 				success : false,
-
 				ajaxSubmit : false,
 				ajaxValidArray : [],
 				ajaxValid : true,
-				onSubmitValid : true,
 
 				isError : false
 			}, options);

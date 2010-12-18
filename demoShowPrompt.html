@@ -24,9 +24,6 @@
             | <a href="#" onclick="$('#formID').validationEngine('showPrompt', 'This is an example', 'pass')">Build a prompt on a div</a>
             | <a href="#" onclick="$('#formID').validationEngine('hide')">Close all prompts</a>
         </p>
-        <p>
-            This demonstration shows how to use the predefined regular expressions 
-        </p>
         <form id="formID" class="formular" method="post" action="">
             <fieldset>
                 <legend>
@@ -111,33 +108,6 @@
                     <br/>
                     <span>Number: </span>
                     <input value="10.1" class="validate[required,custom[integer]] text-input" type="text" name="integer" id="integer" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    NoSpecialCaracters
-                </legend>
-                <label>
-                    <span>only [0-9a-zA-Z]</span>
-                    <input value="too many spaces obviously" class="validate[required,custom[noSpecialCaracters]] text-input" type="text" name="special" id="special" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    OnlyNumber
-                </legend>
-                <label>
-                    <span>only numbers and space</span>
-                    <input value="10.1bug" class="validate[required,custom[onlyNumber]] text-input" type="text" name="onlynumber" id="onlynumber" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    OnlyLetter
-                </legend>
-                <label>
-                    <span>only ascii letters, space and '</span>
-                    <input value="this is an invalid char '.'" class="validate[required,custom[onlyLetter]] text-input" type="text" name="onlyascii" id="onlyascii" />
                 </label>
             </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
         </form>

@@ -16,6 +16,21 @@
                 // binds form submission and fields to the validation engine
                 $("#formID").validationEngine('attach');
             });
+            
+            /**
+             *
+             * @param {jqObject} the field where the validation applies
+             * @param {Array[String]} validation rules for this field
+             * @param {int} rule index
+             * @param {Map} form options
+             * @return an error string if validation failed
+             */
+            function checkHELLO(field, rules, i, options){
+                if ( field.val() != "HELLO") {
+                    // this allows to use i18 for the error msgs
+					return options.allrules.validate2fields.alertText;
+                }
+            }
         </script>
     </head>
     <body>
@@ -25,64 +40,61 @@
             | <a href="#" onclick="$('#formID').validationEngine('hide')">Close all prompts</a>
         </p>
         <p>
-            This demonstration shows how to use the predefined regular expressions 
+            This demonstration shows the different validators available
+            <br/>
         </p>
         <form id="formID" class="formular" method="post" action="">
             <fieldset>
                 <legend>
-                    Phone
+                    Required
                 </legend>
                 <label>
-                    +103-304-340-4300-043
+                    <span>Field is required : </span>
+                    <input value="" class="validate[required] text-input" type="text" name="req" id="req" />
                     <br/>
-                    +1 305 768 23 34 ext 23
-                    <br/>
-                    +1 (305) 768-2334 extension 703
-                    <br/>
-                    +1 (305) 768-2334 x703
-                    <br/>
-                    04312 / 777 777
-                    <br/>
-                    01-47.34/32 56
-                    <br/>
-                    (01865)  123456
-                    <br/>
-                    <span>Phone : </span>
-                    <input value="+1 305 768 23 34 ext 23 BUG" class="validate[required,custom[phone]] text-input" type="text" name="telephone" id="telephone" />
+                    class="validate[required]"
                 </label>
             </fieldset>
             <fieldset>
                 <legend>
-                    URL
+                    Custom
                 </legend>
                 <label>
-                    URL begin with http:// https:// or fpl://
+                    Comes with many predifined regex (phone, url, ip, email..etc) <a href="demoRegExp.html">[DEMO]</a>
                     <br/>
                     <span>Enter a URL : </span>
                     <input value="http://" class="validate[required,custom[url]] text-input" type="text" name="url" id="url" />
+                    <br/>
+                    class="validate[required,custom[url]]"
                 </label>
             </fieldset>
             <fieldset>
                 <legend>
-                    Email
+                    Equals
                 </legend>
                 <label>
-                    <span>Email address : </span>
-                    <input value="forced_error" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
+                    <span>Password : </span>
+                    <input value="karnius" class="validate[required] text-input" type="password" name="password" id="password" />
+                </label>
+                <label>
+                    <span>Confirm password : </span>
+                    <input value="kaniusBAD" class="validate[required,equals[password]] text-input" type="password" name="password2" id="password2" />
+                    <br/>
+                    class="validate[required,equals[password]]"
                 </label>
             </fieldset>
             <fieldset>
                 <legend>
-                    IP Address
+                    Function
                 </legend>
                 <label>
-                    <span>IP: </span>
-                    <input value="192.168.3." class="validate[required,custom[ipv4]] text-input" type="text" name="ip" id="ip" />
+                    <span>Write 'HELLO' : </span>
+                    <input value="" class="validate[required,custom[onlyLetter],funcCall[checkHELLO],length[0,100]] text-input" type="text" id="lastname" name="lastname" />
                 </label>
             </fieldset>
             <fieldset>
                 <legend>
-                    Date
+                    Checkbox
                 </legend>
                 <label>
                     ISO 8601 dates only YYYY-mm-dd
@@ -93,51 +105,35 @@
             </fieldset>
             <fieldset>
                 <legend>
-                    Number
+                    MinSize
                 </legend>
                 <label>
-                    a signed floating number, ie: -3849.354, 38.00, 38, .77
+                    Minimum field size
                     <br/>
-                    <span>Number: </span>
-                    <input value="-33.87a" class="validate[required,custom[number]] text-input" type="text" name="number" id="number" />
+                    <input value="" class="validate[required,minSize[6]] text-input" type="text" name="date" id="date" /> 
+					<br/>class="validate[required,minSize[6]]"
                 </label>
             </fieldset>
-            <fieldset>
+			<fieldset>
                 <legend>
-                    Integer
+                    MaxSize
                 </legend>
                 <label>
-                    an signed integer: ie +34, 34 or -1
+                    Maximum field size
                     <br/>
-                    <span>Number: </span>
-                    <input value="10.1" class="validate[required,custom[integer]] text-input" type="text" name="integer" id="integer" />
+                    <input value="0123456789" class="validate[required,maxSize[6]] text-input" type="text" name="date" id="date" /> 
+					<br/>class="validate[required,minSize[6]]"
                 </label>
             </fieldset>
             <fieldset>
                 <legend>
-                    NoSpecialCaracters
+                    Ajax
                 </legend>
                 <label>
-                    <span>only [0-9a-zA-Z]</span>
-                    <input value="too many spaces obviously" class="validate[required,custom[noSpecialCaracters]] text-input" type="text" name="special" id="special" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    OnlyNumber
-                </legend>
-                <label>
-                    <span>only numbers and space</span>
-                    <input value="10.1bug" class="validate[required,custom[onlyNumber]] text-input" type="text" name="onlynumber" id="onlynumber" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    OnlyLetter
-                </legend>
-                <label>
-                    <span>only ascii letters, space and '</span>
-                    <input value="this is an invalid char '.'" class="validate[required,custom[onlyLetter]] text-input" type="text" name="onlyascii" id="onlyascii" />
+                    ISO 8601 dates only YYYY-mm-dd
+                    <br/>
+                    <span>Date: </span>
+                    <input value="201-12-01" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
                 </label>
             </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
         </form>
