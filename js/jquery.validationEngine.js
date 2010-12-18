@@ -1,1560 +1,906 @@
 /*
  * Inline Form Validation Engine 1.7.3, jQuery plugin
- * 
+ *
  * Copyright(c) 2010, Cedric Dugas
  * http://www.position-absolute.com
- *	
+ *
  * Form validation engine allowing custom regex rules to be added.
- * Thanks to Francois Duquette and Teddy Limousin 
+ * Thanks to Francois Duquette and Teddy Limousin
  * and everyone helping me find bugs on the forum
  * Licenced under the MIT Licence
  */
-
-// orefalo:TODO: create an attach() and detach() method
 (function($) {
 
-	$.fn.validationEngine = function(settings) {
-		// IS THERE A LANGUAGE LOCALISATION ?
-		if ($.validationEngineLanguage) {
-			allRules = $.validationEngineLanguage.allRules;
-		} else {
-			$.validationEngine.debug("Validation engine rules are not loaded check your external file");
-		}
-		settings = jQuery.extend({
-			allrules : allRules,
-			// orefalo: works with liveEvent - figure it out
-			validationEventTriggers : "focusout",
-			// When set to false, validation only happens when you submit the form
-			ontheflyValidation : true,
-			// if set to true, you can call the validation manually in JS
-			// form.validationEngine({evaluate:true}) -> return true if no error and displays prompts otherwise
-			// orefalo: this field should not even be visible -> create a method validate()
-			evaluate : false,
-			liveEvent : false,
-			// Opens a debug DIV for logging
-			openDebug : false,
-			// By default, the engine unbinds itself once the submit button is clicked
-			unbindEngine : true,
-			
-			// used when the form is displayed within a frame
-			containerOverflow : false,
-			containerOverflowDOM : "",
-			
-			ajaxSubmit : false,
-			// Automatically scroll viewport to the first error
-			scroll : true,
-			// Opening box position, possible locations are: topLeft, topRight,
-			// bottomLeft, centerRight, bottomRight
-			promptPosition : "topRight",
-			success : false,
-			// callback method when the validation fails
-			failure : $.noop()
-		}, settings);
-		
-		$.validationEngine.settings = settings;
-		
-		// ARRAY FOR AJAX: VALIDATION MEMORY
-		$.validationEngine.ajaxValidArray = [];
+	var methods = {
 
-		// Validating Inline ?
-		if (settings.ontheflyValidation === true) {
-			if (!settings.evaluate) {
+		init : function(options) {
 
-				// LIVE event, vast performance improvement over BIND
-				if (settings.liveEvent) {
-					$(this).find("[class*=validate]").live(settings.validationEventTriggers, function(caller) {
-						if ($(caller).attr("type") != "checkbox")
-							_inlinEvent(this);
+			var form = this;
+			if (form.data('jqv') === undefined) {
+				methods._saveOptions(form, options);
+
+				// bind all formError elements to close on click
+				$(".formError").live("click", function() {
+					$(this).fadeOut(150, function() {
+
+						// remove prompt once invisible
+						$(this).remove();
 					});
-					$(this).find("[class*=validate][type=checkbox]").live("click", function(caller) {
-						_inlinEvent(this);
-					});
-				} else {
-					$(this).find("[class*=validate]").not("[type=checkbox]").bind(settings.validationEventTriggers,
-							function(caller) {
-								_inlinEvent(this);
-							});
-					$(this).find("[class*=validate][type=checkbox]").bind("click", function(caller) {
-						_inlinEvent(this);
-					});
-				}
+				});
 			}
-
-			function _inlinEvent(caller) {
-				$.validationEngine.settings = settings;
-
-				// orefalo: does this test make sense?
-				// STOP INLINE VALIDATION THIS TIME ONLY
-				if ($.validationEngine.intercept === false || !$.validationEngine.intercept) {
-					$.validationEngine.onSubmitValid = false;
-					$.validationEngine.loadValidation(caller);
-				} else {
-					$.validationEngine.intercept = false;
-				}
-			}
-		}
-		// Do validation and return true or false, it bypass everything;
-		if (settings.evaluate) {
-			// important: return true if NO errors
-			return !$.validationEngine.submitValidation(this, settings);
-		}
-		// ON FORM SUBMIT, CONTROL AJAX FUNCTION IF SPECIFIED ON DOCUMENT READY
-		$(this).bind("submit", function(caller) {
-			$.validationEngine.onSubmitValid = true;
-			$.validationEngine.settings = settings;
-			if ($.validationEngine.submitValidation(this, settings) === false) {
-				if ($.validationEngine.submitForm(this, settings) === true)
-					return false;
-			} else {
-				// give control to the callback method, if defined
-				settings.failure && settings.failure();
-				return false;
-			}
-		});
-
-		// bind all formError elemets to close on click
-		$(".formError").live("click", function() {
-			$(this).fadeOut(150, function() {
-				$(this).remove();
-			});
-		});
-	};
-	
-	
-	// orefalo: refactoring
-	$.fn.validationEngine2 = function(settings) {
-		// IS THERE A LANGUAGE LOCALISATION ?
-		if ($.validationEngineLanguage) {
-			allRules = $.validationEngineLanguage.allRules;
-		} else {
-			$.validationEngine.debug("Validation engine rules are not loaded check your external file");
-		}
-		settings = jQuery.extend({
-			allrules : allRules,
-			// orefalo: works with liveEvent - figure it out
-			validationEventTriggers : "focusout",
-			// When set to false, validation only happens when you submit the form
-			ontheflyValidation : true,
-			// if set to true, you can call the validation manually in JS
-			// form.validationEngine({evaluate:true}) -> return true if no error and displays prompts otherwise
-			// orefalo: this field should not even be visible -> create a method validate()
-			evaluate : false,
-			liveEvent : false,
-			// Opens a debug DIV for logging
-			openDebug : false,
-			// By default, the engine unbinds itself once the submit button is clicked
-			unbindEngine : true,
-			
-			// used when the form is displayed within a frame
-			containerOverflow : false,
-			containerOverflowDOM : "",
-			
-			ajaxSubmit : false,
-			// Automatically scroll viewport to the first error
-			scroll : true,
-			// Opening box position, possible locations are: topLeft, topRight,
-			// bottomLeft, centerRight, bottomRight
-			promptPosition : "topRight",
-			success : false,
-			// callback method when the validation fails
-			failure : $.noop()
-		}, settings);
-		
-		$.validationEngine.settings = settings;
-		
-		// ARRAY FOR AJAX: VALIDATION MEMORY
-		$.validationEngine.ajaxValidArray = [];
-
-		// Validating Inline ?
-		if (settings.ontheflyValidation === true) {
-			if (!settings.evaluate) {
-
-				// LIVE event, vast performance improvement over BIND
-				if (settings.liveEvent) {
-					$(this).find("[class*=validate]").live(settings.validationEventTriggers, function(caller) {
-						if ($(caller).attr("type") != "checkbox")
-							_inlinEvent(this);
-					});
-					$(this).find("[class*=validate][type=checkbox]").live("click", function(caller) {
-						_inlinEvent(this);
-					});
-				} else {
-					$(this).find("[class*=validate]").not("[type=checkbox]").bind(settings.validationEventTriggers,
-							function(caller) {
-								_inlinEvent(this);
-							});
-					$(this).find("[class*=validate][type=checkbox]").bind("click", function(caller) {
-						_inlinEvent(this);
-					});
-				}
-			}
-
-			function _inlinEvent(caller) {
-				$.validationEngine.settings = settings;
-
-				// orefalo: does this test make sense?
-				// STOP INLINE VALIDATION THIS TIME ONLY
-				if ($.validationEngine.intercept === false || !$.validationEngine.intercept) {
-					$.validationEngine.onSubmitValid = false;
-					$.validationEngine.loadValidation(caller);
-				} else {
-					$.validationEngine.intercept = false;
-				}
-			}
-		}
-		// Do validation and return true or false, it bypass everything;
-		if (settings.evaluate) {
-			// important: return true if NO errors
-			return !$.validationEngine.submitValidation(this, settings);
-		}
-		// ON FORM SUBMIT, CONTROL AJAX FUNCTION IF SPECIFIED ON DOCUMENT READY
-		$(this).bind("submit", function(caller) {
-			$.validationEngine.onSubmitValid = true;
-			$.validationEngine.settings = settings;
-			if ($.validationEngine.submitValidation(this, settings) === false) {
-				if ($.validationEngine.submitForm(this, settings) === true)
-					return false;
-			} else {
-				// give control to the callback method, if defined
-				settings.failure && settings.failure();
-				return false;
-			}
-		});
-
-		// bind all formError elemets to close on click
-		$(".formError").live("click", function() {
-			$(this).fadeOut(150, function() {
-				$(this).remove();
-			});
-		});
-	};
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	$.validationEngine = {
-		
-		
-		
-		// NOT GENERALLY USED, NEEDED FOR THE API, DO NOT TOUCH
-		defaultSetting : function(caller) {
-			if ($.validationEngineLanguage) {
-				allRules = $.validationEngineLanguage.allRules;
-			} else {
-				$.validationEngine.debug("Validation engine rules are not loaded check your external file");
-			}
-			settings = {
-				allrules : allRules,
-				validationEventTriggers : "blur",
-				ontheflyValidation : true,
-				containerOverflow : false,
-				containerOverflowDOM : "",
-				evaluate : false,
-				scroll : true,
-				unbindEngine : true,
-				ajaxSubmit : false,
-				promptPosition : "topRight",
-				success : false,
-				failure : $.noop()
-			};
-			$.validationEngine.settings = settings;
 		},
-		// Parses css class, evaluates rules for the caller and returns true if an validation error was raised
-		loadValidation : function(caller) {
-			var obj=$(caller);
-			
-			if (!$.validationEngine.settings)
-				$.validationEngine.defaultSetting();
-			var rulesParsing = obj.attr('class');
+
+		attach : function() {
+			var form = this;
+			var options = form.data('jqv');
+			if (!options.binded) {
+
+				// bind fields
+				form.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTriggers,
+						methods._onFieldEvent);
+				form.find("[class*=validate][type=checkbox]").bind("click", methods._onFieldEvent);
+
+				// bind form.submit
+				form.bind("submit", methods._onSubmitEvent);
+				options.binded = true;
+			}
+
+		},
+
+		detach : function() {
+			var form = this;
+			var options = f.data('jqv');
+			if (options.binded) {
+				// unbind fields
+				form.find("[class*=validate]").not("[type=checkbox]").unbind(options.validationEventTriggers,
+						methods._onFieldEvent);
+				form.find("[class*=validate][type=checkbox]").unbind("click", methods._onFieldEvent);
+
+				// unbind form.submit
+				form.unbind("submit", methods._onSubmitEvent);
+				form.removeData('jqv');
+			}
+		},
+
+		/**
+		 * Validates the form, shows prompts accordingly
+		 * 
+		 * @return true if the form validates
+		 */
+		validate : function() {
+			return methods._validateForm(this);
+		},
+
+		// orefalo: TODO
+		showPrompt : function(message, type) {
+			methods._validateForm(this);
+		},
+
+		/**
+		 * Closes all error prompts
+		 */
+		hide : function() {
+			$('.formError').fadeTo("fast", 0.3, function() {
+				$(this).remove();
+			});
+		},
+
+		/**
+		 * Called when user exists a field, typically triggers a field
+		 * validation
+		 */
+		_onFieldEvent : function() {
+			var form = $(this).closest('form');
+			var options = form.data('jqv');
+			// validate the current field
+			methods._validateField(form, options);
+		},
+
+		/**
+		 * Called when the form is submited, shows prompts accordingly
+		 * 
+		 * @param {jqObject}
+		 *            form
+		 * @return false if form submission needs to be cancelled
+		 */
+		_onSubmitEvent : function() {
+
+			var form=$(this);
+			if (methods._validateForm(form) === false) {
+				// if the form is invalid, give control to the callback method
+				// and prevent the form submission
+				var options = form.data('jqv');
+				options.onFailure();
+				return false;
+			}
+		},
+
+		/**
+		 * Validates form, shows prompts accordingly
+		 * 
+		 * @param {jqObject}
+		 *            form
+		 * @return true if form is valid
+		 */
+		_validateForm : function(form) {
+
+			var options = form.data('jqv');
+
+			// this variable is set to true if an error is found
+			var errorFound = false;
+			var ajaxValid = true;
+
+			// evaluate status of each non ajax fields
+			form.find("[class*=validate]").each(function() {
+				var field = $(this);
+				// fields being valiated though ajax are marked with 'ajaxed',
+				// skip them
+				if (!field.hasClass("ajaxed"))
+					errorFound |= methods._validateField(field, options);
+			});
+
+			// Check to see if all ajax calls completed
+			var ajaxErrorLength = options.ajaxValidArray.length;
+			for ( var x = 0; x < ajaxErrorLength; x++) {
+				if (options.ajaxValidArray[x][1] === false) {
+					ajaxValid = false;
+					break;
+				}
+			}
+
+			// if an error was raised, scroll the container
+			if (errorFound || !ajaxValid) {
+				if (options.scroll) {
+					if (!options.containerOverflow) {
+
+						// get the position of the first error
+						var destination = $(".formError:not('.greenPopup'):first", form).offset().top;
+						$(".formError:not('.greenPopup')").each(function() {
+							var testDestination = $(this).offset().top;
+							if (destination > testDestination)
+								destination = $(this).offset().top;
+						});
+						$("html:not(:animated),body:not(:animated)").animate({
+							scrollTop : destination
+						}, 1100);
+					} else {
+						// orefalo: debug, search in the form
+						var destination = $(".formError:not('.greenPopup'):first").offset().top;
+						var scrollContainerScroll = $(options.containerOverflowDOM).scrollTop();
+						var scrollContainerPos = -parseInt($(options.containerOverflowDOM).offset().top);
+
+						destination += scrollContainerScroll + scrollContainerPos - 5;
+						var scrollContainer = options.containerOverflowDOM + ":not(:animated)";
+
+						$(scrollContainer).animate({
+							scrollTop : destination
+						}, 1100);
+					}
+				}
+				return false;
+			}
+			return true;
+
+		},
+		/**
+		 * Validates field, shows prompts accordingly
+		 * 
+		 * @param {jqObject}
+		 *            field
+		 * @param {Map}
+		 *            user options
+		 * @return true if field is valid, false otehrwise
+		 */
+		_validateField : function(field, options) {
+
+			var rulesParsing = field.attr('class');
 			var getRules = /\[(.*)\]/.exec(rulesParsing);
 			if (getRules === null)
 				return false;
 			var str = getRules[1];
-			var pattern = /\[|,|\]/;
-			var inputRules = str.split(pattern);
-			return $.validationEngine.validateCall(caller, inputRules);
-		},
-		// orefalo: same as above, refactoring in progress
-		validateField : function(elmt) {
-			
-			if (!$.validationEngine.settings)
-				$.validationEngine.defaultSetting();
-			var rulesParsing = elmt.attr('class');
-			var getRules = /\[(.*)\]/.exec(rulesParsing);
-			if (getRules === null)
-				return false;
-			var str = getRules[1];
-			var inputRules = str.split(/\[|,|\]/);
-			return $.validationEngine.validateRules(elmt, inputRules);
-		},
-		
-		
-		// evaluates rules for the caller and returns true if an validation error was raised
-		// orefalo: same as validateCall, refactoring in process
-		// this method is never call from the outside, think about merging with validateField
-		validateRules : function(elmt, rules) {
+			var rules = str.split(/\[|,|\]/);
+			return methods._validateRules(field, rules, options);
 
-			// because of the async nature of the ajax call, we need to use a global
+		},
+
+		/**
+		 * Validates field against the given rules, shows prompts accordingly
+		 * 
+		 * @param {jqObject}
+		 *            field
+		 * @param {Array[String]}
+		 *            field's validation rules
+		 * @param {Map}
+		 *            user options
+		 * @return true if field is valid
+		 */
+		_validateRules : function(field, rules, options) {
+
+			
+
+			if (!field.attr("id"))
+				$.error("jQueryValidate: an ID attribute is required for this field: " + field.attr("name") + " class:"
+						+ field.attr("class"));
+
+			var ajaxValidate = false;	
+
+			// orefalo: review if we shoudl store these variable in options
+			options.isError = false;
+			options.showArrow = true;
 			var promptText = "";
-
-			if (!elmt.attr("id"))
-				$.validationEngine.debug("This field has no ID attribute name: " + elmt.attr("name") + " class:"
-						+ elmt.attr("class"));
-
-			ajaxValidate = false;
-			var callerName = elmt.attr("name");
 			
-			// orefalo: this should be moved to the default settings
-			$.validationEngine.isError = false;
-			$.validationEngine.showTriangle = true;
-			
-			var callerType = elmt.attr("type");
-
 			for ( var i = 0; i < rules.length; i++) {
+
+				var errorMsg = undefined;
 				switch (rules[i]) {
+				
+				// orefalo: review do we need this case ?
 				case "optional":
-					if (!elmt.val()) {
-						$.validationEngine.closePrompt2(elmt);
-						return $.validationEngine.isError;
+					if (!field.val()) {
+						methods._closePrompt(field);
+						return options.isError;
 					}
 					break;
 				case "required":
-					_required(elmt, rules);
+					errorMsg=methods._required(field, rules, i, options);
 					break;
 				case "custom":
-					_customRegex(elmt, rules, i);
+					errorMsg=methods._customRegex(field, rules, i, options);
 					break;
+				// orefalo: review do we need this case ?
 				case "exemptString":
-					_exemptString(elmt, rules, i);
+					errorMsg=methods._exemptString(field, rules, i, options);
 					break;
 				case "ajax":
-					if (!$.validationEngine.onSubmitValid)
-						_ajax(elmt, rules, i);
+					// ajax has its own prompts handling technique
+					if (!options.onSubmitValid)
+						methods._ajax(field, rules, i, options);
 					break;
 				case "length":
-					_length(elmt, rules, i);
+					errorMsg=methods._length(field, rules, i, options);
 					break;
 				case "maxCheckbox":
-					_maxCheckbox(elmt, rules, i);
-					groupname = elmt.attr("name");
+					errorMsg=methods._maxCheckbox(field, rules, i, options);
+					var groupname = field.attr("name");
+					// orefalo a revoir
 					caller = $("input[name='" + groupname + "']");
 					break;
 				case "minCheckbox":
-					_minCheckbox(elmt, rules, i);
-					groupname = elmt.attr("name");
+					errorMsg=methods._minCheckbox(field, rules, i, options);
+					var groupname = field.attr("name");
+					// orefalo a revoir
 					caller = $("input[name='" + groupname + "']");
 					break;
 				case "equals":
-					_equals(elmt, rules, i);
+					errorMsg=methods._equals(field, rules, i, options);
 					break;
 				case "funcCall":
-					_funcCall(elmt, rules, i);
+					errorMsg=methods._funcCall(field, rules, i, options);
 					break;
 				default:
+					//$.error("jQueryValidator rule not found"+rules[i]);
 				}
-			}
-			radioHack();
-			if ($.validationEngine.isError === true) {
-				var linkTofieldText = "." + $.validationEngine.linkTofield(caller);
-				if (linkTofieldText != ".") {
-					if (!$(linkTofieldText)[0]) {
-						$.validationEngine.buildPrompt(caller, promptText, "error");
-					} else {
-						$.validationEngine.updatePromptText(caller, promptText);
-					}
-				} else {
-					$.validationEngine.updatePromptText(caller, promptText);
+				
+				if(errorMsg !== undefined) {
+					promptText += errorMsg + "<br/>";
+					options.isError = true;
 				}
-			} else {
-				$.validationEngine.closePrompt(caller);
+
 			}
-			/* UNFORTUNATE RADIO AND CHECKBOX GROUP HACKS */
-			/*
-			 * As my validation is looping input with id's we need a hack for my
-			 * validation to understand to group these inputs
+			// Hack for radio/checkbox group button, the validation go into the
+			// first radio/checkbox of the group
+			var fieldType = field.attr("type");
+			var fieldName = field.attr("name");
+			if ((fieldType == "radio" || fieldType == "checkbox") && $("input[name='" + fieldName + "']").size() > 1) {
+				caller = $("input[name='" + callerName + "'][type!=hidden]:first");
+				options.showArrow = false;
+			}
+
+			if (options.isError === true) {
+				var prompt = methods._getPrompt(field);
+				if (prompt)
+					methods._updatePrompt(field, promptText,"",false, options);
+				else
+					methods._buildPrompt(field, promptText,"",false, options);
+			} else
+				methods._closePrompt(field);
+
+			return options.isError;
+		},
+
+	
+			/**
+			 * Required validation
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i rules index
+			 * @param {Map}
+			 *            user options
+			 * @return an error string if validation failed
 			 */
-			// Hack for radio/checkbox group button, the validation go the first
-			// radio/checkbox of the group
-			function radioHack() {
-				if ($("input[name='" + callerName + "']").size() > 1 && (callerType == "radio" || callerType == "checkbox")) 
-				{
-					caller = $("input[name='" + callerName + "'][type!=hidden]:first");
-					$.validationEngine.showTriangle = false;
-				}
-			}
-			/* VALIDATION FUNCTIONS */
-
-			// orefalo: there should be a way around all these $(caller) calls
-			// VALIDATE BLANK FIELD
-			function _required(caller, rules) {
-
-				var obj = $(caller);
-				switch (obj.attr("type")) {
-				case "test":
+			 _required: function(field, rules, i, options) {
+				
+				switch (field.attr("type")) {
+				case "text":
 				case "password":
 				case "textarea":
-					if (!obj.val()) {
-						$.validationEngine.isError = true;
-						promptText += $.validationEngine.settings.allrules[rules[i]].alertText + "<br />";
+					if (!field.val()) {
+						return options.allrules[rules[i]].alertText;
 					}
 					break;
 				case "radio":
 				case "checkbox":
-					var callerName = obj.attr("name");
+					var name = obj.attr("name");
 
-					if ($("input[name='" + callerName + "']:checked").size() === 0) {
-						$.validationEngine.isError = true;
-						if ($("input[name='" + callerName + "']").size() == 1) {
-							promptText += $.validationEngine.settings.allrules[rules[i]].alertTextCheckboxe + "<br />";
+					if ($("input[name='" + name + "']:checked").size() === 0) {
+						
+						if ($("input[name='" + name + "']").size() === 1) {
+							return options.allrules[rules[i]].alertTextCheckboxe;
 						} else {
-							promptText += $.validationEngine.settings.allrules[rules[i]].alertTextCheckboxMultiple + "<br />";
+							return options.allrules[rules[i]].alertTextCheckboxMultiple;
 						}
 					}
 					break;
 				case "select-one":
 					// added by paul@kinetek.net for select boxes, Thank you
-					if (!obj.val()) {
-						$.validationEngine.isError = true;
-						promptText += $.validationEngine.settings.allrules[rules[i]].alertText + "<br />";
+					if (!field.val()) {
+						return options.allrules[rules[i]].alertText;
 					}
 					break;
 				case "select-multiple":
 					// added by paul@kinetek.net for select boxes, Thank you
-					if (!obj.find("option:selected").val()) {
-						$.validationEngine.isError = true;
-						promptText += $.validationEngine.settings.allrules[rules[i]].alertText + "<br />";
+					if (!field.find("option:selected").val()) {
+						return options.allrules[rules[i]].alertText;
 					}
 					break;
 				}
-			}
-			// VALIDATE REGEX RULES
-			function _customRegex(caller, rules, position) {
-				var obj = $(caller);
-				var customRule = rules[position + 1];
-				var pattern = eval($.validationEngine.settings.allrules[customRule].regex);
-
-				if (!pattern.test(obj.attr('value'))) {
-					$.validationEngine.isError = true;
-					promptText += $.validationEngine.settings.allrules[customRule].alertText + "<br />";
-				}
-			}
-			// VALIDATE REGEX RULES
-			function _exemptString(caller, rules, position) {
-				var obj = $(caller);
-				var customString = rules[position + 1];
-				if (customString == obj.attr('value')) {
-					$.validationEngine.isError = true;
-					promptText += $.validationEngine.settings.allrules['required'].alertText + "<br />";
-				}
-			}
-			// VALIDATE CUSTOM FUNCTIONS OUTSIDE OF THE ENGINE SCOPE
-			function _funcCall(caller, rules, position) {
-				var customRule = rules[position + 1];
-				var funce = $.validationEngine.settings.allrules[customRule].nname;
-
-				var fn = window[funce];
-				if (typeof (fn) === 'function') {
-					var fn_result = fn();
-					if (!fn_result) {
-						$.validationEngine.isError = true;
-					}
-
-					promptText += $.validationEngine.settings.allrules[customRule].alertText + "<br />";
-				}
-			}
-			// VALIDATE AJAX RULES
-			function _ajax(caller, rules, position) {
-
-				// orefalo: review variable scope
-				customAjaxRule = rules[position + 1];
-				postfile = $.validationEngine.settings.allrules[customAjaxRule].file;
-				fieldValue = $(caller).val();
-				ajaxCaller = caller;
-				fieldId = $(caller).attr("id");
-				ajaxValidate = true;
-				ajaxisError = $.validationEngine.isError;
-
-				if ($.validationEngine.settings.allrules[customAjaxRule].extraData) {
-					extraData = $.validationEngine.settings.allrules[customAjaxRule].extraData;
-				} else {
-					extraData = "";
-				}
-				/*
-				 * AJAX VALIDATION HAS ITS OWN UPDATE AND BUILD UNLIKE OTHER
-				 * RULES
-				 */
-				if (!ajaxisError) {
-					$
-							.ajax({
-								type : "POST",
-								url : postfile,
-								async : true,
-								cache : false,
-								data : "validateValue=" + fieldValue + "&validateId=" + fieldId + "&validateError="
-										+ customAjaxRule + "&extraData=" + extraData,
-								beforeSend : function() {
-
-									// BUILD A LOADING PROMPT IF LOAD TEXT EXIST
-									var loadingPrompt = $.validationEngine.settings.allrules[customAjaxRule].alertTextLoad;
-									if (loadingPrompt) {
-
-										if (!$("div." + fieldId + "formError")[0]) {
-											// orefalo: how come this one
-											// returns and not the else
-											return $.validationEngine.buildPrompt(ajaxCaller, loadingPrompt, "load");
-										} else {
-											$.validationEngine.updatePromptText(ajaxCaller, loadingPrompt, "load");
-										}
-									}
-								},
-								error : function(data, transport) {
-									$.validationEngine.debug("error in the ajax: " + data.status + " " + transport);
-								},
-								success : function(data) {
-									// GET SUCCESS DATA RETURN JSON
-									data = eval("(" + data + ")");
-
-									// GET JSON DATA FROM PHP AND PARSE IT
-									ajaxCaller = $("#" + data.jsonValidateReturn[0])[0];
-									customAjaxRule = data.jsonValidateReturn[1];
-									ajaxisError = data.jsonValidateReturn[2];
-									var fieldId = ajaxCaller;
-									var existInarray;
-
-									// DATA FALSE UPDATE PROMPT WITH ERROR;
-									if (ajaxisError == "false") {
-
-										// Check if ajax validation already used
-										// on this field
-										existInarray = _checkInArray(fieldId, false);
-
-										// Simulate an ajax error to stop submit
-										if (!existInarray) {
-											var len = $.validationEngine.ajaxValidArray.length;
-											$.validationEngine.ajaxValidArray[len] = new Array(2);
-											$.validationEngine.ajaxValidArray[len][0] = fieldId;
-											$.validationEngine.ajaxValidArray[len][1] = false;
-											existInarray = false;
-										}
-
-										$.validationEngine.ajaxValid = false;
-										promptText += $.validationEngine.settings.allrules[customAjaxRule].alertText + "<br />";
-										$.validationEngine.updatePromptText(ajaxCaller, promptText, "", true);
-									} else {
-
-										existInarray = _checkInArray(fieldId, true);
-										$.validationEngine.ajaxValid = true;
-										if (!customAjaxRule) {
-											$.validationEngine
-													.debug("wrong ajax response, are you on a server or in xampp? if not delete de ajax[ajaxUser] validating rule from your form ");
-										}
-										// NO OK TEXT MEANs CLOSE PROMPT
-										if ($.validationEngine.settings.allrules[customAjaxRule].alertTextOk) {
-											$.validationEngine.updatePromptText(ajaxCaller,
-													$.validationEngine.settings.allrules[customAjaxRule].alertTextOk, "pass",
-													true);
-										} else {
-											ajaxValidate = false;
-											$.validationEngine.closePrompt(ajaxCaller);
-										}
-									}
-									function _checkInArray(fieldId, validate) {
-										var array = $.validationEngine.ajaxValidArray;
-										for ( var x = 0; x < array.length; x++) {
-											if (array[x][0] == fieldId) {
-												array[x][1] = validate;
-												return true;
-											}
-										}
-										return false;
-									}
-								}
-							});
-				}
-			}
-			// VALIDATE FIELD MATCH
-			function _equals(caller, rules, position) {
-				var equalsField = rules[position + 1];
-
-				if ($(caller).attr('value') != $("#" + equalsField).attr('value')) {
-					$.validationEngine.isError = true;
-					promptText += $.validationEngine.settings.allrules["equals"].alertText + "<br />";
-				}
-			}
-			// VALIDATE LENGTH
-			function _length(caller, rules, position) {
-				// orefalo: there should be a way around the use of eval
-				var startLength = eval(rules[position + 1]);
-				var endLength = eval(rules[position + 2]);
-				var feildLength = $(caller).attr('value').length;
-
-				if (feildLength < startLength || feildLength > endLength) {
-					$.validationEngine.isError = true;
-					promptText += $.validationEngine.settings.allrules["length"].alertText + startLength
-							+ $.validationEngine.settings.allrules["length"].alertText2 + endLength
-							+ $.validationEngine.settings.allrules["length"].alertText3 + "<br />";
-				}
-			}
-			// VALIDATE CHECKBOX NUMBER
-			function _maxCheckbox(caller, rules, position) {
-
-				var nbCheck = eval(rules[position + 1]);
-				var groupname = $(caller).attr("name");
-				var groupSize = $("input[name='" + groupname + "']:checked").size();
-				if (groupSize > nbCheck) {
-					$.validationEngine.showTriangle = false;
-					$.validationEngine.isError = true;
-					promptText += $.validationEngine.settings.allrules["maxCheckbox"].alertText + "<br />";
-				}
-			}
-			// VALIDATE CHECKBOX NUMBER
-			function _minCheckbox(caller, rules, position) {
-
-				var nbCheck = eval(rules[position + 1]);
-				var groupname = $(caller).attr("name");
-				var groupSize = $("input[name='" + groupname + "']:checked").size();
-				if (groupSize < nbCheck) {
-
-					$.validationEngine.isError = true;
-					$.validationEngine.showTriangle = false;
-					promptText += $.validationEngine.settings.allrules["minCheckbox"].alertText + " " + nbCheck + " "
-							+ $.validationEngine.settings.allrules["minCheckbox"].alertText2 + "<br />";
-				}
-			}
-			return $.validationEngine.isError === true;
-		},
-
-		// evaluates rules for the caller and returns true if an validation error was raised
-		validateCall : function(caller, rules) {
-
-			// because of the async nature of the ajax call, we need to use a
-			// global
-			var promptText = "";
-
-			var elmt = $(caller);
-			if (!elmt.attr("id"))
-				$.validationEngine.debug("This field has no ID attribute name: " + elmt.attr("name") + " class:"
-						+ elmt.attr("class"));
-
-			ajaxValidate = false;
-			var callerName = elmt.attr("name");
-			$.validationEngine.isError = false;
-			$.validationEngine.showTriangle = true;
-			var callerType = elmt.attr("type");
-
-			for ( var i = 0; i < rules.length; i++) {
-				switch (rules[i]) {
-				case "optional":
-					if (!elmt.val()) {
-						$.validationEngine.closePrompt(caller);
-						return $.validationEngine.isError;
-					}
-					break;
-				case "required":
-					_required(caller, rules);
-					break;
-				case "custom":
-					_customRegex(caller, rules, i);
-					break;
-				case "exemptString":
-					_exemptString(caller, rules, i);
-					break;
-				case "ajax":
-					if (!$.validationEngine.onSubmitValid)
-						_ajax(caller, rules, i);
-					break;
-				case "length":
-					_length(caller, rules, i);
-					break;
-				case "maxCheckbox":
-					_maxCheckbox(caller, rules, i);
-					groupname = elmt.attr("name");
-					caller = $("input[name='" + groupname + "']");
-					break;
-				case "minCheckbox":
-					_minCheckbox(caller, rules, i);
-					groupname = elmt.attr("name");
-					caller = $("input[name='" + groupname + "']");
-					break;
-				case "equals":
-					_equals(caller, rules, i);
-					break;
-				case "funcCall":
-					_funcCall(caller, rules, i);
-					break;
-				default:
-				}
-			}
-			radioHack();
-			if ($.validationEngine.isError === true) {
-				var linkTofieldText = "." + $.validationEngine.linkTofield(caller);
-				if (linkTofieldText != ".") {
-					if (!$(linkTofieldText)[0]) {
-						$.validationEngine.buildPrompt(caller, promptText, "error");
-					} else {
-						$.validationEngine.updatePromptText(caller, promptText);
-					}
-				} else {
-					$.validationEngine.updatePromptText(caller, promptText);
-				}
-			} else {
-				$.validationEngine.closePrompt(caller);
-			}
-			/* UNFORTUNATE RADIO AND CHECKBOX GROUP HACKS */
-			/*
-			 * As my validation is looping input with id's we need a hack for my
-			 * validation to understand to group these inputs
+			},
+			
+			/**
+			 * Validate Regex rules
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i rules index
+			 * @param {Map}
+			 *            user options
+			 * @return an error string if validation failed
 			 */
-			// Hack for radio/checkbox group button, the validation go the first
-			// radio/checkbox of the group
-			function radioHack() {
-				if ($("input[name='" + callerName + "']").size() > 1 && (callerType == "radio" || callerType == "checkbox")) {
-					caller = $("input[name='" + callerName + "'][type!=hidden]:first");
-					$.validationEngine.showTriangle = false;
+			_customRegex: function(field, rules, i, options) {
+				var customRule = rules[i + 1];
+				var pattern = new RegExp(options.allrules[customRule].regex);
+
+				// orefalo todo: field.val()
+				if (!pattern.test(field.attr('value'))) {	
+					return options.allrules[customRule].alertText;
 				}
-			}
-			/* VALIDATION FUNCTIONS */
-
-			// orefalo: there should be a way around all these $(caller) calls
-			// VALIDATE BLANK FIELD
-			function _required(caller, rules) {
-
-				var obj = $(caller);
-				switch (obj.attr("type")) {
-				case "test":
-				case "password":
-				case "textarea":
-					if (!obj.val()) {
-						$.validationEngine.isError = true;
-						promptText += $.validationEngine.settings.allrules[rules[i]].alertText + "<br />";
-					}
-					break;
-				case "radio":
-				case "checkbox":
-					var callerName = obj.attr("name");
-
-					if ($("input[name='" + callerName + "']:checked").size() === 0) {
-						$.validationEngine.isError = true;
-						if ($("input[name='" + callerName + "']").size() == 1) {
-							promptText += $.validationEngine.settings.allrules[rules[i]].alertTextCheckboxe + "<br />";
-						} else {
-							promptText += $.validationEngine.settings.allrules[rules[i]].alertTextCheckboxMultiple + "<br />";
-						}
-					}
-					break;
-				case "select-one":
-					// added by paul@kinetek.net for select boxes, Thank you
-					if (!obj.val()) {
-						$.validationEngine.isError = true;
-						promptText += $.validationEngine.settings.allrules[rules[i]].alertText + "<br />";
-					}
-					break;
-				case "select-multiple":
-					// added by paul@kinetek.net for select boxes, Thank you
-					if (!obj.find("option:selected").val()) {
-						$.validationEngine.isError = true;
-						promptText += $.validationEngine.settings.allrules[rules[i]].alertText + "<br />";
-					}
-					break;
+			},
+			/**
+			 * Validate exempt
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i rules index
+			 * @param {Map}
+			 *            user options
+			 * @return an error string if validation failed
+			 */
+			 _exemptString:function(field, rules, i, options) {
+				var customString = rules[i + 1];
+				if (field.attr('value') == customString ) {
+					return options.allrules.required.alertText;
 				}
-			}
-			// VALIDATE REGEX RULES
-			function _customRegex(caller, rules, position) {
-				var obj = $(caller);
-				var customRule = rules[position + 1];
-				var pattern = eval($.validationEngine.settings.allrules[customRule].regex);
-
-				if (!pattern.test(obj.attr('value'))) {
-					$.validationEngine.isError = true;
-					promptText += $.validationEngine.settings.allrules[customRule].alertText + "<br />";
-				}
-			}
-			// VALIDATE REGEX RULES
-			function _exemptString(caller, rules, position) {
-				var obj = $(caller);
-				var customString = rules[position + 1];
-				if (customString == obj.attr('value')) {
-					$.validationEngine.isError = true;
-					promptText += $.validationEngine.settings.allrules['required'].alertText + "<br />";
-				}
-			}
-			// VALIDATE CUSTOM FUNCTIONS OUTSIDE OF THE ENGINE SCOPE
-			function _funcCall(caller, rules, position) {
-				var customRule = rules[position + 1];
-				var funce = $.validationEngine.settings.allrules[customRule].nname;
-
+			},
+			
+			/**
+			 * Validate custom function outside of the engine scope
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i rules index
+			 * @param {Map}
+			 *            user options
+			 * @return an error string if validation failed
+			 */
+			_funcCall:function (field, rules, i, options){
+				var customRule = rules[i + 1];
+				var funce = options.allrules[customRule].name;
+				
 				var fn = window[funce];
-				if (typeof (fn) === 'function') {
-					var fn_result = fn();
-					if (!fn_result) {
-						$.validationEngine.isError = true;
+				if (typeof(fn) === 'function') {
+					var fn_result = fn(field, rules, i);
+					if (fn_result !== undefined ) {
+						return fn_result;
+					}
+				}
+			},
+				
+			/**
+			 * Field match
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i rules index
+			 * @param {Map}
+			 *            user options
+			 * @return an error string if validation failed
+			 */
+			_equals:	function (field, rules, i, options){
+					var equalsField = rules[i + 1];
+					
+					if (field.attr('value') != $("#" + equalsField).attr('value')) {
+						return options.allrules["equals"].alertText;
+					}
+				},
+			/**
+			 * Field length
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i rules index
+			 * @param {Map}
+			 *            user options
+			 * @return an error string if validation failed
+			 */
+			_length:	function (field, rules, i, options){
+					var startLength = rules[i + 1];
+					var endLength = rules[i + 2];
+					var len = field.attr('value').length;
+					
+					if (len < startLength || len > endLength) {
+						var rule=options.allrules["length"];
+						return rule.alertText + startLength +
+						rule.alertText2 + endLength + rule.alertText3;
+					}
+				},
+				
+			/**
+			 * Max number of checkbox selected
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i rules index
+			 * @param {Map}
+			 *            user options
+			 * @return an error string if validation failed
+			 */
+			_maxCheckbox:	function (field, rules, i, options){
+				
+					var nbCheck = eval(rules[i + 1]);
+					var groupname = field.attr("name");
+					// orefalo:fix bug, look in the current form
+					var groupSize = $("input[name='" + groupname + "']:checked").size();
+					if (groupSize > nbCheck) {
+						options.showArrow = false;
+						return options.allrules.maxCheckbox.alertText;
+					}
+				},
+			/**
+			 * Min number of checkbox selected
+			 *
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i rules index
+			 * @param {Map}
+			 *            user options
+			 * @return an error string if validation failed
+			 */
+			_minCheckbox:	function (field, rules, i, options){
+				
+					var nbCheck = eval(rules[i + 1]);
+					var groupname = $(field).attr("name");
+					var groupSize = $("input[name='" + groupname + "']:checked").size();
+					if (groupSize < nbCheck) {
+						options.showArrow = false;
+						return options.allrules.minCheckbox.alertText + " " + nbCheck + " " +
+						options.allrules.minCheckbox.alertText2;
+					}
+				},
+				
+			/**
+			 * Validate AJAX rules
+			 * 
+			 * @param {jqObject} field
+			 * @param {Array[String]} rules
+			 * @param {int} i rules index
+			 * @param {Map}
+			 *            user options
+			 * @return nothing! the ajax validator handles the prompts itself
+			 */
+			_ajax:	function (field, rules, i, options){
+				
+					// orefalo: review variable scope
+					var customAjaxRule = rules[i + 1];
+					var posturl = options.allrules[customAjaxRule].file;
+					//var fieldValue = field.val();
+					//var ajaxCaller = field;
+					//var fieldId = field.attr("id");
+					var ajaxValidate = true;
+					var ajaxisError = option.isError;
+					
+					if (options.allrules[customAjaxRule].extraData) {
+						extraData = options.allrules[customAjaxRule].extraData;
+					}
+					else {
+						extraData = "";
 					}
 
-					promptText += $.validationEngine.settings.allrules[customRule].alertText + "<br />";
-				}
-			}
-			// VALIDATE AJAX RULES
-			function _ajax(caller, rules, position) {
-
-				// orefalo: review variable scope
-				customAjaxRule = rules[position + 1];
-				postfile = $.validationEngine.settings.allrules[customAjaxRule].file;
-				fieldValue = $(caller).val();
-				ajaxCaller = caller;
-				fieldId = $(caller).attr("id");
-				ajaxValidate = true;
-				ajaxisError = $.validationEngine.isError;
-
-				if ($.validationEngine.settings.allrules[customAjaxRule].extraData) {
-					extraData = $.validationEngine.settings.allrules[customAjaxRule].extraData;
-				} else {
-					extraData = "";
-				}
-				/*
-				 * AJAX VALIDATION HAS ITS OWN UPDATE AND BUILD UNLIKE OTHER
-				 * RULES
-				 */
-				if (!ajaxisError) {
-					$.ajax({
-								type : "POST",
-								url : postfile,
-								async : true,
-								cache : false,
-								data : "validateValue=" + fieldValue + "&validateId=" + fieldId + "&validateError="
-										+ customAjaxRule + "&extraData=" + extraData,
-								beforeSend : function() {
-
-									// BUILD A LOADING PROMPT IF LOAD TEXT EXIST
-									var loadingPrompt = $.validationEngine.settings.allrules[customAjaxRule].alertTextLoad;
-									if (loadingPrompt) {
-
-										if (!$("div." + fieldId + "formError")[0]) {
-											// orefalo: how come this one
-											// returns and not the else
-											return $.validationEngine.buildPrompt(ajaxCaller, loadingPrompt, "load");
-										} else {
-											$.validationEngine.updatePromptText(ajaxCaller, loadingPrompt, "load");
-										}
+					if (!ajaxisError) {
+						$.ajax({
+							type: "POST",
+							url: posturl,
+							cache: false,
+							data: "validateValue=" + fieldValue + "&validateId=" + fieldId + "&validateError=" +
+							customAjaxRule +"&extraData=" +	extraData,
+							beforeSend: function(){
+							
+								// BUILD A LOADING PROMPT IF LOAD TEXT EXIST
+								var loadingText = options.allrules[customAjaxRule].alertTextLoad;
+								if (loadingText) {
+									var prompt=methods._getPrompt(field);
+									if(prompt)
+										methods._updatePrompt(field,promptText, "load", true, options);
+									else
+										methods._buildPrompt(field,promptText, "load", true, options);
+								}
+							},
+							error: function(data, transport){
+								$.error("ajax error: " + data.status + " " + transport);
+							},
+							success: function(data){
+								// GET SUCCESS DATA RETURN JSON
+								data = eval("(" + data + ")");
+								
+								// GET JSON DATA FROM PHP AND PARSE IT
+								ajaxCaller = $("#" + data.jsonValidateReturn[0])[0];
+								customAjaxRule = data.jsonValidateReturn[1];
+								ajaxisError = data.jsonValidateReturn[2];
+								var fieldId = ajaxCaller;
+								var existInarray;
+								
+								// DATA FALSE UPDATE PROMPT WITH ERROR;
+								if (ajaxisError == "false") {
+								
+									// Check if ajax validation already used
+									// on this field
+									existInarray = _checkInArray(fieldId, false);
+									
+									// Simulate an ajax error to stop submit
+									if (!existInarray) {
+										var len = $.validationEngine.ajaxValidArray.length;
+										$.validationEngine.ajaxValidArray[len] = new Array(2);
+										$.validationEngine.ajaxValidArray[len][0] = fieldId;
+										$.validationEngine.ajaxValidArray[len][1] = false;
+										existInarray = false;
 									}
-								},
-								error : function(data, transport) {
-									$.validationEngine.debug("error in the ajax: " + data.status + " " + transport);
-								},
-								success : function(data) {
-									// GET SUCCESS DATA RETURN JSON
-									data = eval("(" + data + ")");
-
-									// GET JSON DATA FROM PHP AND PARSE IT
-									ajaxCaller = $("#" + data.jsonValidateReturn[0])[0];
-									customAjaxRule = data.jsonValidateReturn[1];
-									ajaxisError = data.jsonValidateReturn[2];
-									var fieldId = ajaxCaller;
-									var existInarray;
-
-									// DATA FALSE UPDATE PROMPT WITH ERROR;
-									if (ajaxisError == "false") {
-
-										// Check if ajax validation already used
-										// on this field
-										existInarray = _checkInArray(fieldId, false);
-
-										// Simulate an ajax error to stop submit
-										if (!existInarray) {
-											var len = $.validationEngine.ajaxValidArray.length;
-											$.validationEngine.ajaxValidArray[len] = new Array(2);
-											$.validationEngine.ajaxValidArray[len][0] = fieldId;
-											$.validationEngine.ajaxValidArray[len][1] = false;
-											existInarray = false;
-										}
-
-										$.validationEngine.ajaxValid = false;
-										promptText += $.validationEngine.settings.allrules[customAjaxRule].alertText + "<br />";
-										$.validationEngine.updatePromptText(ajaxCaller, promptText, "", true);
-									} else {
-
-										existInarray = _checkInArray(fieldId, true);
-										$.validationEngine.ajaxValid = true;
-										if (!customAjaxRule) {
-											$.validationEngine
-													.debug("wrong ajax response, are you on a server or in xampp? if not delete de ajax[ajaxUser] validating rule from your form ");
-										}
-										// NO OK TEXT MEANs CLOSE PROMPT
-										if ($.validationEngine.settings.allrules[customAjaxRule].alertTextOk) {
-											$.validationEngine.updatePromptText(ajaxCaller,
-													$.validationEngine.settings.allrules[customAjaxRule].alertTextOk, "pass",
-													true);
-										} else {
-											ajaxValidate = false;
-											$.validationEngine.closePrompt(ajaxCaller);
-										}
+									
+									$.validationEngine.ajaxValid = false;
+									promptText += options.allrules[customAjaxRule].alertText;
+									$.validationEngine.updatePromptText(ajaxCaller, promptText, "", true);
+								}
+								else {
+								
+									existInarray = _checkInArray(fieldId, true);
+									$.validationEngine.ajaxValid = true;
+									if (!customAjaxRule) {
+										$.error("wrong ajax response, are you on a server or in xampp? if not delete de ajax[ajaxUser] validating rule from your form ");
 									}
-									function _checkInArray(fieldId, validate) {
-										var array = $.validationEngine.ajaxValidArray;
-										for ( var x = 0; x < array.length; x++) {
-											if (array[x][0] == fieldId) {
-												array[x][1] = validate;
-												return true;
-											}
-										}
-										return false;
+									// NO OK TEXT MEANs CLOSE PROMPT
+									if (options.allrules[customAjaxRule].alertTextOk) {
+										$.validationEngine.updatePromptText(ajaxCaller, options.allrules[customAjaxRule].alertTextOk, "pass", true);
+									}
+									else {
+										ajaxValidate = false;
+										$.validationEngine.closePrompt(ajaxCaller);
 									}
 								}
-							});
-				}
+								function _checkInArray(fieldId, validate){
+									var array = $.validationEngine.ajaxValidArray;
+									for (var x = 0; x < array.length; x++) {
+										if (array[x][0] == fieldId) {
+											array[x][1] = validate;
+											return true;
+										}
+									}
+									return false;
+								}
+							}
+						});
+					}
+				},
+
+		/**
+		 * Builds a prompt for the given field
+		 * 
+		 * @param {jqObject}
+		 *            field
+		 */
+		_buildPrompt : function(field, promptText, type, ajaxed, options) {
+
+			// discard prompt if already there
+			var prompt = methods._getPrompt(field);
+			if (prompt) {
+				prompt.stop();
+				prompt.remove();
 			}
-			// VALIDATE FIELD MATCH
-			function _equals(caller, rules, position) {
-				var equalsField = rules[position + 1];
 
-				if ($(caller).attr('value') != $("#" + equalsField).attr('value')) {
-					$.validationEngine.isError = true;
-					promptText += $.validationEngine.settings.allrules["equals"].alertText + "<br />";
-				}
-			}
-			// VALIDATE LENGTH
-			function _length(caller, rules, position) {
-				// orefalo: there should be a way around the use of eval
-				var startLength = eval(rules[position + 1]);
-				var endLength = eval(rules[position + 2]);
-				var feildLength = $(caller).attr('value').length;
-
-				if (feildLength < startLength || feildLength > endLength) {
-					$.validationEngine.isError = true;
-					promptText += $.validationEngine.settings.allrules["length"].alertText + startLength
-							+ $.validationEngine.settings.allrules["length"].alertText2 + endLength
-							+ $.validationEngine.settings.allrules["length"].alertText3 + "<br />";
-				}
-			}
-			// VALIDATE CHECKBOX NUMBER
-			function _maxCheckbox(caller, rules, position) {
-
-				var nbCheck = eval(rules[position + 1]);
-				var groupname = $(caller).attr("name");
-				var groupSize = $("input[name='" + groupname + "']:checked").size();
-				if (groupSize > nbCheck) {
-					$.validationEngine.showTriangle = false;
-					$.validationEngine.isError = true;
-					promptText += $.validationEngine.settings.allrules["maxCheckbox"].alertText + "<br />";
-				}
-			}
-			// VALIDATE CHECKBOX NUMBER
-			function _minCheckbox(caller, rules, position) {
-
-				var nbCheck = eval(rules[position + 1]);
-				var groupname = $(caller).attr("name");
-				var groupSize = $("input[name='" + groupname + "']:checked").size();
-				if (groupSize < nbCheck) {
-
-					$.validationEngine.isError = true;
-					$.validationEngine.showTriangle = false;
-					promptText += $.validationEngine.settings.allrules["minCheckbox"].alertText + " " + nbCheck + " "
-							+ $.validationEngine.settings.allrules["minCheckbox"].alertText2 + "<br />";
-				}
-			}
-			return $.validationEngine.isError === true;
-		},
-
-
-
-
-
-		submitForm : function(caller) {
-			var obj = $(caller);
-			// AJAX SUCCESS, STOP THE LOCATION UPDATE
-			if ($.validationEngine.settings.success) {
-				if ($.validationEngine.settings.unbindEngine)
-					obj.unbind("submit");
-				var serializedForm = obj.serialize();
-				// orefalo: weird settings.seccess is a boolean -> should be
-				// beforeSuccess()
-				$.validationEngine.settings.success && $.validationEngine.settings.success(serializedForm);
-				return true;
-			}
-			return false;
-		},
-		
-		// orefalo: review this method, how is it used? it doesn't do much
-		submitForm2 : function(elmt) {
-
-			// AJAX SUCCESS, STOP THE LOCATION UPDATE
-			if ($.validationEngine.settings.success) {
-				if ($.validationEngine.settings.unbindEngine)
-					elmt.unbind("submit");
-				var serializedForm = elmt.serialize();
-				// orefalo: weird settings.seccess is a boolean -> should be
-				// beforeSuccess()
-				$.validationEngine.settings.success && $.validationEngine.settings.success(serializedForm);
-				return true;
-			}
-			return false;
-		},
-		
-		
-		
-		
-		
-		// Creates an error prompt and display it, also used for ajax loading prompts
-		buildPrompt : function(caller, promptText, type, ajaxed) {
-
-			var obj = $(caller);
-
-			if (!$.validationEngine.settings) {
-				$.validationEngine.defaultSetting();
-			}
-			var deleteItself = "." + obj.attr("id") + "formError";
-
-			if ($(deleteItself)[0]) {
-				$(deleteItself).stop();
-				$(deleteItself).remove();
-			}
-			var divFormError = $('<div/>');
-			var formErrorContent = $('<div/>');
-			
-			divFormError.addClass("formError");
-
-			if (type == "pass")
-				divFormError.addClass("greenPopup");
-			if (type == "load")
-				divFormError.addClass("blackPopup");
-			if (ajaxed)
-				divFormError.addClass("ajaxed");
-
-			var linkTofield = $.validationEngine.linkTofield(caller);
-			divFormError.addClass(linkTofield);
-			formErrorContent.addClass("formErrorContent");
-
-			// Is the form contained in an overflown container?
-			if ($.validationEngine.settings.containerOverflow)
-				$(caller).before(divFormError);
-			else
-				$("body").append(divFormError);
-
-			divFormError.append(formErrorContent);
-
-			// The triangle typically shows at the bottom of prompt, to point the error form
-			// note that there is no triangle on max-checkbox and radio
-			if ($.validationEngine.showTriangle != false) {
-				var arrow = $('<div/>').addClass("formErrorArrow");
-				divFormError.append(arrow.get());
-				switch ($.validationEngine.settings.promptPosition) {
-				case "bottomLeft":
-				case "bottomRight":
-					arrow.addClass("formErrorArrowBottom");
-					arrow
-							.html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
-					break;
-				case "topLeft":
-				case "topRight":
-					divFormError.append(arrow);
-					arrow
-							.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
-					break;
-				}
-			}
-			formErrorContent.html(promptText);
-
-			var calculatedPosition = $.validationEngine.calculatePosition(caller, promptText, type, ajaxed, divFormError.get());
-			divFormError.css({
-				"top" : calculatedPosition.callerTopPosition + "px",
-				"left" : calculatedPosition.callerleftPosition + "px",
-				"marginTop" : calculatedPosition.marginTopSize + "px",
-				"opacity" : 0
-			});
-
-			return divFormError.animate({
-				"opacity" : 0.87
-			});
-		},
-		
-		// orefalo: refactoring
-		buildPrompt2 : function(elmt, promptText, type, ajaxed) {
-
-			// orefalo: this condition should never apply
-			if (!$.validationEngine.settings)
-				$.validationEngine.defaultSetting();
-			
-			// discard prompt if already in document
-			// orefalo: getErrorClassFromId() if !=null -> delete
-			var promptClass= elmt.attr("id") + "formError";
-			var deleteItself = "." + promptClass;
-			if ($(deleteItself)[0]) {
-				$(deleteItself).stop();
-				$(deleteItself).remove();
-			}
-			
 			// create the prompt
-			var prompt = $('<div/>').addClass("formError").addClass(promptClass);
-			if (type == "pass")
-				prompt.addClass("greenPopup");
-			else if (type == "load")
-				prompt.addClass("blackPopup");
+			prompt = $('<div>');
+			prompt.addClass(field.attr("id") + "formError");
+			prompt.addClass("formError");
 			
+			
+			switch (type) {
+			case "pass":
+				prompt.addClass("greenPopup");
+				break;
+			case "load":
+				prompt.addClass("blackPopup");
+			}
 			if (ajaxed)
 				prompt.addClass("ajaxed");
 
 			// create the prompt content
-			var promptContent = $('<div/>');
-			promptContent.addClass("formErrorContent");
-			promptContent.html(promptText);
-			prompt.append(promptContent);
+			var promptContent = $('<div>').addClass("formErrorContent").html(promptText).appendTo(prompt);
+			//prompt.append(promptContent);
 
-			// Inser prompt in the form contained in an overflown container?
-			if ($.validationEngine.settings.containerOverflow)
-				elmt.before(prompt);
-			else
-				$("body").append(prompt);
+			if (!options) {
+				// get the options if they were not passed as parameters
+				var form = field.closest('form');
+				options = form.data('jqv');
+			}
 
-			// triangles (or arrow) typically shows at the bottom of prompts and help pin point the invalid form fiel
+			// create the css arrow pointing at the field
 			// note that there is no triangle on max-checkbox and radio
-			if ($.validationEngine.showTriangle != false) {
-				var arrow = $('<div/>');
-				arrow.addClass("formErrorArrow");
-				prompt.append(arrow);
-				switch ($.validationEngine.settings.promptPosition) {
+			if (options.showArrow) {
+				var arrow = $('<div>').addClass("formErrorArrow");
+				
+				switch (options.promptPosition) {
 				case "bottomLeft":
 				case "bottomRight":
-					arrow.addClass("formErrorArrowBottom");
-					arrow
-							.html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
+					arrow.addClass("formErrorArrowBottom").html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
 					break;
 				case "topLeft":
 				case "topRight":
-					prompt.append(arrow);
-					arrow
-							.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
+					arrow.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
 					break;
 				}
+				prompt.append(arrow);
 			}
 
-			var pos = $.validationEngine.calculatePosition2(caller, prompt);
+			// insert prompt in the form or in the overflown container?
+			// orefalo: is this really required.. test it
+			//if (options.containerOverflow)
+				field.before(prompt);
+			//else
+			//	$("body").append(prompt);
+
+
+			var pos = methods._calculatePosition(field, prompt, options);
 			prompt.css({
-				"top" : pos.callerTopPosition + "px",
-				"left" : pos.callerleftPosition + "px",
-				"marginTop" : pos.marginTopSize + "px",
+				"top" : pos.callerTopPosition,
+				"left" : pos.callerleftPosition,
+				"marginTop" : pos.marginTopSize,
 				"opacity" : 0
 			});
 
-			return prompt.animate({	"opacity" : 0.87 });
-		},
-		
-		
-		
-		
-		
-		// UPDATE TEXT ERROR IF AN ERROR IS ALREADY DISPLAYED
-		updatePromptText : function(caller, promptText, type, ajaxed) {
-
-			var linkTofield = $.validationEngine.linkTofield(caller);
-			var updateThisPrompt = "." + linkTofield;
-
-			if (type == "pass")
-				$(updateThisPrompt).addClass("greenPopup");
-			else
-				$(updateThisPrompt).removeClass("greenPopup");
-
-			if (type == "load")
-				$(updateThisPrompt).addClass("blackPopup");
-			else
-				$(updateThisPrompt).removeClass("blackPopup");
-
-			if (ajaxed)
-				$(updateThisPrompt).addClass("ajaxed");
-			else
-				$(updateThisPrompt).removeClass("ajaxed");
-
-			$(updateThisPrompt).find(".formErrorContent").html(promptText);
-
-			var calculatedPosition = $.validationEngine.calculatePosition(caller, promptText, type, ajaxed, updateThisPrompt);
-			calculatedPosition.callerTopPosition += "px";
-			calculatedPosition.callerleftPosition += "px";
-			calculatedPosition.marginTopSize += "px";
-			$(updateThisPrompt).animate({
-				"top" : calculatedPosition.callerTopPosition,
-				"marginTop" : calculatedPosition.marginTopSize
+	
+			return prompt.animate({
+				"opacity" : 0.87
 			});
-		},
-		// Updates the prompt text
-		updatePromptText2 : function(elmt, promptText, type, ajaxed) {
-
-			var updateThisPrompt=$.validationEngine.getErrorClassFromId(elmt);
-			var prompt=$(updateThisPrompt);
 			
-			if (type == "pass")
-				prompt.addClass("greenPopup");
-			else
-				prompt.removeClass("greenPopup");
-
-			if (type == "load")
-				prompt.addClass("blackPopup");
-			else
-				prompt.removeClass("blackPopup");
-
-			if (ajaxed)
-				prompt.addClass("ajaxed");
-			else
-				prompt.removeClass("ajaxed");
-
-			prompt.find(".formErrorContent").html(promptText);
-
-			var pos = $.validationEngine.calculatePosition2(elmt, prompt);
-			prompt.animate({
-				"top" : pos.callerTopPosition + "px",
-				"marginTop" : pos.marginTopSize + "px"
-			});
 		},
-		
-		
-		
-		
-		// Calculates prompt position
-		calculatePosition : function(caller, promptText, type, ajaxed, divFormError) {
 
-			var elmt = $(caller);
-			var callerTopPosition, callerleftPosition, marginTopSize;
-			var callerWidth = elmt.width();
-			var inputHeight = $(divFormError).height();
+		/**
+		 * Updates the prompt text field - the field for which the prompt
+		 * applies promptText - html text to display type - the type of bubble:
+		 * 'pass' (green), 'load' (green) ajaxted - if true options - the form
+		 * options (optional) - which be resolved if not present
+		 */
+		_updatePrompt : function(field, promptText, type, ajaxed, options) {
 
-			var overflow = $.validationEngine.settings.containerOverflow;
+			var prompt = methods._getPrompt(field);
+			if (prompt) {
+				if (type == "pass")
+					prompt.addClass("greenPopup");
+				else
+					prompt.removeClass("greenPopup");
+
+				if (type == "load")
+					prompt.addClass("blackPopup");
+				else
+					prompt.removeClass("blackPopup");
+
+				if (ajaxed)
+					prompt.addClass("ajaxed");
+				else
+					prompt.removeClass("ajaxed");
+
+				prompt.find(".formErrorContent").html(promptText);
+
+				var pos = methods._calculatePosition(field, prompt, options);
+				prompt.animate({
+					"top" : pos.callerTopPosition,
+					"marginTop" : pos.marginTopSize
+				});
+			}
+		},
+
+		/**
+		 * Closes the prompt associated with the given field
+		 * 
+		 * @param {jqObject}
+		 *            field
+		 */
+		_closePrompt : function(field) {
+			var prompt = methods._getPrompt(field);
+			if (prompt)
+				prompt.fadeTo("fast", 0, function() { prompt.remove(); });
+		},
+
+		/**
+		 * Returns the error prompt matching the field if any
+		 * 
+		 * @param {jqObject}
+		 *            field
+		 * @return undefined or error prompt jquery object
+		 */
+		_getPrompt : function(field) {
+
+			var className = "." + field.attr("id") + "formError";
+			// remove any [ or ] caracters, which migh be used with minCheckbox
+			// validations
+			className = className.replace(/\[/g, "").replace(/\]/g, "");
+			var match=$(className)[0];
+			if (match)
+				return $(match);
+		},
+
+		/**
+		 * Calculates prompt position
+		 * 
+		 * @param {jqObject}
+		 *            field
+		 * @param {jqObject}
+		 *            the prompt
+		 * @param {Map}
+		 *            options
+		 * @return positions
+		 */
+		_calculatePosition : function(field, promptElmt, options) {
+
+			var promptTopPosition, promptleftPosition, marginTopSize;
+			var fieldWidth = field.width();
+			var promptHeight = promptElmt.height();
+
+			if (!options) {
+				$.error("NO OPTIONS!");
+			}
+
+			var overflow = options.containerOverflow;
 			if (overflow) {
 				// Is the form contained in an overflown container?
-				callerTopPosition = callerleftPosition = 0;
+				promptTopPosition = promptleftPosition = 0;
 				// compasation for the triangle
-				marginTopSize = "-" + inputHeight;
+				marginTopSize = -promptHeight;
 			} else {
-				callerTopPosition = elmt.offset().top;
-				callerleftPosition = elmt.offset().left;
+				var offset = field.offset();
+				promptTopPosition = offset.top;
+				promptleftPosition = offset.left;
 				marginTopSize = 0;
 			}
 
-			// POSITIONNING
-			switch ($.validationEngine.settings.promptPosition) {
+			switch (options.promptPosition) {
 
 			default:
 			case "topRight":
-				if (overflow) { // Is the form contained in an overflown
-					// container?
-					callerleftPosition += callerWidth - 30;
-				} else {
-					callerleftPosition += callerWidth - 30;
-					callerTopPosition += -inputHeight;
-				}
+				if (overflow)
+					// Is the form contained in an overflown container?
+					promptleftPosition += fieldWidth - 30;
+				else {
+					promptleftPosition += fieldWidth - 30;
+					promptTopPosition += -promptHeight;
+				}	
 				break;
 			case "topLeft":
-				callerTopPosition += -inputHeight - 10;
+				promptTopPosition += -promptHeight - 10;
 				break;
 			case "centerRight":
-				callerleftPosition += callerWidth + 13;
+				promptleftPosition += fieldWidth + 13;
 				break;
 			case "bottomLeft":
-				callerTopPosition = callerTopPosition + elmt.height() + 15;
+				promptTopPosition = promptTopPosition + field.height() + 15;
 				break;
 			case "bottomRight":
-				callerleftPosition += callerWidth - 30;
-				callerTopPosition += elmt.height() + 5;
+				promptleftPosition += fieldWidth - 30;
+				promptTopPosition += field.height() + 5;
 			}
 
 			return {
-				"callerTopPosition" : callerTopPosition,
-				"callerleftPosition" : callerleftPosition,
-				"marginTopSize" : marginTopSize
+				"callerTopPosition" : promptTopPosition + "px",
+				"callerleftPosition" : promptleftPosition + "px",
+				"marginTopSize" : marginTopSize + "px"
 			};
 		},
 
-		// Calculates prompt position
-		// orefalo: refactor
-		calculatePosition2 : function(elmt, promptElmt) {
+		/**
+		 * Saves the user options and variables in the form.data
+		 * 
+		 * @param {jqObject}
+		 *            form - the form where the user option should be saved
+		 * @param {Map}
+		 *            options - the user options
+		 * @return the user options (extended from the defaults)
+		 */
+		_saveOptions : function(form, options) {
 
-			var callerTopPosition, callerleftPosition, marginTopSize;
-			var callerWidth = elmt.width();
-			var inputHeight = promptElmt.height();
-
-			var overflow = $.validationEngine.settings.containerOverflow;
-			if (overflow) {
-				// Is the form contained in an overflown container?
-				callerTopPosition = callerleftPosition = 0;
-				// compasation for the triangle
-				//orefalo: should be -inputHeight
-				marginTopSize = "-" + inputHeight;
-			} else {
-				callerTopPosition = elmt.offset().top;
-				callerleftPosition = elmt.offset().left;
-				marginTopSize = 0;
-			}
-
-			// POSITIONNING
-			switch ($.validationEngine.settings.promptPosition) {
-
-			default:
-			case "topRight":
-				if (overflow) { // Is the form contained in an overflown
-					// container?
-					callerleftPosition += callerWidth - 30;
-				} else {
-					callerleftPosition += callerWidth - 30;
-					callerTopPosition += -inputHeight;
-				}
-				break;
-			case "topLeft":
-				callerTopPosition += -inputHeight - 10;
-				break;
-			case "centerRight":
-				callerleftPosition += callerWidth + 13;
-				break;
-			case "bottomLeft":
-				callerTopPosition = callerTopPosition + elmt.height() + 15;
-				break;
-			case "bottomRight":
-				callerleftPosition += callerWidth - 30;
-				callerTopPosition += elmt.height() + 5;
-			}
-
-			return {
-				"callerTopPosition" : callerTopPosition,
-				"callerleftPosition" : callerleftPosition,
-				"marginTopSize" : marginTopSize
-			};
-		},
-		
-		
-		
-		// construcs a string from th element's id myid -> myidformError
-		linkTofield : function(caller) {
-			var linkTofield = $(caller).attr("id") + "formError";
-			linkTofield = linkTofield.replace(/\[/g, "");
-			linkTofield = linkTofield.replace(/\]/g, "");
-			return linkTofield;
-		},
-		// constructs a string from th element's id myid -> myidformError
-		// orefalo: same as linkTofield, refactoring
-		// todo: this class is used to go from the element.id to the prompt.class[id+formError]
-		// do the job in this method : should be called getPrompt
-		getErrorClassFromId : function(elmt, omitDot) {
-			var className = elmt.attr("id") + "formError";
-			// remove any [ or ] caracters, which migh be used if we use minCheckbox validations
-			className = className.replace(/\[/g, "");
-			className = className.replace(/\]/g, "");
-			if(omitDot===true)
-				return className;
+			// is there a language localisation ?
+			if ($.validationEngineLanguage)
+				var allRules = $.validationEngineLanguage.allRules;
 			else
-				return "."+className;
-		},
+				$.error("jQuery.validationEngine rules are not loaded, plz add localization files to the page");
 
+			var userOptions = $.extend({
 
-		
-		
-		closeAllPrompt : function() {
-			$.validationEngine.closePrompt('.formError',true);
-		},
-		
-		
-		
-		
-		// Closes and removes a prompt
-		closePrompt : function(caller, outside) {
-			if (!$.validationEngine.settings) {
-				$.validationEngine.defaultSetting();
-			}
-			if (outside) {
-				$(caller).fadeTo("fast", 0.3, function() {
-					$(caller).remove();
-				});
-				return false;
-			}
+				// orefalo: rename the variable name, it should b singular
+				validationEventTriggers : "blur",
 
-			// orefalo -- do we even need this check? in the test below
-			// ajaxValidate === false should do it, right ?
-			if (typeof (ajaxValidate) == 'undefined') {
-				ajaxValidate = false;
-			}
+				// Automatically scroll viewport to the first error
+				scroll : true,
+				// Opening box position, possible locations are: topLeft,
+				// topRight, bottomLeft, centerRight, bottomRight
+				promptPosition : "topRight",
+				// callback method when the validation fails
+				onFailure : $.noop,
 
-			if (!ajaxValidate) {
-				var linkTofield = $.validationEngine.linkTofield(caller);
-				var closingPrompt = "." + linkTofield;
-				$(closingPrompt).fadeTo("fast", 0, function() {
-					$(closingPrompt).remove();
-				});
-			}
-		},
-		// CLOSE PROMPT WHEN ERROR CORRECTED
-		// orefalo: same as clasePrompt refactoring
-		closePrompt2 : function(elmt, outside) {
-			if (!$.validationEngine.settings)
-				$.validationEngine.defaultSetting();
-			
-			if (outside) {
-				elmt.fadeTo("fast", 0, function() {
-					elmt.remove();
-				});
-				return false;
-			}
+				// used when the form is displayed within a frame
+				containerOverflow : false,
+				containerOverflowDOM : "",
 
-			// orefalo -- do we even need this check? in the test below
-			// ajaxValidate === false should do it, right ?
-			if (typeof (ajaxValidate) == 'undefined') {
-				ajaxValidate = false;
-			}
-
-			if (!ajaxValidate) {
-				var closingPrompt = $.validationEngine.getErrorClassFromId(elmt);
-				var e=$(closingPrompt);
-				e.fadeTo("fast", 0, function() {
-					e.remove();
-				});
-			}
-		},
-		
-		
-		
-		debug : function(error) {
-			if (!$.validationEngine.settings.openDebug)
-				return false;
-			if (!$("#debugMode")[0]) {
-				$("body")
-						.append(
-								"<div id='debugMode'><div class='debugError'><strong>This is a debug mode, you got a problem with your form, it will try to help you, refresh when you think you nailed down the problem</strong></div></div>");
-			}
-			$(".debugError").append("<div class='debugerror'>" + error + "</div>");
-		},
-		
-		
-		
-		// evaluate the form for errors, display prompts and returns true if error
-		submitValidation : function(caller) {
-			var obj = $(caller);
-			
-			// this variable is set to true if an error is found
-			var errorFound = false;
-			$.validationEngine.ajaxValid = true;
-
-			// for each of the validations in the form, evaluate its status
-			obj.find("[class*=validate]").each(function() {
+				// --- Internals DO NOT TOUCH or OVERLOAD ---
+				// validation rules and i18
+				allrules : allRules,
+				// true when form and fields are binded
+				binded : false,
+				// set to true, when the prompt arrow needs to be displayed
+				showArrow : true,
 				
-				var elmt=$(this);
-				
-			//	var linkTofield = $.validationEngine.linkTofield(this);
+				success : false,
 
-				// skip ajax fields for now
-			//	if (!$("." + linkTofield).hasClass("ajaxed"))
-			//		errorFound |= $.validationEngine.loadValidation(this);
-				if (!elmt.hasClass("ajaxed"))
-				    errorFound |= $.validationEngine.validateField(elmt);
-			});
-			
-			// LOOK IF SOME AJAX IS NOT VALIDATE
-			var ajaxErrorLength = $.validationEngine.ajaxValidArray.length;
-			for ( var x = 0; x < ajaxErrorLength; x++) {
-				if ($.validationEngine.ajaxValidArray[x][1] == false)
-					$.validationEngine.ajaxValid = false;
-			}
-			
-			// if an error was raised, display the prompts
-			if (errorFound || !$.validationEngine.ajaxValid) {
-				if ($.validationEngine.settings.scroll) {
-					if (!$.validationEngine.settings.containerOverflow) {
+				ajaxSubmit : false,
+				ajaxValidArray : [],
+				ajaxValid : true,
+				onSubmitValid : true,
 
-						// get the position of the first error
-						var destination = $(".formError:not('.greenPopup'):first").offset().top;
-						$(".formError:not('.greenPopup')").each(function() {
-							var testDestination = $(this).offset().top;
-							if (destination > testDestination)
-								destination = $(this).offset().top;
-						});
-						$("html:not(:animated),body:not(:animated)").animate({
-							scrollTop : destination
-						}, 1100);
-					} else {
-						var destination = $(".formError:not('.greenPopup'):first").offset().top;
-						var scrollContainerScroll = $($.validationEngine.settings.containerOverflowDOM).scrollTop();
-						var scrollContainerPos = -parseInt($($.validationEngine.settings.containerOverflowDOM).offset().top);
-						destination = scrollContainerScroll + destination + scrollContainerPos - 5;
-						var scrollContainer = $.validationEngine.settings.containerOverflowDOM + ":not(:animated)";
+				isError : false
+			}, options);
 
-						$(scrollContainer).animate({
-							scrollTop : destination
-						}, 1100);
-					}
-				}
-				return true;
-			} else {
-				return false;
-			}
-		},
-		
-		// orefalo: refactoring
-		// evaluate the form for errors, display prompts and returns true if error
-		submitValidation2: function(elmt) {
-			
-			// this variable is set to true if an error is found
-			var errorFound = false;
-			$.validationEngine.ajaxValid = true;
-
-			// for each of the validations in the form, evaluate its status
-			obj.find("[class*=validate]").each(function() {
-				
-				var elmt=$(this);
-				
-			//	var linkTofield = $.validationEngine.linkTofield(this);
-
-				// skip ajax fields for now
-			//	if (!$("." + linkTofield).hasClass("ajaxed"))
-			//		errorFound |= $.validationEngine.loadValidation(this);
-				if (!elmt.hasClass("ajaxed"))
-				    errorFound |= $.validationEngine.validateField(elmt);
-			});
-			
-			// LOOK IF SOME AJAX IS NOT VALIDATE
-			var ajaxErrorLength = $.validationEngine.ajaxValidArray.length;
-			for ( var x = 0; x < ajaxErrorLength; x++) {
-				if ($.validationEngine.ajaxValidArray[x][1] == false)
-					$.validationEngine.ajaxValid = false;
-			}
-			
-			// if an error was raised, display the prompts
-			if (errorFound || !$.validationEngine.ajaxValid) {
-				if ($.validationEngine.settings.scroll) {
-					if (!$.validationEngine.settings.containerOverflow) {
-
-						// get the position of the first error
-						var destination = $(".formError:not('.greenPopup'):first").offset().top;
-						$(".formError:not('.greenPopup')").each(function() {
-							var testDestination = $(this).offset().top;
-							if (destination > testDestination)
-								destination = $(this).offset().top;
-						});
-						$("html:not(:animated),body:not(:animated)").animate({
-							scrollTop : destination
-						}, 1100);
-					} else {
-						var destination = $(".formError:not('.greenPopup'):first").offset().top;
-						var scrollContainerScroll = $($.validationEngine.settings.containerOverflowDOM).scrollTop();
-						var scrollContainerPos = -parseInt($($.validationEngine.settings.containerOverflowDOM).offset().top);
-						destination = scrollContainerScroll + destination + scrollContainerPos - 5;
-						var scrollContainer = $.validationEngine.settings.containerOverflowDOM + ":not(:animated)";
-
-						$(scrollContainer).animate({
-							scrollTop : destination
-						}, 1100);
-					}
-				}
-				return true;
-			} else {
-				return false;
-			}
+			form.data('jqv', userOptions);
+			return userOptions;
 		}
-		
+
 	};
+
+	/**
+	 * Plugin entry point
+	 * 
+	 * @param {String}
+	 *            method (optional) action
+	 */
+	$.fn.validationEngine = function(method) {
+
+		var form = $(this);
+		// skip _methods
+		if (method && method.charAt(0) != '_' && methods[method]) {
+			// make sure init is being called at least once
+			methods.init.apply(form);
+			return methods[method].apply(form, Array.prototype.slice.call(arguments, 1));
+		} else if (typeof method === 'object' || !method) {
+			return methods.init.apply(form, arguments);
+		} else {
+			$.error('Method ' + method + ' does not exist on jQuery.validationEngine');
+		}
+	};
+
 })(jQuery);
