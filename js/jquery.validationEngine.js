@@ -154,8 +154,8 @@
 					if (!options.containerOverflow) {
 
 						// get the position of the first error
-						var destination = $(".formError:not('.greenPopup'):first", form).offset().top;
-						$(".formError:not('.greenPopup')").each(function() {
+						var destination = form.find(".formError:not('.greenPopup'):first").offset().top;
+						form.find(".formError:not('.greenPopup')").each(function() {
 							var testDestination = $(this).offset().top;
 							if (destination > testDestination)
 								destination = $(this).offset().top;
@@ -165,8 +165,8 @@
 						}, 1100);
 					} else {
 						// orefalo: debug, search in the form
-						var destination = $(".formError:not('.greenPopup'):first").offset().top;
-						var scrollContainerScroll = $(options.containerOverflowDOM).scrollTop();
+						var destination = form.find(".formError:not('.greenPopup'):first").offset().top;
+						var scrollContainerScroll = form.find(options.containerOverflowDOM).scrollTop();
 						var scrollContainerPos = -parseInt($(options.containerOverflowDOM).offset().top);
 
 						destination += scrollContainerScroll + scrollContainerPos - 5;
