@@ -9,15 +9,7 @@
  * and everyone helping me find bugs on the forum
  * Licenced under the MIT Licence
  */
-// TODO: field hook doesn't work
-// TODO: hook browser resize -> reposition prompts
-// TODO: bug, prompt construction
-// TODO: multiple forms: positionning issue
-// TODO: build demo pages
-// TODO: write documentation
-// TODO: split the translation files - they hold test data
-// TODO: Implement ajax submit
-// TODO: Provide a minimized version
+
 (function($){
 
     var methods = {
@@ -605,7 +597,7 @@
                             }
                             // NO OK TEXT MEANs CLOSE PROMPT
                             if (options.allrules[customAjaxRule].alertTextOk) {
-                                $.validationEngine.updatePromptText(ajaxCaller, options.allrules[customAjaxRule].alertTextOk, "pass", true);
+                                $.validationEngine._showPromptText(ajaxCaller, options.allrules[customAjaxRule].alertTextOk, "pass", true);
                             }
                             else {
                                 ajaxValidate = false;
@@ -640,7 +632,7 @@
             // orefalo: change the methods, have them deal with the prompt
             var prompt = methods._getPrompt(field);
             if (prompt) 
-                methods._updatePrompt(field, promptText, type, ajaxed, options);
+                methods._updatePrompt(field, prompt, promptText, type, ajaxed, options);
             else 
                 methods._buildPrompt(field, promptText, type, ajaxed, options);
         },
@@ -657,11 +649,11 @@
         _buildPrompt: function(field, promptText, type, ajaxed, options){
         
             // discard prompt if already there
-            var prompt = methods._getPrompt(field);
-            if (prompt) {
-                prompt.stop();
-                prompt.remove();
-            }
+           // var prompt = methods._getPrompt(field);
+           //if (prompt) {
+           //     prompt.stop();
+           //     prompt.remove();
+           // }
             
             // create the prompt
             prompt = $('<div>');
@@ -728,9 +720,9 @@
          * @param {boolean} ajaxed - use to mark fields than being validated with ajax
          * @param {Map} options user options
          */
-        _updatePrompt: function(field, promptText, type, ajaxed, options){
+        _updatePrompt: function(field, prompt, promptText, type, ajaxed, options){
         
-            var prompt = methods._getPrompt(field);
+            //var prompt = methods._getPrompt(field);
             if (prompt) {
                 if (type == "pass") 
                     prompt.addClass("greenPopup");

@@ -46,6 +46,11 @@ Customizations
 
 ### i18n
 
+Rules of thumb
+- id are unique across the page
+- for simplicity field.id and field.name should match
+- use the ajax validator as last validator
+
 
 Authors
 ---
