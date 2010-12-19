@@ -1,1 +1,1 @@
-java -cp . test.AjaxTestServer
+java -cp ./test AjaxTestServer

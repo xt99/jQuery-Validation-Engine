@@ -118,10 +118,11 @@
          * validation
          */
         _onFieldEvent: function(){
-            var form = $(this).closest('form');
+			var field = $(this);
+            var form = field.closest('form');
             var options = form.data('jqv');
             // validate the current field
-            methods._validateField(form, options);
+            methods._validateField(field, options);
         },
         
         /**
@@ -183,6 +184,7 @@
                     
                         // get the position of the first error
                         var destination = form.find(".formError:not('.greenPopup'):first").offset().top;
+						// there should be at least one, no need to check for undefined
                         form.find(".formError:not('.greenPopup')").each(function(){
                             var testDestination = $(this).offset().top;
                             if (destination > testDestination) 

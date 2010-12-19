@@ -1,10 +1,11 @@
-TODO: field hook doesn't work
-TODO: hook browser resize -> reposition prompts
-TODO: bug, prompt construction
+TODO: Implement ajax submit
 TODO  implement Play validators
+
+TODO: hook browser resize -> reposition prompts
 TODO: multiple forms: positionning issue
-TODO: build demo pages
+TODO: build demo pages -> IN PROGRESS
 TODO: write documentation
 TODO: split the translation files - they hold data for the demos
-TODO: Implement ajax submit
 TODO: Provide a minimized version
+
+FIXED: field hook doesn't work
