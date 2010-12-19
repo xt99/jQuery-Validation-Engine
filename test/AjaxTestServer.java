@@ -12,6 +12,7 @@ import java.util.Properties;
 public class AjaxTestServer extends NanoHTTPD {
 
 	private static final int PORT = 9173;
+	public static final String MIME_JSON = "application/json";
 
 	public AjaxTestServer() throws IOException {
 		super(PORT);
@@ -19,20 +20,39 @@ public class AjaxTestServer extends NanoHTTPD {
 
 	public Response serve(String uri, String method, Properties header, Properties parms) {
 
-		if ("validateUuser".equals(uri)) {
+		if ("validateUser".equals(uri)) {
 
 			System.out.println(method + " '" + uri + "' ");
-			String msg = "<html><body><h1>Hello server</h1>\n";
-			if (parms.getProperty("username") == null)
-				msg += "<form action='?' method='get'>\n" + "  <p>Your name: <input type='text' name='username'></p>\n"
-						+ "</form>\n";
-			else
-				msg += "<p>Hello, " + parms.getProperty("username") + "!</p>";
 
-			msg += "</body></html>\n";
-			return new NanoHTTPD.Response(HTTP_OK, MIME_HTML, msg);
+			// purposely sleep during 3s to let the UI display the ajax loading
+			// prompts
+			sleep(3000);
+
+			String validateValue = parms.getProperty("validateValue");
+			String validateId = parms.getProperty("validateId");
+			String validateError = parms.getProperty("validateError");
+
+			Object[] result = new String[3];
+			result[0] = validateId;
+			result[1] = validateError;
+			result[2] = new Boolean("karnius".equals(validateValue));
+
+			StringBuffer json = new StringBuffer();
+
+			json.append("{'jsonValidateReturn':" + "" + "}");
+
+			return new NanoHTTPD.Response(HTTP_OK, MIME_JSON, json.toString());
 		} else
 			return super.serve(uri, method, header, parms);
+	}
+
+	private void sleep(long duration) {
+		try {
+			Thread.sleep(duration);
+		} catch (InterruptedException e) {
+
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args) {
