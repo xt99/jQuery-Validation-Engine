@@ -20,12 +20,11 @@ public class AjaxTestServer extends NanoHTTPD {
 
 	public Response serve(String uri, String method, Properties header, Properties parms) {
 
-		if ("validateUser".equals(uri)) {
+		if ("ajaxValidateFieldUser".equals(uri)) {
 
 			System.out.println(method + " '" + uri + "' ");
 
-			// purposely sleep during 3s to let the UI display the ajax loading
-			// prompts
+			// purposely sleep to let the UI display the AJAX loading prompts
 			sleep(3000);
 
 			String validateValue = parms.getProperty("validateValue");
@@ -37,13 +36,28 @@ public class AjaxTestServer extends NanoHTTPD {
 			result[1] = validateError;
 			result[2] = new Boolean("karnius".equals(validateValue));
 
+			// Play! comes with its own JSON marshaller, this is only there for
+			// simplicity
 			StringBuffer json = new StringBuffer();
 
-			json.append("{'jsonValidateReturn':" + "" + "}");
+			// {"jsonValidateReturn":["fieldId","prompt error","validation result:true/false"]}
+			json.append("{'jsonValidateReturn':[");
+			for (int i = 0; i < result.length; i++) {
+				json.append(result[i]);
+				if (i < result.length)
+					json.append(",");
+			}
+			json.append("]}");
 
 			return new NanoHTTPD.Response(HTTP_OK, MIME_JSON, json.toString());
-		} else
-			return super.serve(uri, method, header, parms);
+		} else if ("ajaxSubmitForm".equals(uri)) {
+			System.out.println(method + " '" + uri + "' ");
+
+			// purposely sleep to let the UI display the AJAX loading prompts
+			sleep(3000);
+
+		}
+		return super.serve(uri, method, header, parms);
 	}
 
 	private void sleep(long duration) {
@@ -62,11 +76,12 @@ public class AjaxTestServer extends NanoHTTPD {
 			System.err.println("Couldn't start server:\n" + ioe);
 			System.exit(-1);
 		}
-		System.out.println("Listening on port " + PORT + ". Hit Enter to stop.\n");
+		System.out.println("Listening on port " + PORT + ". Hit Enter to stop.\nPlease open your browsers to http://localhost:"
+				+ PORT);
 		try {
 			System.in.read();
 		} catch (Throwable t) {
 		}
-		;
+		
 	}
 }

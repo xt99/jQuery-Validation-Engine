@@ -11,15 +11,21 @@
  */
 // TODO: field hook doesn't work
 // TODO: hook browser resize -> reposition prompts
-// TODO: bug, prompt positioning 
+// TODO: bug, prompt construction
 // TODO: multiple forms: positionning issue
-// TODO: test ajax using node.js
 // TODO: build demo pages
 // TODO: write documentation
+// TODO: split the translation files - they hold test data
+// TODO: Implement ajax submit
+// TODO: Provide a minimized version
 (function($){
 
     var methods = {
     
+		/**
+		 * Kind of the constructor, called before any action
+		 * @param {Map} user options
+		 */
         init: function(options){
         
             var form = this;
@@ -37,6 +43,9 @@
             }
         },
         
+		/**
+		 * Attachs jQuery.validationEngine to form.submit and field.blur
+		 */
         attach: function(){
             var form = this;
             var options = form.data('jqv');
@@ -53,6 +62,9 @@
             
         },
         
+		/**
+         * Unregisters any bindings that may point to jQuery.validaitonEngine
+         */
         detach: function(){
             var form = this;
             var options = f.data('jqv');
