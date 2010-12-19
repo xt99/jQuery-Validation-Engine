@@ -696,6 +696,7 @@ public class NanoHTTPD
 		StringTokenizer st = new StringTokenizer(
 			"htm		text/html "+
 			"html		text/html "+
+			//orefalo: added css and js mime types
 			"css		text/css "+
 			"js		application/javascript "+
 			"txt		text/plain "+

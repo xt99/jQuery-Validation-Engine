@@ -2,7 +2,12 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * An example of subclassing NanoHTTPD to make a custom HTTP server.
+ * This java class implements a basic HTTP server aimed at testing the
+ * jQuery.validate AJAX capabilities. Note that this file shouldn't be taken as
+ * best practice for java backend development. There are much better frameworks
+ * to do server side processing in Java, for instance, the Play Framework.
+ * 
+ * @author Olivier Refalo
  */
 public class AjaxTestServer extends NanoHTTPD {
 
@@ -14,7 +19,7 @@ public class AjaxTestServer extends NanoHTTPD {
 
 	public Response serve(String uri, String method, Properties header, Properties parms) {
 
-		if ("test1".equals(uri)) {
+		if ("validateUuser".equals(uri)) {
 
 			System.out.println(method + " '" + uri + "' ");
 			String msg = "<html><body><h1>Hello server</h1>\n";
