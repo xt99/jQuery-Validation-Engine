@@ -255,7 +255,6 @@
             
             var ajaxValidate = false;
             
-            // orefalo: review if we should store these variable in options
             options.isError = false;
             options.showArrow = true;
             var promptText = "";
@@ -397,21 +396,6 @@
             if (!pattern.test(field.attr('value'))) {
                 return options.allrules[customRule].alertText;
             }
-        },
-        /**
-         * Validate exempt
-         *
-         * @param {jqObject} field
-         * @param {Array[String]} rules
-         * @param {int} i rules index
-         * @param {Map}
-         *            user options
-         * @return an error string if validation failed
-         */
-        _exemptString: function(field, rules, i, options){
-            var customString = rules[i + 1];
-            if (field.attr('value') == customString) 
-                return options.allrules.required.alertText;
         },
         
         /**
