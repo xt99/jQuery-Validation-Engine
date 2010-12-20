@@ -15,98 +15,129 @@
             $(document).ready(function(){
             
                 $("#formID").validationEngine({
-                    containerOverflow: true,
-                    containerOverflowDOM: "#divOverflown"
+                    isOverflown: true,
+                    overflownDIV: "#divOverflown"
                 });
                 $("#formID").validationEngine('attach');
                 
             });
-                 </script>
+         </script>
     </head>
     <body>
         <div id="divOverflown" style="overflow:scroll; padding-top:50px; margin-top:300px; position:relative; float:left; height: 300px; width:900px;">
-            <form id="formID" class="formular" method="post" action="">
-                <fieldset>
-                    <legend>
-                        User informations
-                    </legend>
-                    <label>
-                        <span>Last name : </span>
-                        <div class="inputContainer">
-                            <input value="" class="validate[required,custom[onlyLetter],length[0,100]] text-input" type="text" id="lastname" name="lastname" />
-                        </div>
-                    </label>
-                    <div>
-                        <span>Radio Groupe : 
-                            <br/>
-                        </span>
-                        <span>radio 1: </span>
-                        <br clear="all" />
-                        <div class="inputContainer">
-                            <input class="validate[required] radio" type="radio" name="data[User][preferedColor]" id="radio1" value="5">
-                        </div>
-                        <br clear="all" />
-                        <span>radio 2: </span>
-                        <br clear="all" />
-                        <div class="inputContainer">
-                            <input class="validate[required] radio" type="radio" name="data[User][preferedColor]" id="radio2" value="3"/>
-                        </div>
-                        <br clear="all" />
-                        <span>radio 3: </span>
-                        <br clear="all" />
-                        <div class="inputContainer">
-                            <input class="validate[required] radio" type="radio" name="data[User][preferedColor]" id="radio3" value="9"/>
-                        </div>
-                    </div>
-                    <div>
-                        <br clear="all" />
-                        <span>Minimum 2 checkbox : 
-                            <br/>
-                        </span>
-                        <br clear="all" />
-                        <div class="inputContainer">
-                            <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck1" value="5">
-                        </div>
-                        <div class="inputContainer">
-                            <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck2" value="3"/>
-                        </div>
-                        <div class="inputContainer">
-                            <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck3" value="9"/>
-                        </div>
-                    </div>
-                    <br clear="all" />
-                    <label>
-                        <span>Date : (format YYYY-MM-DD)</span>
-                        <div class="inputContainer">
-                            <input value="1111-11-11" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
-                        </div>
-                    </label>
-                    <br clear="all" />
-                    <label>
-                        <span>Favorite sport 1:</span>
-                        <br clear="all" />
-                        <div class="inputContainer">
-                            <select name="sport" id="sport" class="validate[required]" id="sport">
-                                <option value="">Choose a sport</option>
-                                <option value="option1">Tennis</option>
-                                <option value="option2">Football</option>
-                                <option value="option3">Golf</option>
-                            </select>
-                        </div>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <legend>
-                        Comments
-                    </legend>
-                    <label>
-                        <span>Comments : </span>
-                        <div class="inputContainer">
-                        <textarea value="ced@hotmail.com" class="validate[required,length[6,300]] text-input" name="comments" id="comments" />
-                        </textarea>
-                    </div>
-                    </label>
-                </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
-            </form>
+          <form id="formID" class="formular" method="post" action="">
+            <fieldset>
+                <legend>
+                    Phone
+                </legend>
+                <label>
+                    +103-304-340-4300-043
+                    <br/>
+                    +1 305 768 23 34 ext 23
+                    <br/>
+                    +1 (305) 768-2334 extension 703
+                    <br/>
+                    +1 (305) 768-2334 x703
+                    <br/>
+                    04312 / 777 777
+                    <br/>
+                    01-47.34/32 56
+                    <br/>
+                    (01865)  123456
+                    <br/>
+                    <span>Phone : </span>
+                    <input value="+1 305 768 23 34 ext 23 BUG" class="validate[required,custom[phone]] text-input" type="text" name="telephone" id="telephone" />
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    URL
+                </legend>
+                <label>
+                    URL begin with http:// https:// or fpl://
+                    <br/>
+                    <span>Enter a URL : </span>
+                    <input value="http://" class="validate[required,custom[url]] text-input" type="text" name="url" id="url" />
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Email
+                </legend>
+                <label>
+                    <span>Email address : </span>
+                    <input value="forced_error" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    IP Address
+                </legend>
+                <label>
+                    <span>IP: </span>
+                    <input value="192.168.3." class="validate[required,custom[ipv4]] text-input" type="text" name="ip" id="ip" />
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Date
+                </legend>
+                <label>
+                    ISO 8601 dates only YYYY-mm-dd
+                    <br/>
+                    <span>Date: </span>
+                    <input value="201-12-01" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Number
+                </legend>
+                <label>
+                    a signed floating number, ie: -3849.354, 38.00, 38, .77
+                    <br/>
+                    <span>Number: </span>
+                    <input value="-33.87a" class="validate[required,custom[number]] text-input" type="text" name="number" id="number" />
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Integer
+                </legend>
+                <label>
+                    an signed integer: ie +34, 34 or -1
+                    <br/>
+                    <span>Number: </span>
+                    <input value="10.1" class="validate[required,custom[integer]] text-input" type="text" name="integer" id="integer" />
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    NoSpecialCaracters
+                </legend>
+                <label>
+                    <span>only [0-9a-zA-Z]</span>
+                    <input value="too many spaces obviously" class="validate[required,custom[noSpecialCaracters]] text-input" type="text" name="special" id="special" />
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Only Numbers (char)
+                </legend>
+                <label>
+                    <span>only [0-9] and space</span>
+                    <input value="10.1" class="validate[required,custom[onlyNumber]] text-input" type="text" name="onlynumber" id="onlynumber" />
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    OnlyLetter
+                </legend>
+                <label>
+                    <span>only ascii letters, space and '</span>
+                    <input value="this is an invalid char '.'" class="validate[required,custom[onlyLetter]] text-input" type="text" name="onlyascii" id="onlyascii" />
+                </label>
+            </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
+        </form>
             </body>
         </html>

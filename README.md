@@ -40,7 +40,10 @@ Validators
 Customizations
 ----
 
-### More rules
+### Rules
+
+Adding regular expressions
+
 
 ### CSS
 

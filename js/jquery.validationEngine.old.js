@@ -1464,10 +1464,10 @@
 			// if an error was raised, display the prompts
 			if (errorFound || !$.validationEngine.ajaxValid) {
 				if ($.validationEngine.settings.scroll) {
-					if (!$.validationEngine.settings.containerOverflow) {
+					// get the position of the first error
+					var destination = $(".formError:not('.greenPopup'):first").offset().top;
 
-						// get the position of the first error
-						var destination = $(".formError:not('.greenPopup'):first").offset().top;
+					if (!$.validationEngine.settings.containerOverflow) {
 						$(".formError:not('.greenPopup')").each(function() {
 							var testDestination = $(this).offset().top;
 							if (destination > testDestination)
@@ -1477,7 +1477,6 @@
 							scrollTop : destination
 						}, 1100);
 					} else {
-						var destination = $(".formError:not('.greenPopup'):first").offset().top;
 						var scrollContainerScroll = $($.validationEngine.settings.containerOverflowDOM).scrollTop();
 						var scrollContainerPos = -parseInt($($.validationEngine.settings.containerOverflowDOM).offset().top);
 						destination = scrollContainerScroll + destination + scrollContainerPos - 5;

@@ -9,15 +9,14 @@
  * and everyone helping me find bugs on the forum
  * Licenced under the MIT Licence
  */
-
 (function($){
 
     var methods = {
     
-		/**
-		 * Kind of the constructor, called before any action
-		 * @param {Map} user options
-		 */
+        /**
+         * Kind of the constructor, called before any action
+         * @param {Map} user options
+         */
         init: function(options){
         
             var form = this;
@@ -35,16 +34,16 @@
             }
         },
         
-		/**
-		 * Attachs jQuery.validationEngine to form.submit and field.blur
-		 */
+        /**
+         * Attachs jQuery.validationEngine to form.submit and field.blur
+         */
         attach: function(){
             var form = this;
             var options = form.data('jqv');
             if (!options.binded) {
             
                 // bind fields
-                form.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTriggers, methods._onFieldEvent);
+                form.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTrigger, methods._onFieldEvent);
                 form.find("[class*=validate][type=checkbox]").bind("click", methods._onFieldEvent);
                 
                 // bind form.submit
@@ -54,7 +53,7 @@
             
         },
         
-		/**
+        /**
          * Unregisters any bindings that may point to jQuery.validaitonEngine
          */
         detach: function(){
@@ -62,7 +61,7 @@
             var options = f.data('jqv');
             if (options.binded) {
                 // unbind fields
-                form.find("[class*=validate]").not("[type=checkbox]").unbind(options.validationEventTriggers, methods._onFieldEvent);
+                form.find("[class*=validate]").not("[type=checkbox]").unbind(options.validationEventTrigger, methods._onFieldEvent);
                 form.find("[class*=validate][type=checkbox]").unbind("click", methods._onFieldEvent);
                 
                 // unbind form.submit
@@ -118,7 +117,7 @@
          * validation
          */
         _onFieldEvent: function(){
-			var field = $(this);
+            var field = $(this);
             var form = field.closest('form');
             var options = form.data('jqv');
             // validate the current field
@@ -177,33 +176,36 @@
                 }
             }
             
-            // if an error was raised, scroll the container
+            // If an error was raised, scroll the container
             if (errorFound || !ajaxValid) {
                 if (options.scroll) {
-                    if (!options.containerOverflow) {
+                
+                    // get the position of the first error, there should be at least one, no need to check fro undefined
+                    //var destination = form.find(".formError:not('.greenPopup'):first").offset().top;
                     
-                        // get the position of the first error
-                        var destination = form.find(".formError:not('.greenPopup'):first").offset().top;
-						// there should be at least one, no need to check for undefined
-                        form.find(".formError:not('.greenPopup')").each(function(){
-                            var testDestination = $(this).offset().top;
-                            if (destination > testDestination) 
-                                destination = $(this).offset().top;
-                        });
+                    // look for the visually top prompt
+					var destination = Number.MAX_VALUE;
+                    
+                    var lst = form.find(".formError:not('.greenPopup')");
+                    for (var i = 0; i < lst.length; i++) {
+                        var d = $(lst[i]).offset().top;
+                        if (d < destination) 
+                            destination = d;
+                    }
+                    
+                    if (!options.isOverflown)
                         $("html:not(:animated),body:not(:animated)").animate({
                             scrollTop: destination
                         }, 1100);
-                    }
                     else {
-                        // orefalo: debug, search in the form
-                        var destination = form.find(".formError:not('.greenPopup'):first").offset().top;
-                        var scrollContainerScroll = form.find(options.containerOverflowDOM).scrollTop();
-                        var scrollContainerPos = -parseInt($(options.containerOverflowDOM).offset().top);
+                        var overflowDIV = $(options.overflownDIV);
+                        var scrollContainerScroll = overflowDIV.scrollTop();
+                        var scrollContainerPos = -parseInt(overflowDIV.offset().top);
                         
-                        destination += scrollContainerScroll + scrollContainerPos - 5;
-                        var scrollContainer = options.containerOverflowDOM + ":not(:animated)";
+                        //destination += scrollContainerScroll + scrollContainerPos - 5;
+                        var scrollContainer = $(options.overflownDIV + ":not(:animated)");
                         
-                        $(scrollContainer).animate({
+                        scrollContainer.animate({
                             scrollTop: destination
                         }, 1100);
                     }
@@ -424,8 +426,6 @@
          */
         _funcCall: function(field, rules, i, options){
             var functionName = rules[i + 1];
-            //var funce = options.allrules[customRule].name;
-            
             var fn = window[functionName];
             if (typeof(fn) === 'function') 
                 return fn(field, rules, i, options);
@@ -631,7 +631,6 @@
          * @param {Map} options user options
          */
         _showPrompt: function(field, promptText, type, ajaxed, options){
-            // orefalo: change the methods, have them deal with the prompt
             var prompt = methods._getPrompt(field);
             if (prompt) 
                 methods._updatePrompt(field, prompt, promptText, type, ajaxed, options);
@@ -650,12 +649,13 @@
          */
         _buildPrompt: function(field, promptText, type, ajaxed, options){
         
+            // we don't need this test, if prompt is here, the code calls _updatePrompt
             // discard prompt if already there
-           // var prompt = methods._getPrompt(field);
-           //if (prompt) {
-           //     prompt.stop();
-           //     prompt.remove();
-           // }
+            // var prompt = methods._getPrompt(field);
+            //if (prompt) {
+            //     prompt.stop();
+            //     prompt.remove();
+            // }
             
             // create the prompt
             prompt = $('<div>');
@@ -694,7 +694,7 @@
             
             // insert prompt in the form or in the overflown container?
             // orefalo: is this really required.. test it
-            //if (options.containerOverflow)
+            //if (options.isOverflown)
             field.before(prompt);
             //else
             //	$("body").append(prompt);
@@ -804,7 +804,7 @@
                 $.error("NO OPTIONS!");
             }
             
-            var overflow = options.containerOverflow;
+            var overflow = options.isOverflown;
             if (overflow) {
                 // Is the form contained in an overflown container?
                 promptTopPosition = promptleftPosition = 0;
@@ -870,20 +870,18 @@
             
             var userOptions = $.extend({
             
-                // orefalo: rename the variable name, it should b singular
-                validationEventTriggers: "blur",
-                
+                // Name of the event triggering field validation
+                validationEventTrigger: "blur",
                 // Automatically scroll viewport to the first error
                 scroll: true,
                 // Opening box position, possible locations are: topLeft,
                 // topRight, bottomLeft, centerRight, bottomRight
                 promptPosition: "topRight",
-                // callback method when the validation fails
+                // Callback method when the validation fails
                 onFailure: $.noop,
-                
-                // used when the form is displayed within a frame
-                containerOverflow: false,
-                containerOverflowDOM: "",
+                // Used when the form is displayed within a scrolling DIV
+                isOverflown: false,
+                overflownDIV: "",
                 
                 // --- Internals DO NOT TOUCH or OVERLOAD ---
                 // validation rules and i18
@@ -893,12 +891,11 @@
                 // set to true, when the prompt arrow needs to be displayed
                 showArrow: true,
                 
-                
+                // orefalo: figure how these variables r used
                 success: false,
                 ajaxSubmit: false,
                 ajaxValidArray: [],
                 ajaxValid: true,
-                
                 isError: false
             }, options);
             

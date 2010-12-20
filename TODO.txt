@@ -1,6 +1,8 @@
 TODO: Implement ajax submit
 TODO  implement Play validators
 
+TODO: use a stack for validation parsing
+TODO: rename customer rule to regex
 TODO: hook browser resize -> reposition prompts
 TODO: multiple forms: positionning issue
 TODO: build demo pages -> IN PROGRESS
