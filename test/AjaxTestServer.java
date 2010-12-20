@@ -34,16 +34,10 @@ public class AjaxTestServer extends NanoHTTPD {
 
 	    String fieldId = parms.getProperty("fieldId");
 	    String fieldValue = parms.getProperty("fieldValue");
-	    String rule = parms.getProperty("rule");
 
-	    String json;
-	    if ("karnius".equals(fieldValue))
-		json = "true";
-	    else
-	    {
-		String[] result = { fieldId, rule, "false" };
-		json = genError(result);
-	    }
+		String[] result = { fieldId, "karnius".equals(fieldValue) };
+		String json = genError(result);
+	   
 	    return new NanoHTTPD.Response(HTTP_OK, MIME_JSON, json);
 	}
 	// This is a form validation, we get the form data
