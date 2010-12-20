@@ -23,7 +23,7 @@
             <a href="#" onclick="alert('is the form valid? '+$('#formID').validationEngine('validate')">Evaluate form</a>
             | <a href="#" onclick="$('#formID').validationEngine('showPrompt', 'This is an example', 'pass')">Build a prompt on a div</a>
             | <a href="#" onclick="$('#formID').validationEngine('hide')">Close all prompts</a>
-			| <a href="#" onclick="index.html">Back to index</a>
+            | <a href="#" onclick="index.html">Back to index</a>
         </p>
         <p>
             This demonstration shows extended features around checkboxes
@@ -38,7 +38,7 @@
                         <br/>
                     </span>
                     <span>radio 1: </span>
-                    <input class="validate[required] radio" type="radio" name="data[User][preferedColor]" id="radio1" value="5"><span>radio 2: </span>
+                    <input class="validate[required] radio" type="radio" name="data[User][preferedColor]" id="radio1" value="5"/><span>radio 2: </span>
                     <input class="validate[required] radio" type="radio" name="data[User][preferedColor]" id="radio2" value="3"/><span>radio 3: </span>
                     <input class="validate[required] radio" type="radio" name="data[User][preferedColor]" id="radio3" value="9"/>
                 </div>
@@ -46,7 +46,9 @@
                     <span>Minimum 2 checkbox : 
                         <br/>
                     </span>
-                    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="data[User3][preferedColor]" value="5"><input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck2" value="3"/><input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck3" value="9"/>
+                    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck1" value="5"/>
+					<input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck2" value="3"/>
+					<input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck3" value="9"/>
                 </div>
             </fieldset>
             <fieldset>

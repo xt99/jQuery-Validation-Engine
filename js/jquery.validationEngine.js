@@ -255,6 +255,8 @@
             
             var ajaxValidate = false;
             
+			var fieldName = field.attr("name");
+			
             options.isError = false;
             options.showArrow = true;
             var promptText = "";
@@ -287,14 +289,12 @@
                     case "maxCheckbox":
                         errorMsg = methods._maxCheckbox(field, rules, i, options);
                         var groupname = field.attr("name");
-                        // orefalo a revoir
-                        caller = $("input[name='" + groupname + "']");
+                        field = $($("input[name='" + groupname + "']"));
                         break;
                     case "minCheckbox":
                         errorMsg = methods._minCheckbox(field, rules, i, options);
                         var groupname = field.attr("name");
-                        // orefalo a revoir
-                        caller = $("input[name='" + groupname + "']");
+                        field = $($("input[name='" + groupname + "']"));
                         break;
                     case "equals":
                         errorMsg = methods._equals(field, rules, i, options);
@@ -315,9 +315,9 @@
             // Hack for radio/checkbox group button, the validation go into the
             // first radio/checkbox of the group
             var fieldType = field.attr("type");
-            var fieldName = field.attr("name");
+
             if ((fieldType == "radio" || fieldType == "checkbox") && $("input[name='" + fieldName + "']").size() > 1) {
-                caller = $("input[name='" + callerName + "'][type!=hidden]:first");
+                field = $($("input[name='" + fieldName + "'][type!=hidden]:first"));
                 options.showArrow = false;
             }
             
@@ -490,7 +490,7 @@
         _minCheckbox: function(field, rules, i, options){
         
             var nbCheck = eval(rules[i + 1]);
-            var groupname = $(field).attr("name");
+            var groupname = field.attr("name");
             var groupSize = $("input[name='" + groupname + "']:checked").size();
             if (groupSize < nbCheck) {
                 options.showArrow = false;
@@ -694,7 +694,7 @@
             
             return prompt.animate({
                 "opacity": 0.87
-            });
+            },function(){return true;});
             
         },
         
@@ -783,11 +783,7 @@
             var promptTopPosition, promptleftPosition, marginTopSize;
             var fieldWidth = field.width();
             var promptHeight = promptElmt.height();
-            
-            if (!options) {
-                $.error("NO OPTIONS!");
-            }
-            
+                      
             var overflow = options.isOverflown;
             if (overflow) {
                 // Is the form contained in an overflown container?
