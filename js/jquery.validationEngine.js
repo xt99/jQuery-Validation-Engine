@@ -513,30 +513,28 @@
         
             // orefalo: review variable scope
             var customAjaxRule = rules[i + 1];
-            var posturl = options.allrules[customAjaxRule].file;
+			var rule = options.allrules[customAjaxRule];
+            //var posturl = options.allrules[customAjaxRule].file;
             //var fieldValue = field.val();
             //var ajaxCaller = field;
             //var fieldId = field.attr("id");
             var ajaxValidate = true;
-            var ajaxisError = option.isError;
+            //var ajaxisError = option.isError;
             
-            var extraData = "";
-            if (options.allrules[customAjaxRule].extraData) 
-                extraData = options.allrules[customAjaxRule].extraData;
+            var extraData = rule.extraData;
+            if (!extraData) 
+                extraData = "";
             
-            if (!ajaxisError) {
+            if (!option.isError) {
                 $.ajax({
                     type: "POST",
-                    url: posturl,
+                    url: rule.file,
                     cache: false,
-                    data: "validateValue=" + fieldValue + "&validateId=" + fieldId + "&validateError=" +
-                    customAjaxRule +
-                    "&extraData=" +
-                    extraData,
+                    data: "fieldValue=" + fieldValue + "&fieldId=" + fieldId + "&fieldError=" + customAjaxRule + "&extraData=" + extraData,
                     beforeSend: function(){
                     
-                        // BUILD A LOADING PROMPT IF LOAD TEXT EXIST
-                        var loadingText = options.allrules[customAjaxRule].alertTextLoad;
+                        // build the loading prompt
+                        var loadingText = rule.alertTextLoad;
                         if (loadingText) 
                             methods._showPrompt(field, promptText, "load", true, options);
                     },
@@ -546,13 +544,18 @@
                     success: function(data){
                         // GET SUCCESS DATA RETURN JSON
                         data = eval("(" + data + ")");
+						if(data == "true")
+						{
+							//done!
+							closePr
+						}
                         
                         // GET JSON DATA FROM PHP AND PARSE IT
-                        ajaxCaller = $("#" + data.jsonValidateReturn[0])[0];
-                        customAjaxRule = data.jsonValidateReturn[1];
-                        ajaxisError = data.jsonValidateReturn[2];
-                        var fieldId = ajaxCaller;
-                        var existInarray;
+                        var errorField = $("#" + data.jsonValidateReturn[0])[0];
+                       var  customAjaxRule = data.jsonValidateReturn[1];
+                        options.isError = !data.jsonValidateReturn[2];
+                      //  var fieldId = ajaxCaller;
+                      //  var existInarray;
                         
                         // DATA FALSE UPDATE PROMPT WITH ERROR;
                         if (ajaxisError == "false") {
@@ -572,7 +575,7 @@
                             
                             $.validationEngine.ajaxValid = false;
                             promptText += options.allrules[customAjaxRule].alertText;
-                            $.validationEngine.updatePromptText(ajaxCaller, promptText, "", true);
+                            $.validationEngine._showPromptText(ajaxCaller, promptText, "", true);
                         }
                         else {
                         
@@ -870,13 +873,14 @@
                 binded: false,
                 // set to true, when the prompt arrow needs to be displayed
                 showArrow: true,
-                
+				// did one of the validation fail ? kept global to stop further ajax validations
+                isError: false,   
                 // orefalo: figure how these variables r used
                 success: false,
                 ajaxSubmit: false,
                 ajaxValidArray: [],
-                ajaxValid: true,
-                isError: false
+                ajaxValid: true
+             
             }, options);
             
             form.data('jqv', userOptions);

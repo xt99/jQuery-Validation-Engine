@@ -33,15 +33,15 @@ public class AjaxTestServer extends NanoHTTPD {
 	    sleep(3000);
 
 	    String fieldId = parms.getProperty("fieldId");
-	    String fieldValue = parms.getProperty("validateValue");
-	    String fieldErrorMsg = parms.getProperty("validateError");
+	    String fieldValue = parms.getProperty("fieldValue");
+	    String rule = parms.getProperty("rule");
 
 	    String json;
 	    if ("karnius".equals(fieldValue))
 		json = "true";
 	    else
 	    {
-		String[] result = { fieldId, fieldErrorMsg, "false" };
+		String[] result = { fieldId, rule, "false" };
 		json = genError(result);
 	    }
 	    return new NanoHTTPD.Response(HTTP_OK, MIME_JSON, json);
@@ -79,7 +79,7 @@ public class AjaxTestServer extends NanoHTTPD {
 
     private String genError(String[] result)
     {
-	// Play! typically comes with its own JSON marshaler, this is dirty way
+	// PlayFramework! typically comes with its own JSON marshaler, this is dirty way
 	// around the need to import a third party library and add complexity
 	StringBuffer json = new StringBuffer();
 
