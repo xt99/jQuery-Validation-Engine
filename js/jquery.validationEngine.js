@@ -654,10 +654,10 @@
             
             // insert prompt in the form or in the overflown container?
             // orefalo: is this really required.. test it
-            //if (options.isOverflown)
-            field.before(prompt);
-            //else
-            //  $("body").append(prompt);
+            if (options.isOverflown)
+              field.before(prompt);
+            else
+              $("body").append(prompt);
             
             var pos = methods._calculatePosition(field, prompt, options);
             prompt.css({
