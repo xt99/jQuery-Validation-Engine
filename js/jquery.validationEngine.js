@@ -3,7 +3,7 @@
  *
  * Copyright(c) 2010, Cedric Dugas
  * http://www.position-absolute.com
- * 
+ *
  * 2.0 Rewrite by Olivier Refalo
  * http://www.crionics.com
  *
@@ -44,7 +44,7 @@
             if (!options.binded) {
             
                 // bind fields
-                form.delegate("[class*=validate]:not[type=checkbox]",options.validationEventTrigger, methods._onFieldEvent);  // Delegate performs a lot better tahn bind on multiple nodes and we keep the context
+                form.delegate("[class*=validate]:not[type=checkbox]", options.validationEventTrigger, methods._onFieldEvent); // Delegate performs a lot better tahn bind on multiple nodes and we keep the context
                 form.delegate("[class*=validate][type=checkbox]", "click", methods._onFieldEvent);
                 
                 // bind form.submit
@@ -62,8 +62,8 @@
             var options = form.data('jqv');
             if (options.binded) {
                 // unbind fields
-                form.undelegate("[class*=validate]:not[type=checkbox]",options.validationEventTrigger, methods._onFieldEvent);
-                form.undelegate("[class*=validate][type=checkbox]","click", methods._onFieldEvent);
+                form.undelegate("[class*=validate]:not[type=checkbox]", options.validationEventTrigger, methods._onFieldEvent);
+                form.undelegate("[class*=validate][type=checkbox]", "click", methods._onFieldEvent);
                 
                 // unbind form.submit
                 form.unbind("submit", methods._onSubmitEvent);
@@ -126,6 +126,19 @@
         },
         
         /**
+         * Called when the form is submited, shows prompts accordingly
+         *
+         * @param {jqObject}
+         *            form
+         * @return false if form submission needs to be cancelled
+         */
+        _onSubmitEvent: function(){
+        
+            var form = $(this);
+            return methods._validateForm(form);
+        },
+        
+        /**
          * Return true if the ajax field validations passed so far
          * @param {Object} options
          * @return true, is all ajax validation passed so far (remember ajax is async)
@@ -140,25 +153,6 @@
                 }
             });
             return status;
-        },
-        
-        /**
-         * Called when the form is submited, shows prompts accordingly
-         *
-         * @param {jqObject}
-         *            form
-         * @return false if form submission needs to be cancelled
-         */
-        _onSubmitEvent: function(){
-        
-            var form = $(this);
-            if (methods._validateForm(form) === false) {
-                // if the form is invalid, give control to the callback method
-                // and prevent the form submission
-                var options = form.data('jqv');
-                options.onFailure();
-                return false;
-            }
         },
         
         /**
@@ -267,7 +261,7 @@
             var isAjaxValidator = false;
             var fieldName = field.attr("name");
             var promptText = "";
-      
+            
             options.isError = false;
             options.showArrow = true;
             
@@ -440,7 +434,7 @@
             var equalsField = rules[i + 1];
             
             if (field.attr('value') != $("#" + equalsField).attr('value')) 
-                return options.allrules["equals"].alertText;
+                return options.allrules.equals.alertText;
         },
         /**
          * Field length
@@ -458,7 +452,7 @@
             var len = field.attr('value').length;
             
             if (len < startLength || len > endLength) {
-                var rule = options.allrules["length"];
+                var rule = options.allrules.length;
                 return rule.alertText + startLength +
                 rule.alertText2 +
                 endLength +
@@ -478,7 +472,7 @@
          */
         _maxCheckbox: function(field, rules, i, options){
         
-            var nbCheck = eval(rules[i + 1]);
+            var nbCheck = rules[i + 1];
             var groupname = field.attr("name");
             // orefalo:fix bug, look in the current form
             var groupSize = $("input[name='" + groupname + "']:checked").size();
@@ -499,7 +493,7 @@
          */
         _minCheckbox: function(field, rules, i, options){
         
-            var nbCheck = eval(rules[i + 1]);
+            var nbCheck = rules[i + 1];
             var groupname = field.attr("name");
             var groupSize = $("input[name='" + groupname + "']:checked").size();
             if (groupSize < nbCheck) {
@@ -510,7 +504,7 @@
         },
         
         /**
-         * Validate AJAX rules
+         * Ajax field validation
          *
          * @param {jqObject} field
          * @param {Array[String]} rules
@@ -609,14 +603,6 @@
          */
         _buildPrompt: function(field, promptText, type, ajaxed, options){
         
-            // we don't need this test, if prompt is here, the parent code calls _updatePrompt
-            // discard prompt if already there
-            // var prompt = methods._getPrompt(field);
-            //if (prompt) {
-            //     prompt.stop();
-            //     prompt.remove();
-            // }
-            
             // create the prompt
             prompt = $('<div>');
             prompt.addClass(field.attr("id") + "formError");
@@ -653,11 +639,10 @@
             }
             
             // insert prompt in the form or in the overflown container?
-            // orefalo: is this really required.. test it
-            if (options.isOverflown)
-              field.before(prompt);
-            else
-              $("body").append(prompt);
+            if (options.isOverflown) 
+                field.before(prompt);
+            else 
+                $("body").append(prompt);
             
             var pos = methods._calculatePosition(field, prompt, options);
             prompt.css({
@@ -717,7 +702,7 @@
          *            field
          */
         _closePrompt: function(field){
-
+        
             var prompt = methods._getPrompt(field);
             if (prompt) 
                 prompt.fadeTo("fast", 0, function(){
@@ -730,7 +715,7 @@
          *
          * @param {jqObject}
          *            field
-         * @return undefined or error prompt jquery object
+         * @return undefined or the error prompt (jqObject)
          */
         _getPrompt: function(field){
         
@@ -833,14 +818,19 @@
                 // Opening box position, possible locations are: topLeft,
                 // topRight, bottomLeft, centerRight, bottomRight
                 promptPosition: "topRight",
-                // Callback method when the validation fails
-                onFailure: $.noop,
-                // Used when the form is displayed within a scrolling DIV
+                
+                
+				// Used when the form is displayed within a scrolling DIV
                 isOverflown: false,
                 overflownDIV: "",
-                // if set to true, the form does an ajax submit to the server and calls respectively onSuccess() or onFailure()
-                // orefalo: to implement
-                ajaxSubmit: false,
+				
+				
+                // URL pointing at the json service validation the form
+                // the validate() call performs an ajax server call and calls onAjaxFormComplete upon completion
+                ajaxFormValidationURL: undefined,
+                // Ajax form validation callback method: boolean onComplete(form, status, errors, options)
+				// retuns false if the form.submit event needs to be canceled.
+                onAjaxFormComplete: $.noop,
                 
                 // --- Internals DO NOT TOUCH or OVERLOAD ---
                 // validation rules and i18
@@ -862,7 +852,9 @@
     };
     
     /**
-     * Plugin entry point
+     * Plugin entry point.
+     * You may pass an action as a parameter or a list of options.
+     * if none, the init method is being called.
      *
      * @param {String}
      *            method (optional) action
@@ -870,7 +862,7 @@
     $.fn.validationEngine = function(method){
     
         var form = $(this);
-        // skip _methods
+        // skip private methods : _samplePrivateMethod
         if (typeof(method) === 'string' && method.charAt(0) != '_' && methods[method]) {
             // make sure init is being called at least once
             methods.init.apply(form);
@@ -881,7 +873,7 @@
                 return methods.init.apply(form, arguments);
             }
             else {
-                $.error('Method ' + method + ' does not exist on jQuery.validationEngine');
+                $.error('Method ' + method + ' does not exist in jQuery.validationEngine');
             }
     };
     
