@@ -58,7 +58,7 @@
          */
         detach: function(){
             var form = this;
-            var options = f.data('jqv');
+            var options = form.data('jqv');
             if (options.binded) {
                 // unbind fields
                 form.find("[class*=validate]").not("[type=checkbox]").unbind(options.validationEventTrigger, methods._onFieldEvent);
@@ -262,14 +262,13 @@
                 $.error("jQueryValidate: an ID attribute is required for this field: " + field.attr("name") + " class:" +
                 field.attr("class"));
             
-            var ajaxValidate = false;
-            
+            // true if we ran the ajax validation, tells the logic to stop messing with prompts
             var isAjaxValidator = false;
             var fieldName = field.attr("name");
-            
+            var promptText = "";
+			
             options.isError = false;
             options.showArrow = true;
-            var promptText = "";
             
             for (var i = 0; i < rules.length; i++) {
             
@@ -299,13 +298,11 @@
                         break;
                     case "maxCheckbox":
                         errorMsg = methods._maxCheckbox(field, rules, i, options);
-                        var groupname = field.attr("name");
-                        field = $($("input[name='" + groupname + "']"));
+                        field = $($("input[name='" + fieldName + "']"));
                         break;
                     case "minCheckbox":
                         errorMsg = methods._minCheckbox(field, rules, i, options);
-                        var groupname = field.attr("name");
-                        field = $($("input[name='" + groupname + "']"));
+                        field = $($("input[name='" + fieldName + "']"));
                         break;
                     case "equals":
                         errorMsg = methods._equals(field, rules, i, options);
