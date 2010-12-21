@@ -7,6 +7,9 @@ Summary
 Explain what the API does, high level
 add a gfx
 
+Running the Demos
+---
+
 
 Installation
 ---
@@ -54,7 +57,7 @@ Rules of thumb
 - for simplicity field.id and field.name should match
 - use the ajax validator as last validator
 - use lower cases for input.type
-
+- don't use spaces or special chars in id and names
 
 Authors
 ---

@@ -541,18 +541,19 @@
                         // build the loading prompt
                         var loadingText = rule.alertTextLoad;
                         if (loadingText) 
-                            methods._showPrompt(field, loadingText, "load", true, options);
+                            methods._showPrompt(field, loadingText, "load", false, options);
                     },
                     
                     error: function(data, transport){
-                        $.error("ajax error: " + data.status + " " + transport);
+						alert("ajax error: " + data.status + " " + transport);
+                   //     $.error("ajax error: " + data.status + " " + transport);
                     },
                     
                     success: function(data){
                     
                         // asynchronously called on success, data is the json answer from the server
                         
-                        alert("I see you :" + rule);
+                       // alert("I see you :" + rule);
                         data = eval("(" + data + ")");
                         
                         // parse the json data
@@ -561,7 +562,7 @@
                         //orefalo: do a validation, what is the field is not found?
                         var status = data.jsonValidateReturn[1];
                         
-                        if (status == "false") {
+                        if (status === false) {
                             // Huston we got a problem 
                             options.ajaxValidCache[errorFieldId] = false;
                             options.isError = true;
@@ -674,8 +675,6 @@
             
             return prompt.animate({
                 "opacity": 0.87
-            }, function(){
-                return true;
             });
             
         },

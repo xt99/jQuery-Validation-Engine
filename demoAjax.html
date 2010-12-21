@@ -39,9 +39,14 @@
 					<input value="cedric" class="validate[required,custom[noSpecialCaracters],length[0,20],ajax[ajaxUserCall]] text-input" type="text" name="user" id="user" />
 				</label>
 				<label>
-					<span>First name (ajax validation, only <b>dunca</b> is available): </span>
+					<span>First name (ajax validation, only <b>duncan</b> is available): </span>
 					<input value="olivier"  class="validate[custom[onlyLetter],length[0,100],ajax[ajaxNameCall]] text-input" type="text" name="firstname" id="firstname" />
 				</label>
+				<label>
+					<span>Email address : </span>
+					<input value="someone@here.com"  class="validate[required,custom[email]] text-input" type="text" name="email" id="email"  />
+				</label>
+
             </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
         </form>
     </body>

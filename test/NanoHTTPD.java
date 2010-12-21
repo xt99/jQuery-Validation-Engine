@@ -81,8 +81,9 @@ public class NanoHTTPD
 		while ( e.hasMoreElements())
 		{
 			String value = (String)e.nextElement();
-			System.out.println( "  HDR: '" + value + "' = '" +
-								header.getProperty( value ) + "'" );
+		// orefalo: way to much logging
+		//	System.out.println( "  HDR: '" + value + "' = '" +
+		//						header.getProperty( value ) + "'" );
 		}
 		e = parms.propertyNames();
 		while ( e.hasMoreElements())
