@@ -531,7 +531,7 @@
                 $.ajax({
                     type: "GET",
                     url: rule.url,
-                    // cache: false,
+                    cache: false,
                     data: "fieldId=" + field.attr("id") + "&fieldValue=" + field.attr("value") + "&extraData=" + extraData,
                     field: field,
                     rule: rule,
@@ -546,7 +546,6 @@
                     
                     error: function(data, transport){
                         alert("ajax error: " + data.status + " " + transport);
-                        //     $.error("ajax error: " + data.status + " " + transport);
                     },
                     
                     success: function(json){
@@ -558,7 +557,7 @@
                         var status = json.jsonValidateReturn[1];
                         
                         if (status === false) {
-                            // Huston we got a problem 
+                            // Houston we got a problem 
                             options.ajaxValidCache[errorFieldId] = false;
                             options.isError = true;
                             var promptText = rule.alertText;
@@ -684,7 +683,6 @@
          */
         _updatePrompt: function(field, prompt, promptText, type, ajaxed, options){
         
-            //var prompt = methods._getPrompt(field);
             if (prompt) {
                 if (type == "pass") 
                     prompt.addClass("greenPopup");
@@ -763,7 +761,7 @@
             
             var overflow = options.isOverflown;
             if (overflow) {
-                // Is the form contained in an overflown container?
+                // is the form contained in an overflown container?
                 promptTopPosition = promptleftPosition = 0;
                 // compensation for the arrow
                 marginTopSize = -promptHeight;
@@ -852,12 +850,8 @@
                 showArrow: true,
                 // did one of the validation fail ? kept global to stop further ajax validations
                 isError: false,
-                // orefalo: figure how these variables r used
-                success: false,
-                
                 // Caches field validation status
                 ajaxValidCache: {}
-                //ajaxValid: true
             
             }, options);
             
