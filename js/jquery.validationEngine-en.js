@@ -77,9 +77,10 @@
 				// --- CUSTOM RULES
                 "ajaxUserCall": {
                     "url": "ajaxValidateFieldUser",
+					// you may want to pass extra data on the ajax call
                     "extraData": "name=eric",
                     "alertText": "* This user is already taken",
-                    "alertTextLoad": "* Loading, please wait"
+                    "alertTextLoad": "* Validating, please wait"
                 },
                 "ajaxNameCall": {
 					// remote json service location
@@ -89,7 +90,7 @@
 					// if you provide an "alertTextOk", it will show as a green prompt when the field validates
                     "alertTextOk": "* This name is available",
 					// speaks by itself
-                    "alertTextLoad": "* Loading, please wait"
+                    "alertTextLoad": "* Validating, please wait"
                 },
                 "validate2fields": {
                     "alertText": "* Please input HELLO"

@@ -75,15 +75,14 @@
                     "alertText": "* Solo letras"
                 },
 				// --- CUSTOM RULES
-                "ajaxUser": {
-                    "file": "validateUser.php",
+                "ajaxUserCall": {
+                    "file": "ajaxValidateFieldName",
                     "extraData": "name=eric",
-                    "alertTextOk": "* Este nombre de usuario esta disponible",
                     "alertTextLoad": "* Cargando, espere por favor",
                     "alertText": "* Este nombre de usuario ya se encuentra ocupado"
                 },
-                "ajaxName": {
-                    "file": "validateUser.php",
+                "ajaxNameCall": {
+                    "file": "ajaxValidateFieldName",
                     "alertText": "* Este nombre ya se encuentra ocupado",
                     "alertTextOk": "* Este nombre esta disponible",
                     "alertTextLoad": "* Cargando, espere por favor"

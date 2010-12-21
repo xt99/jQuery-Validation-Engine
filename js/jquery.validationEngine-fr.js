@@ -76,14 +76,13 @@
                     "alertText": "* Lettres seulement accepté"
                 },
 				// --- CUSTOM RULES
-                "ajaxUser": {
-                    "file": "validateUser.php",
-                    "alertTextOk": "* Ce nom est déjà pris",
+                "ajaxUserCall": {
+                    "file": "ajaxValidateFieldName",
                     "alertTextLoad": "* Chargement, veuillez attendre",
                     "alertText": "* Ce nom est déjà pris"
                 },
-                "ajaxName": {
-                    "file": "validateUser.php",
+                "ajaxNameCall": {
+                    "file": "ajaxValidateFieldName",
                     "alertText": "* Ce nom est déjà pris",
                     "alertTextOk": "*Ce nom est disponible",
                     "alertTextLoad": "* LChargement, veuillez attendre"

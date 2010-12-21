@@ -67,31 +67,31 @@
                     "regex": /^[0-9\ ]+$/,
                     "alertText": "* Solo numeri"
                 },
-                "noSpecialCaracters": {
-                    "regex": /^[0-9a-zA-Z]+$/,
-                    "alertText": "* Caratteri speciali non permessi"
-                },
-                "ajaxUser": {
-                    "file": "validateUser.php",
-                    "extraData": "name=eric",
-                    "alertTextOk": "* Questo username è disponibile",
-                    "alertTextLoad": "* Caricamento, attendere per favore",
-                    "alertText": "* Questo user è già stato utilizzato"
-                },
-                "ajaxName": {
-                    "file": "validateUser.php",
-                    "alertText": "* Questo nome è già stato utilizzato",
-                    "alertTextOk": "* Questo nome è disponibile",
-                    "alertTextLoad": "* Caricamento, attendere per favore"
-                },
-                "onlyLetter": {
+				"onlyLetter": {
                     "regex": /^[a-zA-Z\ \']+$/,
                     "alertText": "* Solo lettere"
                 },
                 "validate2fields": {
                     "nname": "validate2fields",
                     "alertText": "* Occorre inserire nome e cognome"
+                },
+                "noSpecialCaracters": {
+                    "regex": /^[0-9a-zA-Z]+$/,
+                    "alertText": "* Caratteri speciali non permessi"
+                },
+                "ajaxUserCall": {
+                    "file": "ajaxValidateFieldName",
+                    "extraData": "name=eric",
+                    "alertTextLoad": "* Caricamento, attendere per favore",
+                    "alertText": "* Questo user è già stato utilizzato"
+                },
+                "ajaxNameCall": {
+                    "file": "ajaxValidateFieldName",
+                    "alertText": "* Questo nome è già stato utilizzato",
+                    "alertTextOk": "* Questo nome è disponibile",
+                    "alertTextLoad": "* Caricamento, attendere per favore"
                 }
+
             };
             
         }
