@@ -60,6 +60,13 @@ Rules of thumb
 - don't use spaces or special chars in id and names
 - use only one ajax validator per field!
 - json services should live on the same server (or you will get into security issues)
+- in a perfectc RESTful world, http GET is to READ data, http POST is to WRITE data
 
 Authors
 ---
+
+ Copyright(c) 2010, Cedric Dugas
+ http://www.position-absolute.com
+ 
+ 2.0 Rewrite by Olivier Refalo
+ http://www.crionics.com

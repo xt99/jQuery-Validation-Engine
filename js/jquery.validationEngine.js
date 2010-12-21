@@ -160,7 +160,7 @@
          *
          * @param {jqObject}
          *            form
-         * @return true if form is valid
+         * @return true if form is valid, false if not, undefined if ajax form validation is done
          */
         _validateForm: function(form){
         
@@ -217,8 +217,24 @@
                 }
                 return false;
             }
+            
+            // validate the form using AJAX
+            if (options.ajaxFormValidationURL) {
+            
+           		methods._validateFormWithAjax(form, options);
+                return undefined;
+            }
             return true;
         },
+        
+        
+        _validateFormWithAjax: function(form, options){
+        
+			var data=form.serialize();
+			
+        },
+        
+        
         /**
          * Validates field, shows prompts accordingly
          *
@@ -350,34 +366,29 @@
                 case "text":
                 case "password":
                 case "textarea":
-                    if (!field.val()) {
+                    if (!field.val())
                         return options.allrules[rules[i]].alertText;
-                    }
                     break;
                 case "radio":
                 case "checkbox":
                     var name = field.attr("name");
                     if ($("input[name='" + name + "']:checked").size() === 0) {
                     
-                        if ($("input[name='" + name + "']").size() === 1) {
+                        if ($("input[name='" + name + "']").size() === 1)
                             return options.allrules[rules[i]].alertTextCheckboxe;
-                        }
-                        else {
+                        else
                             return options.allrules[rules[i]].alertTextCheckboxMultiple;
-                        }
                     }
                     break;
                 case "select-one":
                     // added by paul@kinetek.net for select boxes, Thank you
-                    if (!field.val()) {
+                    if (!field.val())
                         return options.allrules[rules[i]].alertText;
-                    }
                     break;
                 case "select-multiple":
                     // added by paul@kinetek.net for select boxes, Thank you
-                    if (!field.find("option:selected").val()) {
+                    if (!field.find("option:selected").val())
                         return options.allrules[rules[i]].alertText;
-                    }
                     break;
             }
         },
@@ -396,10 +407,8 @@
             var customRule = rules[i + 1];
             var pattern = new RegExp(options.allrules[customRule].regex);
             
-            // orefalo todo: field.val()
-            if (!pattern.test(field.attr('value'))) {
+            if (!pattern.test(field.attr('value')))
                 return options.allrules[customRule].alertText;
-            }
         },
         
         /**
@@ -820,16 +829,16 @@
                 promptPosition: "topRight",
                 
                 
-				// Used when the form is displayed within a scrolling DIV
+                // Used when the form is displayed within a scrolling DIV
                 isOverflown: false,
                 overflownDIV: "",
-				
-				
+                
+                
                 // URL pointing at the json service validation the form
                 // the validate() call performs an ajax server call and calls onAjaxFormComplete upon completion
                 ajaxFormValidationURL: undefined,
                 // Ajax form validation callback method: boolean onComplete(form, status, errors, options)
-				// retuns false if the form.submit event needs to be canceled.
+                // retuns false if the form.submit event needs to be canceled.
                 onAjaxFormComplete: $.noop,
                 
                 // --- Internals DO NOT TOUCH or OVERLOAD ---
