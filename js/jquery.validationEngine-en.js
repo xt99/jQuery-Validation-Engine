@@ -79,13 +79,16 @@
                     "url": "ajaxValidateFieldUser",
                     "extraData": "name=eric",
                     "alertText": "* This user is already taken",
-					"alertTextOk": "* This user is available",
                     "alertTextLoad": "* Loading, please wait"
                 },
                 "ajaxNameCall": {
+					// remote json service location
                     "url": "ajaxValidateFieldName",
+					// error
                     "alertText": "* This name is already taken",
+					// if you provide an "alertTextOk", it will show as a green prompt when the field validates
                     "alertTextOk": "* This name is available",
+					// speaks by itself
                     "alertTextLoad": "* Loading, please wait"
                 },
                 "validate2fields": {

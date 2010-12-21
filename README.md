@@ -55,9 +55,11 @@ Adding regular expressions
 Rules of thumb
 - id are unique across the page
 - for simplicity field.id and field.name should match
-- use the ajax validator as last validator
+- use the ajax validator as last validator in the list
 - use lower cases for input.type
 - don't use spaces or special chars in id and names
+- use only one ajax validator per field!
+- json services should live on the same server (or you will get into security issues)
 
 Authors
 ---

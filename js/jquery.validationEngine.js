@@ -134,7 +134,7 @@
             $.each(options.ajaxValidCache, function(key, value){
                 if (value === false) {
                     status = false;
-					// break the each
+                    // break the each
                     return false;
                 }
             });
@@ -264,6 +264,7 @@
             
             var ajaxValidate = false;
             
+            var isAjaxValidator = false;
             var fieldName = field.attr("name");
             
             options.isError = false;
@@ -291,6 +292,7 @@
                     case "ajax":
                         // ajax has its own prompts handling technique
                         methods._ajax(field, rules, i, options);
+                        isAjaxValidator = true;
                         break;
                     case "length":
                         errorMsg = methods._length(field, rules, i, options);
@@ -330,11 +332,12 @@
                 options.showArrow = false;
             }
             
-            if (options.isError) 
-                methods._showPrompt(field, promptText, "", false, options);
-            else 
-                methods._closePrompt(field);
-            
+            if (!isAjaxValidator) {
+                if (options.isError) 
+                    methods._showPrompt(field, promptText, "", false, options);
+                else 
+                    methods._closePrompt(field);
+            }
             return options.isError;
         },
         
@@ -523,60 +526,55 @@
             var errorSelector = rules[i + 1];
             var rule = options.allrules[errorSelector];
             var extraData = rule.extraData;
-           
-		    if (!extraData) 
+            
+            if (!extraData) 
                 extraData = "";
             
             if (!options.isError) {
                 $.ajax({
-                    type: "POST",
+                    type: "GET",
                     url: rule.url,
-                    cache: false,
+                    // cache: false,
                     data: "fieldId=" + field.attr("id") + "&fieldValue=" + field.attr("value") + "&extraData=" + extraData,
-					field: field,
-					rule: rule,
-					methods: methods,
-					options: options,
+                    field: field,
+                    rule: rule,
+                    methods: methods,
+                    options: options,
                     beforeSend: function(){
                         // build the loading prompt
                         var loadingText = rule.alertTextLoad;
                         if (loadingText) 
-                            methods._showPrompt(field, loadingText, "load", false, options);
+                            methods._showPrompt(field, loadingText, "load", true, options);
                     },
                     
                     error: function(data, transport){
-						alert("ajax error: " + data.status + " " + transport);
-                   //     $.error("ajax error: " + data.status + " " + transport);
+                        alert("ajax error: " + data.status + " " + transport);
+                        //     $.error("ajax error: " + data.status + " " + transport);
                     },
                     
-                    success: function(data){
+                    success: function(json){
                     
                         // asynchronously called on success, data is the json answer from the server
-                        
-                       // alert("I see you :" + rule);
-                        data = eval("(" + data + ")");
-                        
-                        // parse the json data
-                        var errorFieldId = data.jsonValidateReturn[0];
+                        var errorFieldId = json.jsonValidateReturn[0];
                         var errorField = $($("#" + errorFieldId)[0]);
                         //orefalo: do a validation, what is the field is not found?
-                        var status = data.jsonValidateReturn[1];
+                        var status = json.jsonValidateReturn[1];
                         
                         if (status === false) {
                             // Huston we got a problem 
                             options.ajaxValidCache[errorFieldId] = false;
                             options.isError = true;
                             var promptText = rule.alertText;
-                            methods._showPromptText(errorField, promptText, "", true, options);
+                            methods._showPrompt(errorField, promptText, "", true, options);
                         }
                         else {
                             if (options.ajaxValidCache[errorFieldId] !== undefined) 
                                 options.ajaxValidCache[errorFieldId] = true;
                             
-                            // NO OK TEXT MEANs CLOSE PROMPT
+                            // see if we should display a green prompt
                             var alertTextOk = rule.alertTextOk;
                             if (alertTextOk) 
-                                methods._showPromptText(errorField, alertTextOk, "", true, options);
+                                methods._showPrompt(errorField, alertTextOk, "pass", true, options);
                             else 
                                 methods._closePrompt(errorField);
                         }
@@ -723,6 +721,7 @@
          *            field
          */
         _closePrompt: function(field){
+
             var prompt = methods._getPrompt(field);
             if (prompt) 
                 prompt.fadeTo("fast", 0, function(){

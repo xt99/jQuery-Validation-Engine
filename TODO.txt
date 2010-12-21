@@ -1,16 +1,17 @@
 TODO: Implement ajax submit
 TODO  implement Play validators
 
-TODO: use a stack for validation parsing
 TODO: rename customer rule to regex
 TODO: hook browser resize -> reposition prompts
 BUG: multiple forms: positionning issue, weird pixel gaps
 BUG: Overflown positioning is screwed up
 BUG Arrow positioning not working for other positioning cases
-TODO: build demo pages -> IN PROGRESS
 TODO: write documentation
 TODO: split the translation files - they hold data for the demos
 TODO: Provide a minimized version
 
+FIXED: field ajax validation works
 FIXED: checkbox groups were not working
 FIXED: field hook doesn't work
+NOT A GOOD IDEA: use a stack for validation parsing
+DONE: build demo pages -> IN PROGRESS

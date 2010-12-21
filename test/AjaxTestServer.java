@@ -142,7 +142,7 @@ public class AjaxTestServer extends NanoHTTPD {
 		// dirty way around the need to import a third party library and add
 		// complexity
 		StringBuffer json = new StringBuffer();
-		json.append("{'jsonValidateReturn':");
+		json.append("{\"jsonValidateReturn\":");
 		json.append(error.toString());
 		json.append("}");
 		return json.toString();
@@ -155,7 +155,7 @@ public class AjaxTestServer extends NanoHTTPD {
 	 */
 	private String genJSON(ArrayList<AjaxValidationFormResponse> errors) {
 		StringBuffer json = new StringBuffer();
-		json.append("{'jsonValidateReturn':");
+		json.append("{\"jsonValidateReturn\":");
 		for (int i = 0; i < errors.size(); i++) {
 
 			AjaxValidationFormResponse err = errors.get(i);

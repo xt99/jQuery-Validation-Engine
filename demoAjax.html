@@ -29,25 +29,39 @@
             | <a href="#" onclick="$.validationEngine.loadValidation('#date')">Load validation date</a>
             | <a href="#" onclick="$.validationEngine.closePrompt('.formError',true)">Close all prompt</a>
         </p>
-        <form id="formID" class="formular" method="post" action="">
+        <p>
+            This demonstrations shows the use of Ajax for validation.
+            <br/>
+            There are two kinds of validations: field (when the field is focused out) and form (when the form is submitted).
+        </p>
+        <form id="formID" class="formular" method="post" action="" style="width:600px">
             <fieldset>
                 <legend>
                     Ajax validation
                 </legend>
-				<label>
-					<span>Desired username (ajax validation, only <b>karnius</b> is available) : </span>
-					<input value="cedric" class="validate[required,custom[noSpecialCaracters],length[0,20],ajax[ajaxUserCall]] text-input" type="text" name="user" id="user" />
-				</label>
-				<label>
-					<span>First name (ajax validation, only <b>duncan</b> is available): </span>
-					<input value="olivier"  class="validate[custom[onlyLetter],length[0,100],ajax[ajaxNameCall]] text-input" type="text" name="firstname" id="firstname" />
-				</label>
-				<label>
-					<span>Email address : </span>
-					<input value="someone@here.com"  class="validate[required,custom[email]] text-input" type="text" name="email" id="email"  />
-				</label>
-
-            </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
+                <label>
+                    <span>Desired username (ajax validation, only <b>karnius</b> is available) : </span>
+                    <input value="karnius" class="validate[required,custom[noSpecialCaracters],length[0,20],ajax[ajaxUserCall]] text-input" type="text" name="user" id="user" />
+                    <p>
+                        validate[required,custom[noSpecialCaracters],length[0,20],ajax[ajaxUserCall]]
+                    </p>
+                </label>
+                <label>
+                    <span>First name (ajax validation, only <b>duncan</b> is available): </span>
+                    <input value="olivier" class="validate[custom[onlyLetter],length[0,100],ajax[ajaxNameCall]] text-input" type="text" name="firstname" id="firstname" />
+                    <p>
+                        validate[custom[onlyLetter],length[0,100],ajax[ajaxNameCall]]
+                    </p>
+                </label>
+                <label>
+                    <span>Email address : </span>
+                    <input value="someone@here.com" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
+                    <p>
+                        validate[required,custom[email]]
+                    </p>
+                </label>
+            </fieldset>
+            <input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
         </form>
     </body>
 </html>
