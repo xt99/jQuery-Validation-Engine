@@ -520,27 +520,28 @@
          */
         _ajax: function(field, rules, i, options){
         
-            // orefalo: review variable scope
             var errorSelector = rules[i + 1];
             var rule = options.allrules[errorSelector];
-            //var ajaxValidate = true;
-            
             var extraData = rule.extraData;
-            if (!extraData) 
+           
+		    if (!extraData) 
                 extraData = "";
             
-            if (!option.isError) {
+            if (!options.isError) {
                 $.ajax({
                     type: "POST",
-                    url: rule.file,
+                    url: rule.url,
                     cache: false,
-                    data: "fieldId=" + fieldId + "&fieldValue=" + fieldValue + "&extraData=" + extraData,
-                    
+                    data: "fieldId=" + field.attr("id") + "&fieldValue=" + field.attr("value") + "&extraData=" + extraData,
+					field: field,
+					rule: rule,
+					methods: methods,
+					options: options,
                     beforeSend: function(){
                         // build the loading prompt
                         var loadingText = rule.alertTextLoad;
                         if (loadingText) 
-                            methods._showPrompt(field, promptText, "load", true, options);
+                            methods._showPrompt(field, loadingText, "load", true, options);
                     },
                     
                     error: function(data, transport){
