@@ -1,12 +1,13 @@
 /*
- * Inline Form Validation Engine 1.7.3, jQuery plugin
+ * Inline Form Validation Engine 2.0 Beta, jQuery plugin
  *
  * Copyright(c) 2010, Cedric Dugas
  * http://www.position-absolute.com
+ * 
+ * 2.0 Rewrite by Olivier Refalo
+ * http://www.crionics.com
  *
  * Form validation engine allowing custom regex rules to be added.
- * Thanks to Francois Duquette and Teddy Limousin
- * and everyone helping me find bugs on the forum
  * Licenced under the MIT Licence
  */
 (function($){
@@ -43,8 +44,8 @@
             if (!options.binded) {
             
                 // bind fields
-                form.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTrigger, methods._onFieldEvent);
-                form.find("[class*=validate][type=checkbox]").bind("click", methods._onFieldEvent);
+                form.delegate("[class*=validate]:not[type=checkbox]",options.validationEventTrigger, methods._onFieldEvent);  // Delegate performs a lot better tahn bind on multiple nodes and we keep the context
+                form.delegate("[class*=validate][type=checkbox]", "click", methods._onFieldEvent);
                 
                 // bind form.submit
                 form.bind("submit", methods._onSubmitEvent);
@@ -61,8 +62,8 @@
             var options = form.data('jqv');
             if (options.binded) {
                 // unbind fields
-                form.find("[class*=validate]").not("[type=checkbox]").unbind(options.validationEventTrigger, methods._onFieldEvent);
-                form.find("[class*=validate][type=checkbox]").unbind("click", methods._onFieldEvent);
+                form.undelegate("[class*=validate]:not[type=checkbox]",options.validationEventTrigger, methods._onFieldEvent);
+                form.undelegate("[class*=validate][type=checkbox]","click", methods._onFieldEvent);
                 
                 // unbind form.submit
                 form.unbind("submit", methods._onSubmitEvent);
@@ -266,7 +267,7 @@
             var isAjaxValidator = false;
             var fieldName = field.attr("name");
             var promptText = "";
-			
+      
             options.isError = false;
             options.showArrow = true;
             
@@ -656,7 +657,7 @@
             //if (options.isOverflown)
             field.before(prompt);
             //else
-            //	$("body").append(prompt);
+            //  $("body").append(prompt);
             
             var pos = methods._calculatePosition(field, prompt, options);
             prompt.css({
