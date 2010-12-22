@@ -160,13 +160,12 @@ Where should the prompt show ? possible values are "topLeft", "topRight", "botto
 ### ajaxFormValidationURL
 If set to a URL, turns the ajax form validation logic on.
 When the validate() action is performed, an ajax server call is achieved. result is asynchronously delivered to the onAjaxFormComplete function.
-              
-### onAjaxFormComplete: function(form, status, errors, options)
-function used to asynchronously process the result of the ajax form validation. only called when ajaxFormValidationURL is set to a URL.
 
 ### onBeforeAjaxFormValidation
-function called before the asynchronous AJAX form validation call
-
+function called before the asynchronous AJAX form validation call. May return false to stop the ajax form validation
+            
+### onAjaxFormComplete: function(form, status, errors, options)
+function used to asynchronously process the result of the ajax form validation. only called when ajaxFormValidationURL is set to a URL.
 
 ### isOverflown
 Set to true when the form shows in a scrolling div, defaults to *false*.
@@ -194,33 +193,49 @@ The validator is explained in further details in the Ajax section
 ### max[float]
 
 ### minSize[integer]
+Validates if the element content size (in characters) is more or equal to the given *integer*. integer <= input.value.length
 
 ### maxSize[integer]
+Validates if the element content size (in characters) is less or equal to the given *integer*. input.value.length <= integer
 
 ### past[NOW or a date]
+Checks if the element's value (which is implicitly a date) is earlier than the given *date*. Note that if you pass NOW, the date will be calculate in the browser and may be different that the server date.
 
 ### future[NOW or a date]
+Checks if the element's value (which is implicitly a date) is greater than the given *date*. Note that if you pass NOW, the date will be calculate in the browser and may be different that the server date.
 
 ### minCheckbox[integer]
+
+Validates when a minimum of *integer* checkboxes are selected.
+The validator uses a special naming convention to identify the checkboxes part of the group.
+
+The following example, enforces a minimum of two selected checkboxes
+    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck1" value="5"/>
+    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck2" value="3"/>
+    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck3" value="9"/>
+     
 
 Ajax
 ---
 
 Ajax validation comes in two flavors:
 
-### Field ajax validations
+1. Field ajax validations, which takes place when the user inputs a value in a field and moves to the next.
+2. Form ajax validation, which takes place when the form is submitted or when the validate() action is called.
 
-Which takes place when the user inputs a value in a field and moves to the next.
+
+### Field ajax validation
+
 
 ### Form ajax validation
 
-Which takes place when the form is submitted or when the validate() action is called. Note that both methods resume to the same logic.
 It is important to note that Form ajax validation doesn't submit to the form.action url. You need to provide a link
-
 
 
 Custom regex
 ---
+
+
 
 
 Overflow
@@ -242,7 +257,7 @@ Customizations
 
 
 ### Customizing the look and feel
-Edit the file validationEngine.jquery.css and customize the styelesheet to your likings. it's trivial.
+Edit the file *validationEngine.jquery.css* and customize the styelesheet to your likings. it's trivial.
 
 ### Adding more locales
 You can easy add a locale by taking *jquery.validationEngine-en.js* as an example. 
