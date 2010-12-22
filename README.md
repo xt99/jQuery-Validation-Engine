@@ -145,8 +145,7 @@ Where should the prompt show ? possible values are "topLeft", "topRight", "botto
 
 ### ajaxFormValidationURL
 If set to a URL, turns the ajax form validation logic on.
-When the validate() call is performed, an ajax server call is achieved. result is asynchronously delivered to the onAjaxFormComplete function.
-
+When the validate() action is performed, an ajax server call is achieved. result is asynchronously delivered to the onAjaxFormComplete function.
               
 ### onAjaxFormComplete: function(form, status, errors, options)
 function used to asynchronously process the result of the ajax form validation. only called when ajaxFormValidationURL is set to a URL.
@@ -190,6 +189,8 @@ Customizations
 
 
 ### Adding more locales
+You can easy add a locale by taking *jquery.validationEngine-en.js* as an example. 
+Feel free to provide us the translation ;-)
 
 
 
@@ -219,6 +220,6 @@ Licensed under the MIT Licence
 Authors
 ---
 
- Copyright(c) 2010, Cedric Dugas [http://www.position-absolute.com](http://www.position-absolute.com)
+ Copyright(c) 2010 [Cedric Dugas](https://github.com/posabsolute) [http://www.position-absolute.com](http://www.position-absolute.com)
  
- 2.0 Rewrite by Olivier Refalo [http://www.crionics.com](http://www.crionics.com)
+ v2.0 Rewrite by [Olivier Refalo](https://github.com/orefalo) [http://www.crionics.com](http://www.crionics.com)
