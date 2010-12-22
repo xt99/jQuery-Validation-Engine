@@ -72,14 +72,25 @@
         },
         
         /**
-         * Validates the form, shows prompts accordingly
+         * Validates the form fields, shows prompts accordingly.
+         * Note: There is no ajax form validation with this method, only field ajax validation are evaluated
          *
-         * @return true if the form validates
+         * @return true if the form validates, false if it fails
          */
         validate: function(){
-            return methods._validateForm(this);
+            return methods._validateFields(this);
         },
         
+		/**
+         * Validates the form fields, shows prompts accordingly.
+         * Note: this methods performs fields and form ajax validations(if setup)
+         *
+         * @return true if the form validates, false if it fails, undefined if ajax is used for form validation
+         */
+		validateform: function(){
+            return methods._onSubmitEvent(this);
+        },
+		
         /**
          * Displays a prompt on a element.
          * Note that the element needs an id!
@@ -135,7 +146,15 @@
         _onSubmitEvent: function(){
         
             var form = $(this);
-            return methods._validateForm(form);
+            var r=methods._validateFields(form);
+			
+			// validate the form using AJAX
+            if (r && options.ajaxFormValidationURL) {
+            
+           		methods._validateFormWithAjax(form, options);
+                return undefined;
+            }
+			return r;
         },
         
         /**
@@ -156,13 +175,13 @@
         },
         
         /**
-         * Validates form, shows prompts accordingly
+         * Validates form fields, shows prompts accordingly
          *
          * @param {jqObject}
          *            form
          * @return true if form is valid, false if not, undefined if ajax form validation is done
          */
-        _validateForm: function(form){
+        _validateFields: function(form){
         
             var options = form.data('jqv');
             
@@ -216,13 +235,6 @@
                     }
                 }
                 return false;
-            }
-            
-            // validate the form using AJAX
-            if (options.ajaxFormValidationURL) {
-            
-           		methods._validateFormWithAjax(form, options);
-                return undefined;
             }
             return true;
         },
