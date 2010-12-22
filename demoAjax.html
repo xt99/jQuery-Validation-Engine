@@ -17,16 +17,11 @@
                 alert("I am here!:"+status);
             }
             
-           
             jQuery(document).ready(function(){
-                jQuery("#formID").validationEngine(
-				/*
-				{
+                jQuery("#formID").validationEngine({
                     ajaxFormValidationURL: "ajaxSubmitForm",
                     onAjaxFormComplete: ajaxValidationCallback
-                }*/
-                
-                );
+                });
                 
                 jQuery("#formID").validationEngine('attach');
             });

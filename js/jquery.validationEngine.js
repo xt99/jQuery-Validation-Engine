@@ -44,7 +44,6 @@
             if (!options.binded) {
             
                 // bind fields
-				
 				form.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTrigger, methods._onFieldEvent);
                 form.find("[class*=validate][type=checkbox]").bind("click", methods._onFieldEvent);
 				
@@ -52,8 +51,7 @@
                 //form.delegate('[class*=validate]:not[type=checkbox]', options.validationEventTrigger, methods._onFieldEvent);
 				// Delegate performs a lot better tahn bind on multiple nodes and we keep the context
                 //form.delegate('[class*=validate][type=checkbox]', "click", methods._onFieldEvent);
-                
-				
+
                 // bind form.submit
                 form.bind("submit", methods._onSubmitEvent);
                 options.binded = true;
@@ -118,7 +116,7 @@
 			
 			if(!promptPosition)
 				options.promptPosition=promptPosition;
-			options.showArrow=showArrow===true;
+			options.showArrow = showArrow===true;
 			
             methods._showPrompt(this, promptText, type, false, options);
         },
@@ -208,7 +206,7 @@
             var errorFound = false;
             
             // first, evaluate status of non ajax fields
-            form.find('[class*="validate"]').each(function(){
+            form.find('[class*=validate]').each(function(){
                 var field = $(this);
                 // fields being valiated though ajax are marked with 'ajaxed',
                 // skip them
@@ -267,7 +265,6 @@
          */
         _validateFormWithAjax: function(form, options) {
         
-			return true;
 			var data= form.serialize();
 			
 			$.ajax({
@@ -328,30 +325,8 @@
 			
         },
         
-        
         /**
          * Validates field, shows prompts accordingly
-         *
-         * @param {jqObject}
-         *            field
-         * @param {Map}
-         *            user options
-         * @return true if field is valid, false otehrwise
-         */
-        _validateField: function(field, options){
-        
-            var rulesParsing = field.attr('class');
-            var getRules = /\[(.*)\]/.exec(rulesParsing);
-            if (getRules === null) 
-                return false;
-            var str = getRules[1];
-            var rules = str.split(/\[|,|\]/);
-            return methods._validateRules(field, rules, options);
-            
-        },
-        
-        /**
-         * Validates field against the given rules, shows prompts accordingly
          *
          * @param {jqObject}
          *            field
@@ -361,12 +336,19 @@
          *            user options
          * @return true if field is valid
          */
-        _validateRules: function(field, rules, options){
+        _validateField: function(field, options){
         
             if (!field.attr("id")) 
                 $.error("jQueryValidate: an ID attribute is required for this field: " + field.attr("name") + " class:" +
                 field.attr("class"));
             
+			var rulesParsing = field.attr('class');
+            var getRules = /\[(.*)\]/.exec(rulesParsing);
+            if (getRules === null) 
+                return false;
+            var str = getRules[1];
+            var rules = str.split(/\[|,|\]/);
+
             // true if we ran the ajax validation, tells the logic to stop messing with prompts
             var isAjaxValidator = false;
             var fieldName = field.attr("name");
@@ -744,6 +726,8 @@
                 }
             }
             
+			
+			//orefalo: ca marche bien sans le test, a verifier ds IE
             // insert prompt in the form or in the overflown container?
             //if (options.isOverflown) 
                 field.before(prompt);
