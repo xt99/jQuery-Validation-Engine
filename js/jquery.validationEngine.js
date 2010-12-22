@@ -36,7 +36,7 @@
         },
         
         /**
-         * Attachs jQuery.validationEngine to form.submit and field.blur
+         * Attachs jQuery.validationEngine to form.submit and field.blur events
          */
         attach: function(){
             var form = this;
