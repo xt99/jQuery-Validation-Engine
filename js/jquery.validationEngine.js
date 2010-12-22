@@ -886,18 +886,16 @@
                 // topRight, bottomLeft, centerRight, bottomRight
                 promptPosition: "topRight",
                 
-                
-                // Used when the form is displayed within a scrolling DIV
-                isOverflown: false,
-                overflownDIV: "",
-                
-                
-                // URL pointing at the json service validation the form
+				// URL pointing at the json service validating the form
                 // the validate() call performs an ajax server call and calls onAjaxFormComplete upon completion
                 ajaxFormValidationURL: undefined,
                 // Ajax form validation callback method: boolean onComplete(form, status, errors, options)
                 // retuns false if the form.submit event needs to be canceled.
                 onAjaxFormComplete: $.noop,
+                
+                // Used when the form is displayed within a scrolling DIV
+                isOverflown: false,
+                overflownDIV: "",
                 
                 // --- Internals DO NOT TOUCH or OVERLOAD ---
                 // validation rules and i18

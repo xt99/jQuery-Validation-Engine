@@ -118,15 +118,44 @@ The method two parameters: a prompt text, and a type which defined the visual lo
 
 ### hide
 
-Closes form error prompts
+Closes form error prompts (in case you have more than one form on the page)
+
+    $('#formID1').validationEngine('hide')">Hide prompts
 
 ### hideAll
 
-Closes all error prompts on the page
+Closes all error prompts on the page.
+
+    $('#formID1').validationEngine('hideAll');
 
 Options
 ---
 
+Options are typically passed to the init action as a parameter.
+    $("#formID1").validationEngine({promptPosition : "centerRight", scroll: false});
+
+### validationEventTrigger
+Name of the event triggering field validation, defaults to *blur*.
+                
+### scroll
+Tells if we should scroll the page to the first error, defaults to *true*.
+
+### promptPosition
+Where should the prompt show ? possible values are "topLeft", "topRight", "bottomLeft", "centerRight", "bottomRight". Defaults to *"topRight"*.
+
+### ajaxFormValidationURL
+If set to a URL, turns the ajax form validation logic on.
+When the validate() call is performed, an ajax server call is achieved. result is asynchronously delivered to the onAjaxFormComplete function.
+
+              
+### onAjaxFormComplete: function(form, status, errors, options)
+function used to asynchronously process the result of the ajax form validation. only called when ajaxFormValidationURL is set to a URL.
+
+### isOverflown
+Set to true when the form shows in a scrolling div, defaults to *false*.
+
+### overflownDIV
+Selector used to pick the overflown container, defaults to *""*.
 
 Validators
 ---
