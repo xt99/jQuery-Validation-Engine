@@ -10,7 +10,7 @@ The plugin provides some visually appealing prompts that grab user attention on 
 Validations range from email, phone, url to the more complex calls such as ajax processing.
 Bundled in several locales, the error prompts can be easily translated in your favorite language. 
 
-![Screenshot](/css/screenshot.png)
+![Screenshot](https://github.com/orefalo/jQuery-Validation-Engine/raw/master/css/screenshot.png)
 
 **Important**: v2 is a significant rewrite of the original 1.7 branch. Please read the documentation as the API has changed!
 
@@ -49,7 +49,9 @@ Usage
 
 ### Instantiation
 
+The validator is typically instantiated by using a call of the following form:
 
+    $("#form.id").validationEngine(action or options);
 
 Say you have a form is this kind:
     <form id="formID" method="post" action="submit.action">
@@ -59,7 +61,7 @@ Say you have a form is this kind:
 You would instance the validation engine with the following code:
     <script>
     $(document).ready(function(){
-        $("#formID").validationEngine('attach);
+        $("#formID").validationEngine('attach');
        });
     </script>
 
