@@ -234,32 +234,33 @@
          * @param {jqObject} form
          * @param {Map} options
          */
-        _validateFormWithAjax: function(form, options){
+        _validateFormWithAjax: function(form, options) {
         
-			var data=form.serialize();
+			var data= form.serialize();
 			
-			    $.ajax({
+			$.ajax({
                     type: "GET",
-                    url: rule.url,
+                    url: options.ajaxFormValidationURL,
                     cache: false,
                     data: data,
-                    field: field,
-                    rule: rule,
+                    form: form,
                     methods: methods,
                     options: options,
                     beforeSend: function(){
-                        // build the loading prompt
-                        var loadingText = rule.alertTextLoad;
-                        if (loadingText) 
-                            methods._showPrompt(field, loadingText, "load", true, options);
+                        //TODO callback method
                     },
                     
                     error: function(data, transport){
+						//TODO callback?
                         alert("ajax error: " + data.status + " " + transport);
                     },
                     
                     success: function(json){
-                    
+						if(json === true )
+	                    	options.onAjaxFormComplete(true, form, "", options);
+						else
+							options.onAjaxFormComplete(false, form, json, options);
+					/*
                         // asynchronously called on success, data is the json answer from the server
                         var errorFieldId = json.jsonValidateReturn[0];
                         var errorField = $($("#" + errorFieldId)[0]);
@@ -284,6 +285,7 @@
                             else 
                                 methods._closePrompt(errorField);
                         }
+                     */
                         
                     }
                 });

@@ -5,7 +5,7 @@
         <title>JQuery Validation Engine</title>
         <link rel="stylesheet" href="css/validationEngine.jquery.css" type="text/css"/>
         <link rel="stylesheet" href="css/template.css" type="text/css"/>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js" type="text/javascript">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js" type="text/javascript">
         </script>
         <script src="js/jquery.validationEngine-en.js" type="text/javascript" charset="utf-8">
         </script>
@@ -13,8 +13,8 @@
         </script>
         <script>
             
-            function ajaxValidationCallback(){
-                alert("I am here!");
+            function ajaxValidationCallback(status, form, json, options){
+                alert("I am here!:"+status);
             };
             
             
