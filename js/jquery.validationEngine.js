@@ -227,10 +227,68 @@
             return true;
         },
         
-        
+        /**
+         * This method is called to perform an ajax form validation.
+         * During this process all the (field, value) pairs are sent to the server which returns a list of invalid fields or true
+         * 
+         * @param {jqObject} form
+         * @param {Map} options
+         */
         _validateFormWithAjax: function(form, options){
         
 			var data=form.serialize();
+			
+			    $.ajax({
+                    type: "GET",
+                    url: rule.url,
+                    cache: false,
+                    data: data,
+                    field: field,
+                    rule: rule,
+                    methods: methods,
+                    options: options,
+                    beforeSend: function(){
+                        // build the loading prompt
+                        var loadingText = rule.alertTextLoad;
+                        if (loadingText) 
+                            methods._showPrompt(field, loadingText, "load", true, options);
+                    },
+                    
+                    error: function(data, transport){
+                        alert("ajax error: " + data.status + " " + transport);
+                    },
+                    
+                    success: function(json){
+                    
+                        // asynchronously called on success, data is the json answer from the server
+                        var errorFieldId = json.jsonValidateReturn[0];
+                        var errorField = $($("#" + errorFieldId)[0]);
+                        //orefalo: do a validation, what is the field is not found?
+                        var status = json.jsonValidateReturn[1];
+                        
+                        if (status === false) {
+                            // Houston we got a problem 
+                            options.ajaxValidCache[errorFieldId] = false;
+                            options.isError = true;
+                            var promptText = rule.alertText;
+                            methods._showPrompt(errorField, promptText, "", true, options);
+                        }
+                        else {
+                            if (options.ajaxValidCache[errorFieldId] !== undefined) 
+                                options.ajaxValidCache[errorFieldId] = true;
+                            
+                            // see if we should display a green prompt
+                            var alertTextOk = rule.alertTextOk;
+                            if (alertTextOk) 
+                                methods._showPrompt(errorField, alertTextOk, "pass", true, options);
+                            else 
+                                methods._closePrompt(errorField);
+                        }
+                        
+                    }
+                });
+			
+			
 			
         },
         
@@ -484,7 +542,6 @@
         
             var nbCheck = rules[i + 1];
             var groupname = field.attr("name");
-            // orefalo:fix bug, look in the current form
             var groupSize = $("input[name='" + groupname + "']:checked").size();
             if (groupSize > nbCheck) {
                 options.showArrow = false;
