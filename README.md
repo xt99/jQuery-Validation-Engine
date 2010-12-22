@@ -176,13 +176,40 @@ Selector used to pick the overflown container, defaults to *""*.
 Validators
 ---
 
+Validators are encoded in the field's class attribute, as such
+
 ### required
-Speaks by itselfs, fails if the element hasno value.
+Speaks by itselfs, fails if the element has no value. this validator can apply to pretty much any kind of input field.
+
+    <input value="" class="validate[required] text-input" type="text" name="email" id="email" />
+    <input class="validate[required] checkbox" type="checkbox" id="agree" name="agree"/>
+
+    <select name="sport" id="sport" class="validate[required]" id="sport">
+       <option value="">Choose a sport</option>
+       <option value="option1">Tennis</option>
+       <option value="option2">Football</option>
+       <option value="option3">Golf</option>
+    </select>
 
 ### custom[selector]
+Validates the element's value to a predefined list of regular expressions.
 
+    <input value="someone@nowhere.com" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
 
 ### function[methodName]
+Validates a field using a third party function call. If a validation error occurs, the function may return an error message that will automatically should in the error prompt.
+
+
+    function checkHELLO(field, rules, i, options){
+      if (field.val() != "HELLO") {
+         // this allows to use i18 for the error msgs
+         return options.allrules.validate2fields.alertText;
+      }
+    }
+
+The following declaration will do            
+    <input value="" class="validate[required,funcCall[checkHELLO]] text-input" type="text" id="lastname" name="lastname" />
+ 
 
 ### ajax[selector]
 
