@@ -14,7 +14,6 @@
         <removeLogs>false</removeLogs>
         <oldFileNames>false</oldFileNames>
         <dependencies>
-            <file>js/jquery.validationEngine-en.js</file>
         </dependencies>
         <properties/>
     </file>

@@ -75,7 +75,7 @@
                     "nname": "validate2fields",
                     "alertText": "* Occorre inserire nome e cognome"
                 },
-                "noSpecialCaracters": {
+                "noSpecialCharacters": {
                     "regex": /^[0-9a-zA-Z]+$/,
                     "alertText": "* Caratteri speciali non permessi"
                 },

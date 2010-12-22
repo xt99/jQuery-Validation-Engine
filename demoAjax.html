@@ -5,7 +5,7 @@
         <title>JQuery Validation Engine</title>
         <link rel="stylesheet" href="css/validationEngine.jquery.css" type="text/css"/>
         <link rel="stylesheet" href="css/template.css" type="text/css"/>
-        <script src="js/jquery.144.js" type="text/javascript" charset="utf-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript" charset="utf-8">
         </script>
         <script src="js/jquery.validationEngine-en.js" type="text/javascript" charset="utf-8">
         </script>
@@ -15,14 +15,19 @@
             
            function ajaxValidationCallback(status, form, json, options){
                 alert("I am here!:"+status);
-            };
+            }
             
            
             jQuery(document).ready(function(){
-                jQuery("#formID").validationEngine({
+                jQuery("#formID").validationEngine(
+				/*
+				{
                     ajaxFormValidationURL: "ajaxSubmitForm",
                     onAjaxFormComplete: ajaxValidationCallback
-                });
+                }*/
+                
+                );
+                
                 jQuery("#formID").validationEngine('attach');
             });
         </script>
@@ -46,7 +51,7 @@
                 </legend>
                 <label>
                     <span>Desired username (ajax validation, only <b>karnius</b> is available) : </span>
-                    <input value="karnius" class="validate[required,custom[noSpecialCaracters],length[0,20],ajax[ajaxUserCall]] text-input" type="text" name="user" id="user" />
+                    <input value="karnius" class="validate[required,custom[noSpecialCharacters],length[0,20],ajax[ajaxUserCall]] text-input" type="text" name="user" id="user" />
                     <p>
                         validate[required,custom[noSpecialCaracters],length[0,20],ajax[ajaxUserCall]]
                     </p>

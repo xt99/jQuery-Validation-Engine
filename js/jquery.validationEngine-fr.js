@@ -67,7 +67,7 @@
                     "regex": /^[0-9\ ]+$/,
                     "alertText": "* Chiffres seulement accepté"
                 },
-                "noSpecialCaracters": {
+                "noSpecialCharacters": {
                     "regex": /^[0-9a-zA-Z]+$/,
                     "alertText": "* Aucune caractère spécial accepté"
                 },

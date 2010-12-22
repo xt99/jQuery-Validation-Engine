@@ -66,15 +66,15 @@
                     "regex": /^[0-9\ ]+$/,
                     "alertText": "* Numbers only"
                 },
-                "noSpecialCaracters": {
+                "noSpecialCharacters": {
                     "regex": /^[0-9a-zA-Z]+$/,
-                    "alertText": "* No special caracters allowed"
+                    "alertText": "* No special characters allowed"
                 },
                 "onlyLetter": {
                     "regex": /^[a-zA-Z\ \']+$/,
                     "alertText": "* Letters only"
                 },
-				// --- CUSTOM RULES
+				// --- CUSTOM RULES -- Those are specific to the demos, they can be removed or changed to your likings
                 "ajaxUserCall": {
                     "url": "ajaxValidateFieldUser",
 					// you may want to pass extra data on the ajax call

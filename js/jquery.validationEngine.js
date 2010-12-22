@@ -44,9 +44,16 @@
             if (!options.binded) {
             
                 // bind fields
-                form.delegate("[class*=validate]:not[type=checkbox]", options.validationEventTrigger, methods._onFieldEvent); // Delegate performs a lot better tahn bind on multiple nodes and we keep the context
-                form.delegate("[class*=validate][type=checkbox]", "click", methods._onFieldEvent);
+				
+				form.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTrigger, methods._onFieldEvent);
+                form.find("[class*=validate][type=checkbox]").bind("click", methods._onFieldEvent);
+				
+				// orefalo: it doesn' work: ajax demo in firefox
+                //form.delegate('[class*=validate]:not[type=checkbox]', options.validationEventTrigger, methods._onFieldEvent);
+				// Delegate performs a lot better tahn bind on multiple nodes and we keep the context
+                //form.delegate('[class*=validate][type=checkbox]', "click", methods._onFieldEvent);
                 
+				
                 // bind form.submit
                 form.bind("submit", methods._onSubmitEvent);
                 options.binded = true;
@@ -61,9 +68,14 @@
             var form = this;
             var options = form.data('jqv');
             if (options.binded) {
+				
                 // unbind fields
-                form.undelegate("[class*=validate]:not[type=checkbox]", options.validationEventTrigger, methods._onFieldEvent);
-                form.undelegate("[class*=validate][type=checkbox]", "click", methods._onFieldEvent);
+				form.find("[class*=validate]").not("[type=checkbox]").unbind(options.validationEventTrigger, methods._onFieldEvent);
+                form.find("[class*=validate][type=checkbox]").unbind("click", methods._onFieldEvent);
+				
+				// orefalo: this doesn't work see ajax demo in firefox
+                //form.undelegate('[class*="validate"]:not[type="checkbox"]', options.validationEventTrigger, methods._onFieldEvent);
+                //form.undelegate('[class*="validate"][type="checkbox"]', "click", methods._onFieldEvent);
                 
                 // unbind form.submit
                 form.unbind("submit", methods._onSubmitEvent);
@@ -154,6 +166,7 @@
             var form = $(this);
             var r=methods._validateFields(form);
 			
+			var options = form.data('jqv');
 			// validate the form using AJAX
             if (r && options.ajaxFormValidationURL) {
             
@@ -195,7 +208,7 @@
             var errorFound = false;
             
             // first, evaluate status of non ajax fields
-            form.find("[class*=validate]").each(function(){
+            form.find('[class*="validate"]').each(function(){
                 var field = $(this);
                 // fields being valiated though ajax are marked with 'ajaxed',
                 // skip them
@@ -254,6 +267,7 @@
          */
         _validateFormWithAjax: function(form, options) {
         
+			return true;
 			var data= form.serialize();
 			
 			$.ajax({
@@ -629,7 +643,10 @@
                     },
                     
                     error: function(data, transport){
-                        alert("ajax error: " + data.status + " " + transport);
+						if(data.status == 0 && transport == null)
+							alert("The page is not served from a server! ajax call failed");
+						else
+                        	alert("Ajax error: " + data.status + " " + transport);
                     },
                     
                     success: function(json){
@@ -728,10 +745,10 @@
             }
             
             // insert prompt in the form or in the overflown container?
-            if (options.isOverflown) 
+            //if (options.isOverflown) 
                 field.before(prompt);
-            else 
-                $("body").append(prompt);
+           // else 
+            //    $("body").append(prompt);
             
             var pos = methods._calculatePosition(field, prompt, options);
             prompt.css({
@@ -809,7 +826,7 @@
         _getPrompt: function(field){
         
             var className = "." + field.attr("id") + "formError";
-            // remove any [ or ] caracters, which migh be used with minCheckbox
+            // remove any [ or ] characters, which migh be used with minCheckbox
             // validations
             className = className.replace(/\[/g, "").replace(/\]/g, "");
             var match = $(className)[0];

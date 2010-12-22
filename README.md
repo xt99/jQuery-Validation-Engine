@@ -53,7 +53,7 @@ Validations are defined using the field's **class** attribute. Here are a few ex
 
     <input value="someone@nowhere.com" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
     <input value="2010-12-01" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
-    <input value="too many spaces obviously" class="validate[required,custom[noSpecialCaracters]] text-input" type="text" name="special" id="special" />
+    <input value="too many spaces obviously" class="validate[required,custom[noSpecialCharacters]] text-input" type="text" name="special" id="special" />
 
 For more details about validators, please refer to the section below.
 
@@ -214,7 +214,7 @@ Rules of thumb
 Contribution
 ---
 Contributions are always welcome, you may refer to the latest stable project at [GitHub](https://github.com/posabsolute/jQuery-Validation-Engine)
-
+We use [Aptana](http://www.aptana.com/) as a Javascript editor and the Rockstart JSLint & Closure plugins http://update.rockstarapps.com/site.xml
 
 License
 ---
