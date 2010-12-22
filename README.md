@@ -42,10 +42,19 @@ Usage
 
 ### References
 
-    <link rel="stylesheet" href="css/validationEngine.jquery.css" type="text/css"/>
+First link jQuery to the page
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js" type="text/javascript"></script>
+    
+Attach *jquery.validationEngine* and its locale
+
     <script src="js/jquery.validationEngine-en.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+
+Finally link the desired theme
+
+    <link rel="stylesheet" href="css/validationEngine.jquery.css" type="text/css"/>
+
 
 ### Field validations
 
@@ -63,14 +72,14 @@ The validator is typically instantiated by using a call of the following form:
 
     $("#form.id").validationEngine(action or options);
 
-The method takes optional parameters, either an action or a list of options to customize the behavior of the engine.
+The method takes one or several optional parameters, either an action (and parameters) or a list of options to customize the behavior of the engine.
 
-Say you have a form is this kind:
+Here comes a glimpse: say you have a form is this kind
     <form id="formID" method="post" action="submit.action">
         <input value="2010-12-01" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
     </form>
 
-You would instance the validation engine with the following code:
+The following code would instance the validation engine:
     <script>
     $(document).ready(function(){
         $("#formID").validationEngine('attach');
@@ -82,7 +91,7 @@ Actions
 
 ### init
 
-Typically not called direct as it is implicitly run before any other action. Can be used to initialize the engine with different settings, as such
+Initializes the engine with default settings
 
     $("#formID1").validationEngine({promptPosition : "centerRight", scroll: false});
     $("#formID1").validationEngine('init', {promptPosition : "centerRight", scroll: false});
@@ -109,9 +118,10 @@ Returns *true* if the form validates, *false* if it contains errors and *undefin
 ### showPrompt (promptText, type, promptPosition, showArrow)
 
 Displays a prompt on a given element. Note that the prompt can be displayed on any element an id.
-The method four parameters: 
-1. the text which shows in the prompt
-2. a type which defined the visual look of the prompt: 'pass' (green), 'load' (black) anything else (red)
+
+The method takes four parameters: 
+1. the text of the prompt itself
+2. a type which defines the visual look of the prompt: 'pass' (green), 'load' (black) anything else (red)
 3. an optional position: either "topLeft", "topRight", "bottomLeft", "centerRight", "bottomRight". Defaults to *"topRight"*
 4. an optional boolean which tells if the prompt should display a directional arrow
 
@@ -122,13 +132,13 @@ The method four parameters:
 
 ### hide
 
-Closes form error prompts (in case you have more than one form on the page)
+Closes error prompts in the current form (in case you have more than one form on the page)
 
     $('#formID1').validationEngine('hide')">Hide prompts
 
 ### hideAll
 
-Closes all error prompts on the page.
+Closes **all** error prompts on the page.
 
     $('#formID1').validationEngine('hideAll');
 
@@ -154,6 +164,10 @@ When the validate() action is performed, an ajax server call is achieved. result
 ### onAjaxFormComplete: function(form, status, errors, options)
 function used to asynchronously process the result of the ajax form validation. only called when ajaxFormValidationURL is set to a URL.
 
+### onBeforeAjaxFormValidation
+function called before the asynchronous AJAX form validation call
+
+
 ### isOverflown
 Set to true when the form shows in a scrolling div, defaults to *false*.
 
@@ -163,19 +177,58 @@ Selector used to pick the overflown container, defaults to *""*.
 Validators
 ---
 
-### Required
+### required
+Speaks by itselfs, fails if the element hasno value.
 
-### Custom
+### custom[selector]
 
-### Function
 
-### Ajax
+### function[methodName]
 
-The validator is explained in further details in the Ajax sections
+### ajax[selector]
 
+The validator is explained in further details in the Ajax section
+
+### min[float]
+
+### max[float]
+
+### minSize[integer]
+
+### maxSize[integer]
+
+### past[NOW or a date]
+
+### future[NOW or a date]
+
+### minCheckbox[integer]
 
 Ajax
 ---
+
+Ajax validation comes in two flavors:
+
+### Field ajax validations
+
+Which takes place when the user inputs a value in a field and moves to the next.
+
+### Form ajax validation
+
+Which takes place when the form is submitted or when the validate() action is called. Note that both methods resume to the same logic.
+It is important to note that Form ajax validation doesn't submit to the form.action url. You need to provide a link
+
+
+
+Custom regex
+---
+
+
+Overflow
+---
+
+REVIEW REVIEW
+The big change in this method is that normally the engine will append every error boxes to the body. In this case it will append every error boxes before the input validated. This add a bit of complexity, if you want the error box to behave correctly you need to wrap the input in a div being position relative, and exactly wrapping the input width and height. The easiest way to do that is by adding float:left, like in the example provided.
+
 
 
 
@@ -189,15 +242,11 @@ Customizations
 
 
 ### Customizing the look and feel
-
-
+Edit the file validationEngine.jquery.css and customize the styelesheet to your likings. it's trivial.
 
 ### Adding more locales
 You can easy add a locale by taking *jquery.validationEngine-en.js* as an example. 
 Feel free to provide us the translation ;-)
-
-
-
 
 Rules of thumb
 ---
