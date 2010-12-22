@@ -162,7 +162,7 @@
         _onSubmitEvent: function(){
         
             var form = $(this);
-            var r=methods._validateFields(form);
+            var r=methods._validateFields(form, true);
 			
 			var options = form.data('jqv');
 			// validate the form using AJAX
@@ -198,7 +198,7 @@
          *            form
          * @return true if form is valid, false if not, undefined if ajax form validation is done
          */
-        _validateFields: function(form){
+        _validateFields: function(form, skipAjaxFieldValidation){
         
             var options = form.data('jqv');
             
@@ -211,7 +211,7 @@
                 // fields being valiated though ajax are marked with 'ajaxed',
                 // skip them
                 if (!field.hasClass("ajaxed")) 
-                    errorFound |= methods._validateField(field, options);
+                    errorFound |= methods._validateField(field, options, skipAjaxFieldValidation);
             });
             
             // second, check to see if all ajax calls completed ok
@@ -271,6 +271,7 @@
                     type: "GET",
                     url: options.ajaxFormValidationURL,
                     cache: false,
+					dataType: "json",
                     data: data,
                     form: form,
                     methods: methods,
@@ -336,7 +337,7 @@
          *            user options
          * @return true if field is valid
          */
-        _validateField: function(field, options){
+        _validateField: function(field, options, skipAjaxFieldValidation){
         
             if (!field.attr("id")) 
                 $.error("jQueryValidate: an ID attribute is required for this field: " + field.attr("name") + " class:" +
@@ -376,9 +377,11 @@
                         errorMsg = methods._customRegex(field, rules, i, options);
                         break;
                     case "ajax":
-                        // ajax has its own prompts handling technique
-                        methods._ajax(field, rules, i, options);
-                        isAjaxValidator = true;
+						if(!skipAjaxFieldValidation) {
+                        	// ajax has its own prompts handling technique
+                        	methods._ajax(field, rules, i, options);
+                        	isAjaxValidator = true;
+						}
                         break;
                     case "length":
                         errorMsg = methods._length(field, rules, i, options);
@@ -612,6 +615,7 @@
                     type: "GET",
                     url: rule.url,
                     cache: false,
+					dataType: "json",
                     data: "fieldId=" + field.attr("id") + "&fieldValue=" + field.attr("value") + "&extraData=" + extraData,
                     field: field,
                     rule: rule,
