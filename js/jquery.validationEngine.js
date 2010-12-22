@@ -8,7 +8,7 @@
  * http://www.crionics.com
  *
  * Form validation engine allowing custom regex rules to be added.
- * Licenced under the MIT Licence
+ * Licensed under the MIT License
  */
 (function($){
 
@@ -380,6 +380,7 @@
                             return options.allrules[rules[i]].alertTextCheckboxMultiple;
                     }
                     break;
+				// orefalo: review these cases, where do they come from ?
                 case "select-one":
                     // added by paul@kinetek.net for select boxes, Thank you
                     if (!field.val())

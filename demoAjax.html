@@ -11,13 +11,18 @@
         </script>
         <script src="js/jquery.validationEngine.js" type="text/javascript" charset="utf-8">
         </script>
-        <!-- AJAX SUCCESS TEST FONCTION
-        <script>function callSuccessFunction(){alert("success executed")}
-        function callFailFunction(){alert("fail executed")}
-        </script>
-        -->
         <script>
+            
+            function ajaxValidationCallback(){
+                alert("I am here!");
+            };
+            
+            
             $(document).ready(function(){
+                $("#formID").validationEngine({
+                    ajaxFormValidationURL: "ajaxSubmitForm",
+                    onAjaxFormComplete: ajaxValidationCallback
+                });
                 $("#formID").validationEngine('attach');
             });
         </script>
