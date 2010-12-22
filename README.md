@@ -106,10 +106,14 @@ Returns *true* if the form validates, *false* if it contains errors and *undefin
 
     alert( $("#formID1").validationEngine('validate') );
 
-### showPrompt ( promptText, type )
+### showPrompt (promptText, type, promptPosition, showArrow)
 
 Displays a prompt on a given element. Note that the prompt can be displayed on any element an id.
-The method two parameters: a prompt text, and a type which defined the visual look of the prompt: 'pass' (green), 'load' (black) anything else (red)
+The method four parameters: 
+1. the text which shows in the prompt
+2. a type which defined the visual look of the prompt: 'pass' (green), 'load' (black) anything else (red)
+3. an optional position: either "topLeft", "topRight", "bottomLeft", "centerRight", "bottomRight". Defaults to *"topRight"*
+4. an optional boolean which tells if the prompt should display a directional arrow
 
     <fieldset>
        <legend id="legendid">Email</legend>

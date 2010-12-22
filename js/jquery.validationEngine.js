@@ -97,11 +97,17 @@
          *
          * @param {String} promptText html text to display type
          * @param {String} type the type of bubble: 'pass' (green), 'load' (black) anything else (red)
+         * @param {String} possible values topLeft, topRight, bottomLeft, centerRight, bottomRight
          */
-        showPrompt: function(promptText, type){
+        showPrompt: function(promptText, type, promptPosition, showArrow){
         
             var form = this.closest('form');
             var options = form.data('jqv');
+			
+			if(!promptPosition)
+				options.promptPosition=promptPosition;
+			options.showArrow=showArrow===true;
+			
             methods._showPrompt(this, promptText, type, false, options);
         },
         
@@ -268,6 +274,8 @@
                     },
                     
                     success: function(json){
+						
+						alert(json);
 						if(json === true )
 	                    	options.onAjaxFormComplete(true, form, "", options);
 						else
