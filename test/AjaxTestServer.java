@@ -114,11 +114,6 @@ public class AjaxTestServer extends NanoHTTPD {
 			String firstname = parms.getProperty("firstname");
 			String email = parms.getProperty("email");
 
-			if (!"someone@here.com".equals(email)) {
-
-				errors.add(new AjaxValidationFormResponse("email", false, "The email doesn't match someone@here.com"));
-			}
-
 			if (!"karnius".equals(user)) {
 				// error selector: indirection to the error message -> done in
 				// javascript
@@ -131,6 +126,11 @@ public class AjaxTestServer extends NanoHTTPD {
 				errors.add(new AjaxValidationFormResponse("firstname", true, "You got it!"));
 			}
 
+			if (!"someone@here.com".equals(email)) {
+
+				errors.add(new AjaxValidationFormResponse("email", false, "The email doesn't match someone@here.com"));
+			}
+			
 			String json = "true";
 			if (errors.size() != 0) {
 				json = genJSON(errors);

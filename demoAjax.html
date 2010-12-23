@@ -14,7 +14,11 @@
         <script>
             
            function ajaxValidationCallback(status, form, json, options){
-                alert("I am here!:"+status);
+                if(console)
+                	console.log(status);
+                
+                //if(status===true)
+                //	form.submit();
             }
             
             jQuery(document).ready(function(){
@@ -60,7 +64,7 @@
                 </label>
                 <label>
                     <span>Email address : </span>
-                    <input value="someone@here.com" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
+                    <input value="someone1@here.com" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
                     <p>
                         validate[required,custom[email]]
                     </p>

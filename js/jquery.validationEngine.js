@@ -250,10 +250,10 @@
          * @param {jqObject} form
          * @param {Map} options
          */
-        _validateFormWithAjax: function(form, options) {
-
-            var data= form.serialize();
-
+        _validateFormWithAjax: function(form, options){
+		
+			var data = form.serialize();
+			
             $.ajax({
                 type: "GET",
                 url: options.ajaxFormValidationURL,
@@ -263,56 +263,61 @@
                 form: form,
                 methods: methods,
                 options: options,
-                beforeSend: function() {
+                beforeSend: function(){
                     return options.onBeforeAjaxFormValidation(form, options);
                 },
-                error: function(data, transport) {
-                	 methods._ajaxError(data, transport);
+                error: function(data, transport){
+                    methods._ajaxError(data, transport);
                 },
-                success: function(json) {
-
-                   
-					
-					
-                    if(json === true )
-                        options.onAjaxFormComplete(true, form, "", options);
-                    else
+                success: function(json){
+                
+                    if (json !== true) {
+                        for (var i = 0; i < json.length; i++) {
+                            var value = json[i];
+                            
+                            var errorFieldId = value[0];
+                            var errorField = $($("#" + errorFieldId)[0]);
+                            
+                            // make sure we found the element
+                            if (errorField.length == 1) {
+                            
+                                // promptText or selector
+                                var msg = value[2];
+                                
+                                if (value[1] === true) {
+                                    
+                                    if (msg == "") 
+                                        // if for some reason, status==true and error="", just close the prompt
+                                        methods._closePrompt(errorField);
+                                    else {
+                                        // the field is valid, but we are displaying a green prompt
+                                        if (options.allrules[msg]) {
+                                            var txt = options.allrules[msg].alertTextOk;
+                                            if (txt) 
+                                                msg = txt;
+                                        }
+                                        methods._showPrompt(errorField, msg, "pass", false, options);
+                                    }
+                                }
+                                else {
+                                    // the field is invalid, show the red error prompt
+                                    if (options.allrules[msg]) {
+										var txt = options.allrules[msg].alertText;
+										if (txt) 
+											msg = txt;
+									}
+                                    methods._showPrompt(errorField, msg, "", false, options);
+                                }
+                            }
+                        }
                         options.onAjaxFormComplete(false, form, json, options);
-                    
-					
-					
-					// asynchronously called on success, data is the json answer from the server
-                        var errorFieldId = json.jsonValidateReturn[0];
-                        var errorField = $($("#" + errorFieldId)[0]);
-						// make sure we found the element
-						if (errorField.length == 1) {
-							
-							var status = json.jsonValidateReturn[1];
-							
-							if (status === false) {
-								// Houston we got a problem
-								options.ajaxValidCache[errorFieldId] = false;
-								options.isError = true;
-								var promptText = rule.alertText;
-								methods._showPrompt(errorField, promptText, "", true, options);
-							}
-							else {
-								if (options.ajaxValidCache[errorFieldId] !== undefined) 
-									options.ajaxValidCache[errorFieldId] = true;
-								
-								// see if we should display a green prompt
-								var alertTextOk = rule.alertTextOk;
-								if (alertTextOk) 
-									methods._showPrompt(errorField, alertTextOk, "pass", true, options);
-								else 
-									methods._closePrompt(errorField);
-							}
-						}
-
+                    }
+                    else 
+                        options.onAjaxFormComplete(true, form, "", options);
                 }
             });
-
-        },
+			
+		},
         /**
          * Validates field, shows prompts accordingly
          *
@@ -613,12 +618,12 @@
                     success: function(json) {
 
                         // asynchronously called on success, data is the json answer from the server
-                        var errorFieldId = json.jsonValidateReturn[0];
+                        var errorFieldId = json[0];
                         var errorField = $($("#" + errorFieldId)[0]);
 						// make sure we found the element
 						if (errorField.length == 1) {
 							
-							var status = json.jsonValidateReturn[1];
+							var status = json[1];
 							
 							if (status === false) {
 								// Houston we got a problem
