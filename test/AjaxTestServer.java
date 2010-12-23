@@ -43,25 +43,32 @@ public class AjaxTestServer extends NanoHTTPD {
 
 		// the html field id
 		private String id;
-		// either an error string to display is the fields prompt or an error
+
+		// true, the field is valid : the client logic displays a green prompt
+		// false, the field is invalid : the client logic displays a red prompt
+		private Boolean status;
+
+		// either the string to display in the prompt or an error
 		// selector to pick the error message from the translation.js
 		private String error;
 
-		public AjaxValidationFormResponse(String fieldId, String err) {
+		public AjaxValidationFormResponse(String fieldId, Boolean s, String err) {
 			id = fieldId;
+			status = s;
 			error = err;
 		}
 
 		public String toString() {
 
 			StringBuffer json = new StringBuffer();
-			json.append("[\"").append(id).append("\",\"").append(error.toString()).append("\"]");
+			json.append("[\"").append(id).append("\",").append(status).append(",\"").append(error.toString()).append("\"]");
 			return json.toString();
 		}
 	}
 
 	public Response serve(String uri, String method, Properties header, Properties parms) {
 
+		// field validation
 		if ("/ajaxValidateFieldUser".equals(uri)) {
 			System.out.println("-> " + method + " '" + uri + "'");
 
@@ -73,9 +80,11 @@ public class AjaxTestServer extends NanoHTTPD {
 
 			AjaxValidationFieldResponse result = new AjaxValidationFieldResponse(fieldId, new Boolean(
 					"karnius".equals(fieldValue)));
-			String json = genJSON(result);
-			return new NanoHTTPD.Response(HTTP_OK, MIME_JSON, json);
-		} else if ("/ajaxValidateFieldName".equals(uri)) {
+			// return ["fieldid", true or false]
+			return new NanoHTTPD.Response(HTTP_OK, MIME_JSON, result.toString());
+		}
+		// field validation
+		else if ("/ajaxValidateFieldName".equals(uri)) {
 
 			System.out.println("-> " + method + " '" + uri + "'");
 
@@ -87,11 +96,11 @@ public class AjaxTestServer extends NanoHTTPD {
 
 			AjaxValidationFieldResponse result = new AjaxValidationFieldResponse(fieldId, new Boolean(
 					"duncan".equals(fieldValue)));
-			String json = genJSON(result);
-			return new NanoHTTPD.Response(HTTP_OK, MIME_JSON, json);
+			// return ["fieldid", true or false]
+			return new NanoHTTPD.Response(HTTP_OK, MIME_JSON, result.toString());
 		}
-		// This is a form validation, we get the form data (read: all the form
-		// fields), we return ALL the errors
+		// form validation, we get the form data (read: all the form fields), we
+		// return ALL the errors
 		else if ("/ajaxSubmitForm".equals(uri)) {
 
 			System.out.println("-> " + method + " '" + uri + "'");
@@ -107,19 +116,19 @@ public class AjaxTestServer extends NanoHTTPD {
 
 			if (!"someone@here.com".equals(email)) {
 
-				errors.add(new AjaxValidationFormResponse("email", "The email doesn't match someone@here.com"));
+				errors.add(new AjaxValidationFormResponse("email", false, "The email doesn't match someone@here.com"));
 			}
 
 			if (!"karnius".equals(user)) {
 				// error selector: indirection to the error message -> done in
 				// javascript
-				errors.add(new AjaxValidationFormResponse("user", "ajaxUserCall"));
+				errors.add(new AjaxValidationFormResponse("user", false, "ajaxUserCall"));
 			}
 
 			if (!"duncan".equals(firstname)) {
-				// error selector: indirection to the error message -> done in
-				// javascript
-				errors.add(new AjaxValidationFormResponse("firstname", "I told you: DUNCAN!"));
+				errors.add(new AjaxValidationFormResponse("firstname", false, "Please enter DUNCAN"));
+			} else {
+				errors.add(new AjaxValidationFormResponse("firstname", true, "You got it!"));
 			}
 
 			String json = "true";
@@ -133,37 +142,25 @@ public class AjaxTestServer extends NanoHTTPD {
 	}
 
 	/**
-	 * Generates on error
-	 * @param error
-	 * @return
-	 */
-	private String genJSON(AjaxValidationFieldResponse error) {
-		// PlayFramework! typically comes with its own JSON marshaler, this is
-		// dirty way around the need to import a third party library and add
-		// complexity
-		StringBuffer json = new StringBuffer();
-		json.append("{\"jsonValidateReturn\":");
-		json.append(error.toString());
-		json.append("}");
-		return json.toString();
-	}
-
-	/**
-	 * Generates a list of errors
+	 * Form validation error generation Generates a list of errors
+	 * 
 	 * @param errors
-	 * @return
+	 * @return [["field1", "this field is required<br/>
+	 *         it doesn't match<br/>
+	 *         "],["field2","another error"]]
 	 */
 	private String genJSON(ArrayList<AjaxValidationFormResponse> errors) {
 		StringBuffer json = new StringBuffer();
-		json.append("{\"jsonValidateReturn\":");
+		json.append('[');
 		for (int i = 0; i < errors.size(); i++) {
 
 			AjaxValidationFormResponse err = errors.get(i);
 			json.append(err.toString());
 			if (i < errors.size() - 1) {
-				json.append(",");
+				json.append(',');
 			}
 		}
+		json.append(']');
 		return json.toString();
 	}
 

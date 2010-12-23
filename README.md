@@ -60,9 +60,9 @@ Finally link the desired theme
 
 Validations are defined using the field's **class** attribute. Here are a few examples showing how it happens:
 
-    <input value="someone@nowhere.com" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
-    <input value="2010-12-01" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
-    <input value="too many spaces obviously" class="validate[required,custom[noSpecialCharacters]] text-input" type="text" name="special" id="special" />
+    <input value="someone@nowhere.com" class="validate[required,custom[email]]" type="text" name="email" id="email" />
+    <input value="2010-12-01" class="validate[required,custom[date]]" type="text" name="date" id="date" />
+    <input value="too many spaces obviously" class="validate[required,custom[noSpecialCharacters]]" type="text" name="special" id="special" />
 
 For more details about validators, please refer to the section below.
 
@@ -76,7 +76,7 @@ The method takes one or several optional parameters, either an action (and param
 
 Here comes a glimpse: say you have a form is this kind
     <form id="formID" method="post" action="submit.action">
-        <input value="2010-12-01" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
+        <input value="2010-12-01" class="validate[required,custom[date]]" type="text" name="date" id="date" />
     </form>
 
 The following code would instance the validation engine:
@@ -162,10 +162,10 @@ If set to a URL, turns the ajax form validation logic on.
 When the validate() action is performed, an ajax server call is achieved. result is asynchronously delivered to the onAjaxFormComplete function.
 
 ### onBeforeAjaxFormValidation
-function called before the asynchronous AJAX form validation call. May return false to stop the ajax form validation
+Function called before the asynchronous AJAX form validation call. May return false to stop the ajax form validation
             
 ### onAjaxFormComplete: function(form, status, errors, options)
-function used to asynchronously process the result of the ajax form validation. only called when ajaxFormValidationURL is set to a URL.
+Function used to asynchronously process the result of the ajax form validation. only called when ajaxFormValidationURL is set to a URL.
 
 ### isOverflown
 Set to true when the form shows in a scrolling div, defaults to *false*.
@@ -181,8 +181,8 @@ Validators are encoded in the field's class attribute, as such
 ### required
 Speaks by itselfs, fails if the element has no value. this validator can apply to pretty much any kind of input field.
 
-    <input value="" class="validate[required] text-input" type="text" name="email" id="email" />
-    <input class="validate[required] checkbox" type="checkbox" id="agree" name="agree"/>
+    <input value="" class="validate[required]" type="text" name="email" id="email" />
+    <input class="validate[required]" type="checkbox" id="agree" name="agree"/>
 
     <select name="sport" id="sport" class="validate[required]" id="sport">
        <option value="">Choose a sport</option>
@@ -194,42 +194,56 @@ Speaks by itselfs, fails if the element has no value. this validator can apply t
 ### custom[selector]
 Validates the element's value to a predefined list of regular expressions.
 
-    <input value="someone@nowhere.com" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
+    <input value="someone@nowhere.com" class="validate[required,custom[email]]" type="text" name="email" id="email" />
 
 ### function[methodName]
-Validates a field using a third party function call. If a validation error occurs, the function may return an error message that will automatically should in the error prompt.
+Validates a field using a third party function call. If a validation error occurs, the function must return an error message that will automatically show in the error prompt.
 
 
     function checkHELLO(field, rules, i, options){
       if (field.val() != "HELLO") {
-         // this allows to use i18 for the error msgs
+         // this allows the use of i18 for the error msgs
          return options.allrules.validate2fields.alertText;
       }
     }
 
 The following declaration will do            
-    <input value="" class="validate[required,funcCall[checkHELLO]] text-input" type="text" id="lastname" name="lastname" />
+    <input value="" class="validate[required,funcCall[checkHELLO]]" type="text" id="lastname" name="lastname" />
  
 
 ### ajax[selector]
 
 The validator is explained in further details in the Ajax section
 
+### equals
+
 ### min[float]
 
 ### max[float]
 
 ### minSize[integer]
+
 Validates if the element content size (in characters) is more or equal to the given *integer*. integer <= input.value.length
 
 ### maxSize[integer]
+
 Validates if the element content size (in characters) is less or equal to the given *integer*. input.value.length <= integer
 
 ### past[NOW or a date]
-Checks if the element's value (which is implicitly a date) is earlier than the given *date*. Note that if you pass NOW, the date will be calculate in the browser and may be different that the server date.
+
+Checks if the element's value (which is implicitly a date) is earlier than the given *date*. When "NOW" is used as a parameter, the date will be calculate in the browser. Note that this may be different that the server date. Dates use the ISO format YYYY-MM-DD
+
+    <input value="" class="validate[required,custom[date],past[now]]" type="text" id="birthdate" name="birthdate" />
+    <input value="" class="validate[required,custom[date],past['2010-01-01']]" type="text" id="appointment" name="appointment" />
 
 ### future[NOW or a date]
-Checks if the element's value (which is implicitly a date) is greater than the given *date*. Note that if you pass NOW, the date will be calculate in the browser and may be different that the server date.
+
+Checks if the element's value (which is implicitly a date) is greater than the given *date*. When "NOW" is used as a parameter, the date will be calculate in the browser. Note that this may be different that the server date. Dates use the ISO format YYYY-MM-DD
+
+    <input value="" class="validate[required,custom[date],future[now]]" type="text" id="appointment" name="appointment" />
+    // a date in 2009
+    <input value="" class="validate[required,custom[date],future['2009-01-01'],past['2009-12-31']]" type="text" id="d1" name="d1" />
+
 
 ### minCheckbox[integer]
 
@@ -237,21 +251,60 @@ Validates when a minimum of *integer* checkboxes are selected.
 The validator uses a special naming convention to identify the checkboxes part of the group.
 
 The following example, enforces a minimum of two selected checkboxes
-    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck1" value="5"/>
-    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck2" value="3"/>
-    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="data[User3][preferedColor]" id="maxcheck3" value="9"/>
-     
+    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck1" value="5"/>
+    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck2" value="3"/>
+    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck3" value="9"/>
+
+Note how the input.name is identical across the fields. 
+
+### maxCheckbox[integer]
+
+Same as above but limits the maximum number of selected check boxes.
+
+Selectors
+---
+
+We've introduced the notion of selectors without giving much details about them: A selector is a string which is used as a key to match properties in the translation files.
+Take the following example:
+
+    "onlyNumber": {
+        "regex": /^[0-9\ ]+$/,
+        "alertText": "* Numbers only"
+    },
+    "ajaxUserCall": {
+        "url": "ajaxValidateFieldUser",
+        "extraData": "name=eric",
+        "alertText": "* This user is already taken",
+        "alertTextLoad": "* Validating, please wait"
+    },
+    "validate2fields": {
+        "alertText": "* Please input HELLO"
+    }
+
+
+onlyNumber, onlyLetter and validate2fields are all selectors. jQuery.validationEngine comes with a standard set but you are welcome to add you own to define AJAX backend services, error messages and/or new regular expressions.
 
 Ajax
 ---
 
 Ajax validation comes in two flavors:
 
-1. Field ajax validations, which takes place when the user inputs a value in a field and moves to the next.
+1. Field ajax validations, which takes place when the user inputs a value in a field and moves away.
 2. Form ajax validation, which takes place when the form is submitted or when the validate() action is called.
 
 
 ### Field ajax validation
+
+
+####Protocol
+
+The client sends the fieldId and the fieldValue as a GET request to the server url.
+
+    Client calls url?fieldId=id1&fieldValue=value1 ==> Server
+
+Server responds with **one** tuple: field1, status: either true (validation succeeded) or false.
+
+    Client receives <== ["id1", boolean] Server
 
 
 ### Form ajax validation
@@ -259,10 +312,42 @@ Ajax validation comes in two flavors:
 It is important to note that Form ajax validation doesn't submit to the form.action url. You need to provide a link
 
 
-Custom regex
+Custom Regex
 ---
 
+jQuery.validationEngine comes with a lot of predefined expressions.
 
+### phone
+
+### url
+
+### email
+
+### date
+
+### number
+
+floating points with an optional sign
+
+### integer
+
+integers with an optional sign
+
+### ipv4
+
+an IP address (v4)
+
+### onlyNumbersSpace
+
+number and spaces
+
+### onlyLettersSpace
+
+Only letters and space
+
+### onlyLettersNumbersNoSpace
+
+Only letters and numbers, no space 
 
 
 Overflow
@@ -272,21 +357,34 @@ REVIEW REVIEW
 The big change in this method is that normally the engine will append every error boxes to the body. In this case it will append every error boxes before the input validated. This add a bit of complexity, if you want the error box to behave correctly you need to wrap the input in a div being position relative, and exactly wrapping the input width and height. The easiest way to do that is by adding float:left, like in the example provided.
 
 
-
-
-
 Customizations
 ---
 
 ### Adding regular expressions
 
+Adding new regular expressions is easy: open your translation file and add a new entry to the list
 
+           "onlyLetter": {
+                    "regex": /^[a-zA-Z\ \']+$/,
+                    "alertText": "* Letters only"
+                },
 
+* "onlyLetter" is a sample selector name
+* "regex" is a javascript regular expression
+* "alertText" is the message to display when the validation fails
+
+You can now use the new regular expression as such
+
+    <input type="text" id="myid" name="myid" class="validation[custom[onlyLetter]]"/>
+
+Don't forget to contribute!
 
 ### Customizing the look and feel
+
 Edit the file *validationEngine.jquery.css* and customize the styelesheet to your likings. it's trivial.
 
 ### Adding more locales
+
 You can easy add a locale by taking *jquery.validationEngine-en.js* as an example. 
 Feel free to provide us the translation ;-)
 

@@ -11,6 +11,8 @@
                     "alertTextCheckboxMultiple": "* Please select an option",
                     "alertTextCheckboxe": "* This checkbox is required"
                 },
+                
+                // orefalo: TO DELETE
                 "length": {
                     "regex": "none",
                     "alertText": "*Between ",

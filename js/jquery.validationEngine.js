@@ -160,7 +160,7 @@
             if (r && options.ajaxFormValidationURL) {
 
                 methods._validateFormWithAjax(form, options);
-                return undefined;
+                return false;
             }
             return r;
         },
@@ -264,45 +264,50 @@
                 methods: methods,
                 options: options,
                 beforeSend: function() {
-                    //TODO callback method
+                    return options.onBeforeAjaxFormValidation(form, options);
                 },
                 error: function(data, transport) {
-                    //TODO callback?
-                    alert("ajax error: " + data.status + " " + transport);
+                	 methods._ajaxError(data, transport);
                 },
                 success: function(json) {
 
-                    alert(json);
+                   
+					
+					
                     if(json === true )
                         options.onAjaxFormComplete(true, form, "", options);
                     else
                         options.onAjaxFormComplete(false, form, json, options);
-                    /*
-                     // asynchronously called on success, data is the json answer from the server
-                     var errorFieldId = json.jsonValidateReturn[0];
-                     var errorField = $($("#" + errorFieldId)[0]);
-                     //orefalo: do a validation, what is the field is not found?
-                     var status = json.jsonValidateReturn[1];
-
-                     if (status === false) {
-                     // Houston we got a problem
-                     options.ajaxValidCache[errorFieldId] = false;
-                     options.isError = true;
-                     var promptText = rule.alertText;
-                     methods._showPrompt(errorField, promptText, "", true, options);
-                     }
-                     else {
-                     if (options.ajaxValidCache[errorFieldId] !== undefined)
-                     options.ajaxValidCache[errorFieldId] = true;
-
-                     // see if we should display a green prompt
-                     var alertTextOk = rule.alertTextOk;
-                     if (alertTextOk)
-                     methods._showPrompt(errorField, alertTextOk, "pass", true, options);
-                     else
-                     methods._closePrompt(errorField);
-                     }
-                     */
+                    
+					
+					
+					// asynchronously called on success, data is the json answer from the server
+                        var errorFieldId = json.jsonValidateReturn[0];
+                        var errorField = $($("#" + errorFieldId)[0]);
+						// make sure we found the element
+						if (errorField.length == 1) {
+							
+							var status = json.jsonValidateReturn[1];
+							
+							if (status === false) {
+								// Houston we got a problem
+								options.ajaxValidCache[errorFieldId] = false;
+								options.isError = true;
+								var promptText = rule.alertText;
+								methods._showPrompt(errorField, promptText, "", true, options);
+							}
+							else {
+								if (options.ajaxValidCache[errorFieldId] !== undefined) 
+									options.ajaxValidCache[errorFieldId] = true;
+								
+								// see if we should display a green prompt
+								var alertTextOk = rule.alertTextOk;
+								if (alertTextOk) 
+									methods._showPrompt(errorField, alertTextOk, "pass", true, options);
+								else 
+									methods._closePrompt(errorField);
+							}
+						}
 
                 }
             });
@@ -440,16 +445,16 @@
                     }
                     break;
                 // orefalo: review these cases, where do they come from ?
-                case "select-one":
+               // case "select-one":
                     // added by paul@kinetek.net for select boxes, Thank you
-                    if (!field.val())
-                        return options.allrules[rules[i]].alertText;
-                    break;
-                case "select-multiple":
+               //     if (!field.val())
+               //         return options.allrules[rules[i]].alertText;
+               //     break;
+               // case "select-multiple":
                     // added by paul@kinetek.net for select boxes, Thank you
-                    if (!field.find("option:selected").val())
-                        return options.allrules[rules[i]].alertText;
-                    break;
+               //     if (!field.find("option:selected").val())
+               //         return options.allrules[rules[i]].alertText;
+                //    break;
             }
         },
         /**
@@ -603,41 +608,53 @@
                             methods._showPrompt(field, loadingText, "load", true, options);
                     },
                     error: function(data, transport) {
-                        if(data.status == 0 && transport == null)
-                            alert("The page is not served from a server! ajax call failed");
-                        else
-                            alert("Ajax error: " + data.status + " " + transport);
+                        methods._ajaxError(data, transport);
                     },
                     success: function(json) {
 
                         // asynchronously called on success, data is the json answer from the server
                         var errorFieldId = json.jsonValidateReturn[0];
                         var errorField = $($("#" + errorFieldId)[0]);
-                        //orefalo: do a validation, what is the field is not found?
-                        var status = json.jsonValidateReturn[1];
-
-                        if (status === false) {
-                            // Houston we got a problem
-                            options.ajaxValidCache[errorFieldId] = false;
-                            options.isError = true;
-                            var promptText = rule.alertText;
-                            methods._showPrompt(errorField, promptText, "", true, options);
-                        } else {
-                            if (options.ajaxValidCache[errorFieldId] !== undefined)
-                                options.ajaxValidCache[errorFieldId] = true;
-
-                            // see if we should display a green prompt
-                            var alertTextOk = rule.alertTextOk;
-                            if (alertTextOk)
-                                methods._showPrompt(errorField, alertTextOk, "pass", true, options);
-                            else
-                                methods._closePrompt(errorField);
-                        }
-
+						// make sure we found the element
+						if (errorField.length == 1) {
+							
+							var status = json.jsonValidateReturn[1];
+							
+							if (status === false) {
+								// Houston we got a problem
+								options.ajaxValidCache[errorFieldId] = false;
+								options.isError = true;
+								var promptText = rule.alertText;
+								methods._showPrompt(errorField, promptText, "", true, options);
+							}
+							else {
+								if (options.ajaxValidCache[errorFieldId] !== undefined) 
+									options.ajaxValidCache[errorFieldId] = true;
+								
+								// see if we should display a green prompt
+								var alertTextOk = rule.alertTextOk;
+								if (alertTextOk) 
+									methods._showPrompt(errorField, alertTextOk, "pass", true, options);
+								else 
+									methods._closePrompt(errorField);
+							}
+						}
                     }
                 });
             }
         },
+		/**
+		 * Common method to handle ajax errors
+		 * 
+		 * @param {Object} data
+		 * @param {Object} transport
+		 */
+		_ajaxError: function(data, transport) {
+		     if(data.status === 0 && transport === null)
+                  alert("The page is not served from a server! ajax call failed");
+             else if(console)
+                  console.log("Ajax error: " + data.status + " " + transport);
+		},
         /**
          * Builds or updates a prompt with the given information
          *
@@ -779,9 +796,6 @@
         _getPrompt: function(field) {
 
             var className = "." + field.attr("id") + "formError";
-            // remove any [ or ] characters, which migh be used with minCheckbox
-            // validations
-            className = className.replace(/\[/g, "").replace(/\]/g, "");
             var match = $(className)[0];
             if (match)
                 return $(match);
