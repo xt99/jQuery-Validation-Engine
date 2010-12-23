@@ -13,18 +13,30 @@
         </script>
         <script>
             
-           function ajaxValidationCallback(status, form, json, options){
-                if(console)
-                	console.log(status);
+            
+            function beforeCall(form, options){
+                if (console) 
+                    console.log("Right before the AJAX form validation call");
+            }
+            
+            function ajaxValidationCallback(status, form, json, options){
+                if (console) 
+                    console.log(status);
                 
-                //if(status===true)
-                //	form.submit();
+                if (status === true) {
+                    alert("the form is valid!");
+                    // uncomment these lines to submit the form to form.action
+					// form.validationEngine('detach');
+					// form.submit();
+					// or you may use AJAX again to submit the data
+                }
             }
             
             jQuery(document).ready(function(){
                 jQuery("#formID").validationEngine({
                     ajaxFormValidationURL: "ajaxSubmitForm",
-                    onAjaxFormComplete: ajaxValidationCallback
+                    onAjaxFormComplete: ajaxValidationCallback,
+                    onBeforeAjaxFormValidation: beforeCall
                 });
                 
                 jQuery("#formID").validationEngine('attach');

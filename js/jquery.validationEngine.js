@@ -900,7 +900,7 @@
                 // Ajax form validation callback method: boolean onComplete(form, status, errors, options)
                 // retuns false if the form.submit event needs to be canceled.
                 onAjaxFormComplete: $.noop,
-
+				// called right before the ajax call, may return false to cancel
                 onBeforeAjaxFormValidation: $.noop,
 
                 // Used when the form is displayed within a scrolling DIV
