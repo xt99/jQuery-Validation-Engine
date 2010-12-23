@@ -451,6 +451,12 @@ Contribution
 Contributions are always welcome, you may refer to the latest stable project at [GitHub](https://github.com/posabsolute/jQuery-Validation-Engine)
 We use [Aptana](http://www.aptana.com/) as a Javascript editor and the Rockstart JSLint & Closure plugins http://update.rockstarapps.com/site.xml
 
+Limitations
+---
+
+* We don't support <select multiple="true"/> fields on purpose. These fields do not ease UI experiece and should be avoided at all costs. There are much better ways to let a user select from a list of options.
+
+
 License
 ---
 Licensed under the MIT License

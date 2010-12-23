@@ -70,12 +70,12 @@
                     <span>Desired username (ajax validation, only <b>karnius</b> is available) : </span>
                     <input value="karnius" class="validate[required,custom[noSpecialCharacters],length[0,20],ajax[ajaxUserCall]] text-input" type="text" name="user" id="user" />
                     <p>
-                        validate[required,custom[noSpecialCaracters],length[0,20],ajax[ajaxUserCall]]
+                        validate[required,custom[noSpecialCaracters],maxSize[20],ajax[ajaxUserCall]]
                     </p>
                 </label>
                 <label>
                     <span>First name (ajax validation, only <b>duncan</b> is available): </span>
-                    <input value="olivier" class="validate[custom[onlyLetter],length[0,100],ajax[ajaxNameCall]] text-input" type="text" name="firstname" id="firstname" />
+                    <input value="olivier" class="validate[custom[onlyLetter],maxSize[100],ajax[ajaxNameCall]] text-input" type="text" name="firstname" id="firstname" />
                     <p>
                         validate[custom[onlyLetter],length[0,100],ajax[ajaxNameCall]]
                     </p>

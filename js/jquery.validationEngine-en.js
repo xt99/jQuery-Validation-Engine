@@ -11,14 +11,32 @@
                     "alertTextCheckboxMultiple": "* Please select an option",
                     "alertTextCheckboxe": "* This checkbox is required"
                 },
-                
-                // orefalo: TO DELETE
-                "length": {
+                "minSize": {
                     "regex": "none",
-                    "alertText": "*Between ",
-                    "alertText2": " and ",
-                    "alertText3": " characters allowed"
+                    "alertText": "* Minimum ",
+                    "alertText2": " characters allowed"
                 },
+                "maxSize": {
+                    "regex": "none",
+                    "alertText": "* Maximum ",
+                    "alertText2": " characters allowed"
+                },
+		        "min": {
+                    "regex": "none",
+                    "alertText": "* Minimum value is "
+                },
+                "max": {
+                    "regex": "none",
+                    "alertText": "* Maximum value is "
+                },
+		        "past": {
+                    "regex": "none",
+                    "alertText": "* Min date limit is "
+                },
+                "future": {
+                    "regex": "none",
+                    "alertText": "* Max date limit is "
+                },	
                 "maxCheckbox": {
                     "regex": "none",
                     "alertText": "* Checks allowed Exceeded"

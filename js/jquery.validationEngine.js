@@ -393,6 +393,12 @@
 			        case "max":
                         errorMsg = methods._max(field, rules, i, options);
                         break;
+			        case "past":
+                        errorMsg = methods._past(field, rules, i, options);
+                        break;
+			        case "future":
+                        errorMsg = methods._future(field, rules, i, options);
+                        break;		
                     case "maxCheckbox":
                         errorMsg = methods._maxCheckbox(field, rules, i, options);
                         field = $($("input[name='" + fieldName + "']"));
@@ -464,17 +470,17 @@
                             return options.allrules[rules[i]].alertTextCheckboxMultiple;
                     }
                     break;
-                // orefalo: review these cases, where do they come from ?
-               // case "select-one":
+                // required for <select>
+                case "select-one":
                     // added by paul@kinetek.net for select boxes, Thank you
-               //     if (!field.val())
-               //         return options.allrules[rules[i]].alertText;
-               //     break;
-               // case "select-multiple":
+                    if (!field.val())
+                        return options.allrules[rules[i]].alertText;
+                    break;
+                case "select-multiple":
                     // added by paul@kinetek.net for select boxes, Thank you
-               //     if (!field.find("option:selected").val())
-               //         return options.allrules[rules[i]].alertText;
-                //    break;
+                    if (!field.find("option:selected").val())
+                        return options.allrules[rules[i]].alertText;
+                    break;
             }
         },
         /**
@@ -543,10 +549,7 @@
 
             if (len > max) {
                 var rule = options.allrules.maxSize;
-                return rule.alertText + startLength +
-                rule.alertText2 +
-                endLength +
-                rule.alertText3;
+                return rule.alertText + max + rule.alertText2;
             }
         },
 		
@@ -566,10 +569,7 @@
 
             if (len < min) {
                 var rule = options.allrules.minSize;
-                return rule.alertText + startLength +
-                rule.alertText2 +
-                endLength +
-                rule.alertText3;
+                return rule.alertText + min + rule.alertText2;
             }
         },
 		
@@ -589,13 +589,9 @@
 
             if (len < min) {
                 var rule = options.allrules.min;
-                return rule.alertText + startLength +
-                rule.alertText2 +
-                endLength +
-                rule.alertText3;
+                return rule.alertText + min;
             }
         },
-		
 		/**
          * Check number maximum value
          *
@@ -612,14 +608,52 @@
 
             if (len >max ) {
                 var rule = options.allrules.max;
-                return rule.alertText + startLength +
-                rule.alertText2 +
-                endLength +
-                rule.alertText3;
+				//orefalo: to review, also do the translations
+                return rule.alertText + max;
             }
         },
-		
-		
+		/**
+         * Checks date is in the past
+         *
+         * @param {jqObject} field
+         * @param {Array[String]} rules
+         * @param {int} i rules index
+         * @param {Map}
+         *            user options
+         * @return an error string if validation failed
+         */
+        _past: function(field, rules, i, options) {
+			
+			var p=rules[i + 1];
+            var pdate = (p.toLowerCase() == "now")? new Date():methods._parseDate(p);
+            var vdate = methods._parseDate(field.attr('value'));
+
+            if (vdate > pdate ) {
+                var rule = options.allrules.past;
+                return rule.alertText + methods._dateToString(pdate);
+            }
+        },
+		/**
+         * Checks date is in the past
+         *
+         * @param {jqObject} field
+         * @param {Array[String]} rules
+         * @param {int} i rules index
+         * @param {Map}
+         *            user options
+         * @return an error string if validation failed
+         */
+        _future: function(field, rules, i, options) {
+			
+			var p=rules[i + 1];
+            var pdate = (p.toLowerCase() == "now")? new Date():methods._parseDate(p);
+            var vdate = methods._parseDate(field.attr('value'));
+
+            if (vdate < pdate ) {
+                var rule = options.allrules.future;
+                return rule.alertText + methods._dateToString(pdate);
+            }
+        },
         /**
          * Max number of checkbox selected
          *
@@ -744,6 +778,26 @@
                   alert("The page is not served from a server! ajax call failed");
              else if(console)
                   console.log("Ajax error: " + data.status + " " + transport);
+		},
+		/**
+		 * date -> string
+		 * 
+		 * @param {Object} date
+		 */
+		_dateToString: function(date) {
+			
+			return date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
+		}, 
+		/**
+		 * Parses an ISO date
+		 * @param {String} d
+		 */		
+		_parseDate: function(d) {
+			
+			var dateParts = d.split("-");
+			if(dateParts!==d)
+				dateParts = d.split("/");
+			return new Date(dateParts[0], (dateParts[1] - 1) ,dateParts[2]);
 		},
         /**
          * Builds or updates a prompt with the given information
