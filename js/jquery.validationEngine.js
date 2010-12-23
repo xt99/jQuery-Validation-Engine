@@ -381,8 +381,17 @@
                             isAjaxValidator = true;
                         }
                         break;
-                    case "length":
-                        errorMsg = methods._length(field, rules, i, options);
+                    case "minSize":
+                        errorMsg = methods._minSize(field, rules, i, options);
+                        break;
+			        case "maxSize":
+                        errorMsg = methods._maxSize(field, rules, i, options);
+                        break;
+					case "min":
+                        errorMsg = methods._min(field, rules, i, options);
+                        break;
+			        case "max":
+                        errorMsg = methods._max(field, rules, i, options);
                         break;
                     case "maxCheckbox":
                         errorMsg = methods._maxCheckbox(field, rules, i, options);
@@ -519,7 +528,7 @@
                 return options.allrules.equals.alertText;
         },
         /**
-         * Field length
+         * Check the maximum size (in characters)
          *
          * @param {jqObject} field
          * @param {Array[String]} rules
@@ -528,19 +537,89 @@
          *            user options
          * @return an error string if validation failed
          */
-        _length: function(field, rules, i, options) {
-            var startLength = rules[i + 1];
-            var endLength = rules[i + 2];
+        _maxSize: function(field, rules, i, options) {
+            var max = rules[i + 1];
             var len = field.attr('value').length;
 
-            if (len < startLength || len > endLength) {
-                var rule = options.allrules.length;
+            if (len > max) {
+                var rule = options.allrules.maxSize;
                 return rule.alertText + startLength +
                 rule.alertText2 +
                 endLength +
                 rule.alertText3;
             }
         },
+		
+		/**
+         * Check the minimum size (in characters)
+         *
+         * @param {jqObject} field
+         * @param {Array[String]} rules
+         * @param {int} i rules index
+         * @param {Map}
+         *            user options
+         * @return an error string if validation failed
+         */
+        _minSize: function(field, rules, i, options) {
+            var min = rules[i + 1];
+            var len = field.attr('value').length;
+
+            if (len < min) {
+                var rule = options.allrules.minSize;
+                return rule.alertText + startLength +
+                rule.alertText2 +
+                endLength +
+                rule.alertText3;
+            }
+        },
+		
+		/**
+         * Check number minimum value
+         *
+         * @param {jqObject} field
+         * @param {Array[String]} rules
+         * @param {int} i rules index
+         * @param {Map}
+         *            user options
+         * @return an error string if validation failed
+         */
+        _min: function(field, rules, i, options) {
+            var min = parseFloat(rules[i + 1]);
+            var len = parseFloat(field.attr('value'));
+
+            if (len < min) {
+                var rule = options.allrules.min;
+                return rule.alertText + startLength +
+                rule.alertText2 +
+                endLength +
+                rule.alertText3;
+            }
+        },
+		
+		/**
+         * Check number maximum value
+         *
+         * @param {jqObject} field
+         * @param {Array[String]} rules
+         * @param {int} i rules index
+         * @param {Map}
+         *            user options
+         * @return an error string if validation failed
+         */
+        _max: function(field, rules, i, options) {
+            var max = parseFloat(rules[i + 1]);
+            var len = parseFloat(field.attr('value'));
+
+            if (len >max ) {
+                var rule = options.allrules.max;
+                return rule.alertText + startLength +
+                rule.alertText2 +
+                endLength +
+                rule.alertText3;
+            }
+        },
+		
+		
         /**
          * Max number of checkbox selected
          *

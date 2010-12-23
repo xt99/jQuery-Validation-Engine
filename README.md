@@ -111,7 +111,7 @@ Unregisters any bindings that may point to jQuery.validaitonEngine.
 ### validate
 
 Validates the form and displays prompts accordingly. 
-Returns *true* if the form validates, *false* if it contains errors and *undefined* if you use an ajax form validator. In which can you will to provide an *onAjaxFormComplete* function to process the asynchronous call.
+Returns *true* if the form validates, *false* if it contains errors. Note that if you use an ajax form validator, the actual result will be delivered asynchronously to the function *options.onAjaxFormComplete*.
 
     alert( $("#formID1").validationEngine('validate') );
 
@@ -179,6 +179,7 @@ Validators
 Validators are encoded in the field's class attribute, as such
 
 ### required
+
 Speaks by itself, fails if the element has no value. this validator can apply to pretty much any kind of input field.
 
     <input value="" class="validate[required]" type="text" name="email" id="email" />
@@ -191,7 +192,8 @@ Speaks by itself, fails if the element has no value. this validator can apply to
        <option value="option3">Golf</option>
     </select>
 
-### custom[name]
+### custom[regex_name]
+
 Validates the element's value to a predefined list of regular expressions.
 
     <input value="someone@nowhere.com" class="validate[required,custom[email]]" type="text" name="email" id="email" />
@@ -199,8 +201,8 @@ Validates the element's value to a predefined list of regular expressions.
 Please refer to the section Custom Regex for a list of available regular expressions.
 
 ### function[methodName]
-Validates a field using a third party function call. If a validation error occurs, the function must return an error message that will automatically show in the error prompt.
 
+Validates a field using a third party function call. If a validation error occurs, the function must return an error message that will automatically show in the error prompt.
 
     function checkHELLO(field, rules, i, options){
       if (field.val() != "HELLO") {
@@ -212,16 +214,21 @@ Validates a field using a third party function call. If a validation error occur
 The following declaration will do            
     <input value="" class="validate[required,funcCall[checkHELLO]]" type="text" id="lastname" name="lastname" />
  
-
 ### ajax[selector]
 
-The validator is explained in further details in the Ajax section
+The validator is explained in further details in the Ajax section.
 
-### equals
+### equals[field.id]
+
+Check if the current field's value equals the value of the specified field.
 
 ### min[float]
 
+Validates when the field's value if less or equal to the given parameter.
+
 ### max[float]
+
+Validates when the field's value if more or equal to the given parameter.
 
 ### minSize[integer]
 
@@ -294,6 +301,7 @@ Ajax validation comes in two flavors:
 1. Field ajax validations, which takes place when the user inputs a value in a field and moves away.
 2. Form ajax validation, which takes place when the form is submitted or when the validate() action is called.
 
+Both options are optional.
 
 ### Field ajax validation
 
@@ -313,11 +321,27 @@ Server responds with **one** tuple: field1, status: either true (validation succ
 
 It is important to note that Form ajax validation doesn't submit to the form.action url. You need to provide a link
 
+####Protocol
+
+The client sends the form fields and values as a GET request to the form.action url.
+
+    Client calls url?fieldId=id1&fieldValue=value1&...etc ==> Server
+
+Server responds with an array of tuple: field1, status, errorMsg.
+
+    Client receives <== [["id1", boolean,"errorMsg"],["id2", false, "there is an error "],["id3", true, "this field is good"]] Server
+
+
+
 
 Custom Regex
 ---
 
-jQuery.validationEngine comes with a lot of predefined expressions.
+jQuery.validationEngine comes with a lot of predefined expressions. Regex are specified as such:
+    
+    <input value="" class="validate[custom[email]]" type="text" name="email" id="email" />
+    
+Note that the selector identifies a given regular expression in the translation file, but also its associated error prompt messages and optional green prompt message.    
 
 ### phone
 
@@ -335,7 +359,7 @@ a typical phone number with an optional country code and extension.
 
 ### url
 
-matched a url such as http://myserver.com, https:// or ftp:// 
+matched a url such as http://myserver.com, https://www.crionics.com or ftp://myserver.ws 
 
 ### email
 
