@@ -155,7 +155,7 @@ Name of the event triggering field validation, defaults to *blur*.
 Tells if we should scroll the page to the first error, defaults to *true*.
 
 ### promptPosition
-Where should the prompt show ? possible values are "topLeft", "topRight", "bottomLeft", "centerRight", "bottomRight". Defaults to *"topRight"*.
+Where should the prompt show ? Possible values are "topLeft", "topRight", "bottomLeft", "centerRight", "bottomRight". Defaults to *"topRight"*.
 
 ### ajaxFormValidationURL
 If set to a URL, turns the ajax form validation logic on.
@@ -179,7 +179,7 @@ Validators
 Validators are encoded in the field's class attribute, as such
 
 ### required
-Speaks by itselfs, fails if the element has no value. this validator can apply to pretty much any kind of input field.
+Speaks by itself, fails if the element has no value. this validator can apply to pretty much any kind of input field.
 
     <input value="" class="validate[required]" type="text" name="email" id="email" />
     <input class="validate[required]" type="checkbox" id="agree" name="agree"/>
@@ -191,10 +191,12 @@ Speaks by itselfs, fails if the element has no value. this validator can apply t
        <option value="option3">Golf</option>
     </select>
 
-### custom[selector]
+### custom[name]
 Validates the element's value to a predefined list of regular expressions.
 
     <input value="someone@nowhere.com" class="validate[required,custom[email]]" type="text" name="email" id="email" />
+
+Please refer to the section Custom Regex for a list of available regular expressions.
 
 ### function[methodName]
 Validates a field using a third party function call. If a validation error occurs, the function must return an error message that will automatically show in the error prompt.
@@ -251,9 +253,9 @@ Validates when a minimum of *integer* checkboxes are selected.
 The validator uses a special naming convention to identify the checkboxes part of the group.
 
 The following example, enforces a minimum of two selected checkboxes
-    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck1" value="5"/>
-    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck2" value="3"/>
-    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck3" value="9"/>
+    <input class="validate[minCheckbox[2]]" type="checkbox" name="group1" id="maxcheck1" value="5"/>
+    <input class="validate[minCheckbox[2]]" type="checkbox" name="group1" id="maxcheck2" value="3"/>
+    <input class="validate[minCheckbox[2]]" type="checkbox" name="group1" id="maxcheck3" value="9"/>
 
 Note how the input.name is identical across the fields. 
 
@@ -319,31 +321,49 @@ jQuery.validationEngine comes with a lot of predefined expressions.
 
 ### phone
 
+a typical phone number with an optional country code and extension.
+
+    49-4312 / 777 777
+    +1 (305) 613-0958 x101
+    (305) 613 09 58 ext 101
+    3056130958
+    +33 1 47 37 62 24 extension 3
+    (016977) 1234
+    04312 - 777 777
+    91-12345-12345
+    +58 295416 7216
+
 ### url
+
+matched a url such as http://myserver.com, https:// or ftp:// 
 
 ### email
 
+easy, an email : username@hostname.com
+
 ### date
+
+an ISO date, YYYY-MM-DD
 
 ### number
 
-floating points with an optional sign
+floating points with an optional sign. ie. -143.22 or .77 but also +234,23
 
 ### integer
 
-integers with an optional sign
+integers with an optional sign. ie. -635 +2201 738
 
 ### ipv4
 
-an IP address (v4)
+an IP address (v4) ie. 127.0.0.1
 
 ### onlyNumbersSpace
 
-number and spaces
+Only numbers and spaces characters
 
 ### onlyLettersSpace
 
-Only letters and space
+Only letters and space characters
 
 ### onlyLettersNumbersNoSpace
 
@@ -359,6 +379,8 @@ The big change in this method is that normally the engine will append every erro
 
 Customizations
 ---
+
+What would be a good library without customization ?
 
 ### Adding regular expressions
 
@@ -381,24 +403,24 @@ Don't forget to contribute!
 
 ### Customizing the look and feel
 
-Edit the file *validationEngine.jquery.css* and customize the styelesheet to your likings. it's trivial.
+Edit the file *validationEngine.jquery.css* and customize the stylesheet to your likings. it's trivial if you know CSS.
 
 ### Adding more locales
 
 You can easy add a locale by taking *jquery.validationEngine-en.js* as an example. 
-Feel free to provide us the translation ;-)
+Feel free to share the translation ;-)
 
 Rules of thumb
 ---
 
 * field.id are **unique** across the page
-* for simplicity and consistency field.id and field.name should match
+* for simplicity and consistency field.id and field.name should match (except with minCheckbox and maxCheckbox validators)
 * spaces or special chars should be avoided in field.id or field.name
 * use lower cases for input.type  ie. *text, password, textarea, checkbox, radio*
 * use the ajax validator last ie. *validate[custom[onlyLetter],length[0,100],ajax[ajaxNameCall]]*
 * use only one ajax validator per field!
-* json services should live on the same server (or you will get into security issues)
-* in a perfect RESTful world, http **GET** is used to *READ* data, http **POST** is used to *WRITE* data: which translates into -> ajax validations should use GET, the actual form post should use POST
+* JSON services should live on the same server (or you will get into security issues)
+* in a perfect RESTful world, http **GET** is used to *READ* data, http **POST** is used to *WRITE* data: which translates into -> ajax validations should use GET, the actual form post should use a POST request.
 
 Contribution
 ---
@@ -407,7 +429,7 @@ We use [Aptana](http://www.aptana.com/) as a Javascript editor and the Rockstart
 
 License
 ---
-Licensed under the MIT Licence
+Licensed under the MIT License
 
 
 Authors
