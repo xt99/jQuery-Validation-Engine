@@ -272,6 +272,11 @@
                 success: function(json){
                 
                     if (json !== true) {
+						
+						// getting to this case doesn't necessary means that the form is invalid
+						// the server may return green or closing prompt actions
+						// this flag helps figuring it out
+						var errorInForm=false;
                         for (var i = 0; i < json.length; i++) {
                             var value = json[i];
                             
@@ -301,6 +306,7 @@
                                 }
                                 else {
                                     // the field is invalid, show the red error prompt
+									errorInForm|=true;
                                     if (options.allrules[msg]) {
 										var txt = options.allrules[msg].alertText;
 										if (txt) 
@@ -310,7 +316,7 @@
                                 }
                             }
                         }
-                        options.onAjaxFormComplete(false, form, json, options);
+                        options.onAjaxFormComplete(!errorInForm, form, json, options);
                     }
                     else 
                         options.onAjaxFormComplete(true, form, "", options);

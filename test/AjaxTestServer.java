@@ -106,7 +106,7 @@ public class AjaxTestServer extends NanoHTTPD {
 			System.out.println("-> " + method + " '" + uri + "'");
 
 			// purposely sleep to let the UI display the AJAX loading prompts
-			sleep(3000);
+			sleep(1000);
 
 			ArrayList<AjaxValidationFormResponse> errors = new ArrayList<AjaxValidationFormResponse>();
 

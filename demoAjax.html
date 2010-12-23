@@ -13,12 +13,16 @@
         </script>
         <script>
             
-            
+            // This method is called right before the ajax form validation request
+            // it is typically used to setup some visuals ("Please wait...");
+            // you may return a false to stop the request 
             function beforeCall(form, options){
                 if (console) 
                     console.log("Right before the AJAX form validation call");
+                return true;
             }
             
+            // Called once the server replies to the aja form validation request
             function ajaxValidationCallback(status, form, json, options){
                 if (console) 
                     console.log(status);
@@ -26,9 +30,9 @@
                 if (status === true) {
                     alert("the form is valid!");
                     // uncomment these lines to submit the form to form.action
-					// form.validationEngine('detach');
-					// form.submit();
-					// or you may use AJAX again to submit the data
+                    // form.validationEngine('detach');
+                    // form.submit();
+                    // or you may use AJAX again to submit the data
                 }
             }
             
@@ -51,9 +55,11 @@
             | <a href="#" onclick="$.validationEngine.closePrompt('.formError',true)">Close all prompt</a>
         </p>
         <p>
-            This demonstrations shows the use of Ajax for validation.
+            This demonstrations shows the use of Ajax <b>form</b>
+            and <b>field</b>
+            validations.
             <br/>
-            There are two kinds of validations: field (when the field is focused out) and form (when the form is submitted).
+            The form validation implements callback hooks, so please check the javascript console
         </p>
         <form id="formID" class="formular" method="post" action="" style="width:600px">
             <fieldset>
