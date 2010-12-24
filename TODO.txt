@@ -1,4 +1,4 @@
-
+TODO: form ajax : use the url from form.action -> it makes more sense
 
 
 TODO: hook browser resize -> reposition prompts

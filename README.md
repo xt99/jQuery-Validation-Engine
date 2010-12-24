@@ -36,6 +36,11 @@ Most demos are functional by opening their respective HTML file. However, the Aj
 1. Run the script `runDemo.bat` (Windows) or `runDemo.sh` (Unix) from the folder
 2. Open a browser pointing at [http://localhost:9173](http://localhost:9173)
 
+Demos
+---
+
+TODO
+
 
 Usage
 ---
@@ -157,15 +162,15 @@ Tells if we should scroll the page to the first error, defaults to *true*.
 ### promptPosition
 Where should the prompt show ? Possible values are "topLeft", "topRight", "bottomLeft", "centerRight", "bottomRight". Defaults to *"topRight"*.
 
-### ajaxFormValidationURL
-If set to a URL, turns the ajax form validation logic on.
-When the validate() action is performed, an ajax server call is achieved. result is asynchronously delivered to the onAjaxFormComplete function.
+### ajaxFormValidation
+If set to true, turns Ajax form validation logic on. defaults to *false*.
+form validation takes place when the validate() action is called or when the form is submitted.
 
-### onBeforeAjaxFormValidation
-Function called before the asynchronous AJAX form validation call. May return false to stop the ajax form validation
+### onBeforeAjaxFormValidation(form, options)
+When ajaxFormValidation is turned on, function called before the asynchronous AJAX form validation call. May return false to stop the Ajax form validation
             
 ### onAjaxFormComplete: function(form, status, errors, options)
-Function used to asynchronously process the result of the ajax form validation. only called when ajaxFormValidationURL is set to a URL.
+When ajaxFormValidation is turned on, function is used to asynchronously process the result of the validation.
 
 ### isOverflown
 Set to true when the form shows in a scrolling div, defaults to *false*.
@@ -216,7 +221,26 @@ The following declaration will do
  
 ### ajax[selector]
 
-The validator is explained in further details in the Ajax section.
+Delegates the validation to a server URL using an asynchronous Ajax request. The selector is used to identify a block of properties in the translation file, take the following example.
+
+    <input value="" class="validate[required,custom[noSpecialCharacters],maxSize[20],ajax[ajaxUserCall]] text-input" type="text" name="user" id="user" />
+                 
+
+    "ajaxUserCall": {
+        "url": "ajaxValidateFieldUser",
+        "extraData": "name=eric",
+        "alertText": "* This user is already taken",
+        "alertTextOk": "All good!",
+        "alertTextLoad": "* Validating, please wait"
+    },
+
+* url - is the remote restful service to call
+* extraData - optional parameters to sent
+* alertText - error prompt message is validation fails
+* alertTextOk - optional prompt is validation succeeds (shows green)
+* alertTextLoad - message displayed while the validation is being performed
+
+This validator is explained in further details in the Ajax section.
 
 ### equals[field.id]
 
@@ -298,8 +322,8 @@ Ajax
 
 Ajax validation comes in two flavors:
 
-1. Field ajax validations, which takes place when the user inputs a value in a field and moves away.
-2. Form ajax validation, which takes place when the form is submitted or when the validate() action is called.
+1. Field Ajax validations, which takes place when the user inputs a value in a field and moves away.
+2. Form Ajax validation, which takes place when the form is submitted or when the validate() action is called.
 
 Both options are optional.
 
@@ -319,20 +343,24 @@ Server responds with **one** tuple: field1, status: either true (validation succ
 
 ### Form ajax validation
 
-It is important to note that Form ajax validation doesn't submit to the form.action url. You need to provide a link
 
 ####Protocol
 
 The client sends the form fields and values as a GET request to the form.action url.
 
-    Client calls url?fieldId=id1&fieldValue=value1&...etc ==> Server
+    Client calls url?fieldId=id1&fieldValue=value1&...etc ==> Server (form.action)
 
 Server responds with an array of tuple: field1, status, errorMsg.
 
     Client receives <== [["id1", boolean,"errorMsg"],["id2", false, "there is an error "],["id3", true, "this field is good"]] Server
 
+####Callbacks
 
+Since the form validation is asynchronously delegated to the form action, we defined two call back methods to get notified before and after the ajax call.
 
+**onBeforeAjaxFormValidation(form, options)**        
+
+**onAjaxFormComplete: function(form, status, json_response_from_server, options)**
 
 Custom Regex
 ---
@@ -410,10 +438,10 @@ What would be a good library without customization ?
 
 Adding new regular expressions is easy: open your translation file and add a new entry to the list
 
-           "onlyLetter": {
-                    "regex": /^[a-zA-Z\ \']+$/,
-                    "alertText": "* Letters only"
-                },
+    "onlyLetter": {
+        "regex": /^[a-zA-Z\ \']+$/,
+        "alertText": "* Letters only"
+    },
 
 * "onlyLetter" is a sample selector name
 * "regex" is a javascript regular expression
@@ -441,10 +469,10 @@ Rules of thumb
 * for simplicity and consistency field.id and field.name should match (except with minCheckbox and maxCheckbox validators)
 * spaces or special chars should be avoided in field.id or field.name
 * use lower cases for input.type  ie. *text, password, textarea, checkbox, radio*
-* use the ajax validator last ie. *validate[custom[onlyLetter],length[0,100],ajax[ajaxNameCall]]*
-* use only one ajax validator per field!
+* use the Ajax validator last ie. *validate[custom[onlyLetter],length[0,100],ajax[ajaxNameCall]]*
+* use only one Ajax validator per field!
 * JSON services should live on the same server (or you will get into security issues)
-* in a perfect RESTful world, http **GET** is used to *READ* data, http **POST** is used to *WRITE* data: which translates into -> ajax validations should use GET, the actual form post should use a POST request.
+* in a perfect RESTful world, http **GET** is used to *READ* data, http **POST** is used to *WRITE* data: which translates into -> Ajax validations should use GET, the actual form post should use a POST request.
 
 Contribution
 ---
@@ -454,7 +482,7 @@ We use [Aptana](http://www.aptana.com/) as a Javascript editor and the Rockstart
 Limitations
 ---
 
-* We don't support <select multiple="true"/> fields on purpose. These fields do not ease UI experiece and should be avoided at all costs. There are much better ways to let a user select from a list of options.
+* We don't support 'select multiple="true"' fields on purpose. These fields do not ease UI experiece and should be avoided at all costs. There are much better ways to let a user select from a list of options.
 
 
 License

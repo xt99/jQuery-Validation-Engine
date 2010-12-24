@@ -157,7 +157,7 @@
 
             var options = form.data('jqv');
             // validate the form using AJAX
-            if (r && options.ajaxFormValidationURL) {
+            if (r && options.ajaxFormValidation) {
 
                 methods._validateFormWithAjax(form, options);
                 return false;
@@ -256,7 +256,7 @@
 			
             $.ajax({
                 type: "GET",
-                url: options.ajaxFormValidationURL,
+                url: form.attr("action"),
                 cache: false,
                 dataType: "json",
                 data: data,
@@ -1033,9 +1033,8 @@
                 // topRight, bottomLeft, centerRight, bottomRight
                 promptPosition: "topRight",
 
-                // URL pointing at the json service validating the form
-                // the validate() call performs an ajax server call and calls onAjaxFormComplete upon completion
-                ajaxFormValidationURL: undefined,
+				// if set to true, the form data is sent asynchronously via ajax to the form.action url (get)
+                ajaxFormValidation: false,
                 // Ajax form validation callback method: boolean onComplete(form, status, errors, options)
                 // retuns false if the form.submit event needs to be canceled.
                 onAjaxFormComplete: $.noop,

@@ -38,7 +38,7 @@
             
             jQuery(document).ready(function(){
                 jQuery("#formID").validationEngine({
-                    ajaxFormValidationURL: "ajaxSubmitForm",
+					ajaxFormValidation: true,
                     onAjaxFormComplete: ajaxValidationCallback,
                     onBeforeAjaxFormValidation: beforeCall
                 });
@@ -61,14 +61,14 @@
             <br/>
             The form validation implements callback hooks, so please check the javascript console
         </p>
-        <form id="formID" class="formular" method="post" action="" style="width:600px">
+        <form id="formID" class="formular" method="post" action="ajaxSubmitForm" style="width:600px">
             <fieldset>
                 <legend>
                     Ajax validation
                 </legend>
                 <label>
                     <span>Desired username (ajax validation, only <b>karnius</b> is available) : </span>
-                    <input value="karnius" class="validate[required,custom[noSpecialCharacters],length[0,20],ajax[ajaxUserCall]] text-input" type="text" name="user" id="user" />
+                    <input value="karnius" class="validate[required,custom[noSpecialCharacters],maxSize[20],ajax[ajaxUserCall]] text-input" type="text" name="user" id="user" />
                     <p>
                         validate[required,custom[noSpecialCaracters],maxSize[20],ajax[ajaxUserCall]]
                     </p>
