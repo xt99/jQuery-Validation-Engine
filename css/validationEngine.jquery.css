@@ -12,22 +12,6 @@
 	cursor: pointer;
 }
 
-#debugMode {
-	background: #000;
-	position: fixed;
-	width: 100%;
-	height: 200px;
-	top: 0;
-	left: 0;
-	overflow: scroll;
-	opacity: 0.8;
-	display: block;
-	padding: 10px;
-	color: #fff;
-	font-size: 14px;
-	z-index: 100000;
-}
-
 .ajaxSubmit {
 	padding: 20px;
 	background: #55ea55;
@@ -70,6 +54,7 @@
 .formError .formErrorArrowBottom {
 	top: 0;
 	margin: -6px;
+	z-index: 5001;
 }
 
 .formError .formErrorArrow div {
