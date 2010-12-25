@@ -4,16 +4,15 @@ jQuery.validationEngine v2.0
 Summary
 ---
 
-jQuery validation engine is a javascript plugin aiming the validation of form fields on the browser.
-The plugin provides some visually appealing prompts that grab user attention on the subject matter.
+jQuery validation engine is a Javascript plugin aiming the validation of form fields in the browser (IE 6-8, Chrome, Firefox, Safari, Opera 10).
+The plugin provides visual appealing prompts that grab user attention on the subject matter.
 
-Validations range from email, phone, url to the more complex calls such as ajax processing.
-Bundled in several locales, the error prompts can be easily translated in your favorite language. 
+Validations range from email, phone, url to more complex calls such as ajax processing.
+Bundled in several locales, the error prompts can be translated in the locale of your choice. 
 
 ![Screenshot](https://github.com/orefalo/jQuery-Validation-Engine/raw/master/css/screenshot.png)
 
 **Important**: v2 is a significant rewrite of the original 1.7 branch. Please read the documentation as the API has changed!
-
 
 Installation
 ---

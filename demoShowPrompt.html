@@ -12,18 +12,18 @@
         <script src="js/jquery.validationEngine.js" type="text/javascript" charset="utf-8">
         </script>
         <script>
-            $(document).ready(function(){
+            jQuery(document).ready(function(){
                 // binds form submission and fields to the validation engine
-                $("#formID").validationEngine('attach');
+                jQuery("#formID").validationEngine('attach');
             });
         </script>
     </head>
     <body>
         <p>
-            <a href="#" onclick="$('#formID').validationEngine('showPrompt', 'This is an example', 'pass')">Build a prompt on form</a>
-            | <a href="#" onclick="$('#url').validationEngine('showPrompt', 'This a custom msg', 'error')">Build a prompt on field</a>
-            | <a href="#" onclick="$('#legendid').validationEngine('showPrompt', 'This a custom msg', 'load')">Build a prompt on something else</a>
-            | <a href="#" onclick="$('#formID').validationEngine('hideAll')">Close all prompts</a>
+            <a href="#" onclick="jQuery('#formID').validationEngine('showPrompt', 'This is an example', 'pass', true)">Build a prompt on form</a>
+            | <a href="#" onclick="jQuery('#url').validationEngine('showPrompt', 'This a custom msg', 'error', true)">Build a prompt on field</a>
+            | <a href="#" onclick="jQuery('#legendid').validationEngine('showPrompt', 'This a custom msg', 'load', true)">Build a prompt on something else</a>
+            | <a href="#" onclick="jQuery('#formID').validationEngine('hideAll')">Close all prompts</a>
 			| <a href="#" onclick="index.html">Back to index</a>
         </p>
         <p>
