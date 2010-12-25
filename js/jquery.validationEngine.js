@@ -827,7 +827,7 @@
         _buildPrompt: function(field, promptText, type, ajaxed, options) {
 
             // create the prompt
-            prompt = $('<div>');
+            var prompt = $('<div>');
             prompt.addClass(field.attr("id") + "formError");
             prompt.addClass("formError");
 
