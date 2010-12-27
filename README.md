@@ -349,17 +349,24 @@ The client sends the form fields and values as a GET request to the form.action 
 
     Client calls url?fieldId=id1&fieldValue=value1&...etc ==> Server (form.action)
 
-Server responds with an array of tuple: field1, status, errorMsg.
+Server responds with a list of arrays: [fieldid, status, errorMsg].
+
+* fieldid is the name (id) of the field
+* status is the result of the validation, true if it passes, false if it fails
+* errorMsg is an error string (or a selector) to the prompt text
 
     Client receives <== [["id1", boolean,"errorMsg"],["id2", false, "there is an error "],["id3", true, "this field is good"]] Server
 
+Note that only errors (status=false) shall be returned from the server. However you may also decide to return an entry with a status=true in which case the errorMsg will show as a green prompt.
+
+
 ####Callbacks
 
-Since the form validation is asynchronously delegated to the form action, we defined two call back methods to get notified before and after the ajax call.
+Since the form validation is asynchronously delegated to the form action, we provide two callback methods:
 
-**onBeforeAjaxFormValidation(form, options)**        
+**onBeforeAjaxFormValidation(form, options)** is called before the ajax form validation call, it may return false to stop the request
 
-**onAjaxFormComplete: function(form, status, json_response_from_server, options)**
+**onAjaxFormComplete: function(form, status, json_response_from_server, options)** is called after the ajax form validation call
 
 Custom Regex
 ---
@@ -468,20 +475,15 @@ Rules of thumb
 * for simplicity and consistency field.id and field.name should match (except with minCheckbox and maxCheckbox validators)
 * spaces or special chars should be avoided in field.id or field.name
 * use lower cases for input.type  ie. *text, password, textarea, checkbox, radio*
-* use the Ajax validator last ie. *validate[custom[onlyLetter],length[0,100],ajax[ajaxNameCall]]*
+* use the Ajax validator last ie. validate[custom[onlyLetter],length[0,100],**ajax[ajaxNameCall]**]
 * use only one Ajax validator per field!
-* JSON services should live on the same server (or you will get into security issues)
+* JSON services should live on the same server (or you will get into browser security issues)
 * in a perfect RESTful world, http **GET** is used to *READ* data, http **POST** is used to *WRITE* data: which translates into -> Ajax validations should use GET, the actual form post should use a POST request.
 
 Contribution
 ---
 Contributions are always welcome, you may refer to the latest stable project at [GitHub](https://github.com/posabsolute/jQuery-Validation-Engine)
 We use [Aptana](http://www.aptana.com/) as a Javascript editor and the Rockstart JSLint & Closure plugins http://update.rockstarapps.com/site.xml
-
-Limitations
----
-
-* We don't support 'select multiple="true"' fields on purpose. These fields do not ease UI experiece and should be avoided at all costs. There are much better ways to let a user select from a list of options.
 
 
 License
