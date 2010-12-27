@@ -31,11 +31,11 @@
                 },
 		        "past": {
                     "regex": "none",
-                    "alertText": "* Min date limit is "
+                    "alertText": "* Date prior to "
                 },
                 "future": {
                     "regex": "none",
-                    "alertText": "* Max date limit is "
+                    "alertText": "* Date past "
                 },	
                 "maxCheckbox": {
                     "regex": "none",

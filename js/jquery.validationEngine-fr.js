@@ -9,18 +9,38 @@
                 "required": {
                     "regex": "none",
                     "alertText": "* Ce champs est requis",
-                    "alertTextCheckboxMultiple": "*Choisir un option",
-                    "alertTextCheckboxe": "* Ce checkbox est requis"
+                    "alertTextCheckboxMultiple": "* Choisir une option",
+                    "alertTextCheckboxe": "* Cette option est requise"
                 },
-                "length": {
+               "minSize": {
                     "regex": "none",
-                    "alertText": "* Entre ",
-                    "alertText2": " et ",
-                    "alertText3": " caractères requis"
+                    "alertText": "* Minimum ",
+                    "alertText2": " caracteres requis"
+                },
+                "maxSize": {
+                    "regex": "none",
+                    "alertText": "* Maximum ",
+                    "alertText2": " caracteres requis"
+                },
+		        "min": {
+                    "regex": "none",
+                    "alertText": "* Valeur minimum requise "
+                },
+                "max": {
+                    "regex": "none",
+                    "alertText": "* Valeur maximum requise "
+                },
+		        "past": {
+                    "regex": "none",
+                    "alertText": "* Date postérieure au "
+                },
+                "future": {
+                    "regex": "none",
+                    "alertText": "* Date antérieure au "
                 },
                 "maxCheckbox": {
                     "regex": "none",
-                    "alertText": "* Nombre max the boite exceder"
+                    "alertText": "* Nombre max de choix excédé"
                 },
                 "minCheckbox": {
                     "regex": "none",
@@ -57,35 +77,36 @@
                 },
                 "ipv4": {
                     "regex": /([1-9][0-9]{0,2})+\.([1-9][0-9]{0,2})+\.([1-9][0-9]{0,2})+\.([1-9][0-9]{0,2})+/,
-                    "alertText": "* Adresse IP invalide IP"
+                    "alertText": "* Adresse IP invalide"
                 },
                 "url": {
                     "regex": /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/,
                     "alertText": "* URL invalide"
                 },
-                "onlyNumber": {
+                "onlyNumberSp": {
                     "regex": /^[0-9\ ]+$/,
-                    "alertText": "* Chiffres seulement accepté"
+                    "alertText": "* Seules les chiffres sont acceptées"
                 },
-                "noSpecialCharacters": {
-                    "regex": /^[0-9a-zA-Z]+$/,
-                    "alertText": "* Aucune caractère spécial accepté"
-                },
-                "onlyLetter": {
+                "onlyLetterSp": {
                     "regex": /^[a-zA-Z\ \']+$/,
-                    "alertText": "* Lettres seulement accepté"
+                    "alertText": "* Seules les lettres sont acceptées"
                 },
-				// --- CUSTOM RULES
+                "onlyLetterNumber": {
+                    "regex": /^[0-9a-zA-Z]+$/,
+                    "alertText": "* Aucun caractère spécial n'est accepté"
+                },
+				// --- CUSTOM RULES -- Those are specific to the demos, they can be removed or changed to your likings
                 "ajaxUserCall": {
-                    "file": "ajaxValidateFieldName",
+                    "url": "ajaxValidateFieldUser",
+                    "extraData": "name=eric",
                     "alertTextLoad": "* Chargement, veuillez attendre",
                     "alertText": "* Ce nom est déjà pris"
                 },
                 "ajaxNameCall": {
-                    "file": "ajaxValidateFieldName",
+                    "url": "ajaxValidateFieldName",
                     "alertText": "* Ce nom est déjà pris",
                     "alertTextOk": "*Ce nom est disponible",
-                    "alertTextLoad": "* LChargement, veuillez attendre"
+                    "alertTextLoad": "* Chargement, veuillez attendre"
                 },
                 "validate2fields": {
                     "alertText": "Veuillez taper le mot HELLO"
