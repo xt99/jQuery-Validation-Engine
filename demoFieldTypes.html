@@ -23,76 +23,15 @@
             <a href="#" onclick="alert('is the form valid? '+jQuery('#formID').validationEngine('validate'))">Evaluate form</a>
             | <a href="#" onclick="jQuery('#formID').validationEngine('showPrompt', 'This is an example', 'pass')">Build a prompt on a div</a>
             | <a href="#" onclick="jQuery('#formID').validationEngine('hide')">Close all prompts</a>
-			| <a href="#" onclick="index.html">Back to index</a>
+            | <a href="#" onclick="index.html">Back to index</a>
         </p>
         <p>
-            This demonstration shows how to use the predefined regular expressions 
+            This demonstration shows the different HTML field types we support
         </p>
         <form id="formID" class="formular" method="post" action="">
             <fieldset>
                 <legend>
-                    Phone
-                </legend>
-                <label>
-                    +103-304-340-4300-043
-                    <br/>
-                    +1 305 768 23 34 ext 23
-                    <br/>
-                    +1 (305) 768-2334 extension 703
-                    <br/>
-                    +1 (305) 768-2334 x703
-                    <br/>
-                    04312 / 777 777
-                    <br/>
-                    01-47.34/32 56
-                    <br/>
-                    (01865)  123456
-                    <br/>
-                    <span>Phone : </span>
-                  
-				  
-				  <select multiple="multiple" size="2">
-  <option value="volvo">Volvo</option>
-  <option value="saab">Saab</option>
-  <option value="mercedes">Mercedes</option>
-  <option value="audi">Audi</option>
-</select>
-
-
-<p style="height: 100px; overflow: auto; border: 5px solid #eee; background: #eee; color: #000; margin-bottom: 1.5em;"> 
-<label><input type="checkbox" name="items[]" /> Best Practices</label><br /> 
-<label><input type="checkbox" name="items[]" /> Client Relationships</label><br /> 
-<label><input type="checkbox" name="items[]" checked="checked" /> Communications</label><br /> 
-<label><input type="checkbox" name="items[]" /> Compensation</label><br /> 
-<label><input type="checkbox" name="items[]" /> Contracts and Negotiations</label><br /> 
-<label><input type="checkbox" name="items[]" /> Design and Construction Marketplace</label><br /> 
-<label><input type="checkbox" name="items[]" /> Design/Build Project Delivery</label><br /> 
-<label><input type="checkbox" name="items[]" /> Education</label><br /> 
-<label><input type="checkbox" name="items[]" /> Financial Management and Profitability</label><br /> 
-<label><input type="checkbox" name="items[]" /> Global Marketplace</label><br /> 
-<label><input type="checkbox" name="items[]" /> Human Resources</label><br /> 
-<label><input type="checkbox" name="items[]" /> Intelligent Choices</label><br /> 
-<label><input type="checkbox" name="items[]" /> Leadership</label><br /> 
-<label><input type="checkbox" name="items[]" /> Management</label><br /> 
-<label><input type="checkbox" name="items[]" /> Marketing</label><br /> 
-<label><input type="checkbox" name="items[]" /> Mergers and Acquisitions</label><br /> 
-<label><input type="checkbox" name="items[]" /> Operations Management</label><br /> 
-<label><input type="checkbox" name="items[]" /> Public Relations</label><br /> 
-<label><input type="checkbox" name="items[]" /> Staff Recruitment and Retention</label><br /> 
-<label><input type="checkbox" name="items[]" /> Strategic Planning</label><br /> 
-<label><input type="checkbox" name="items[]" /> Strategy</label><br /> 
-<label><input type="checkbox" name="items[]" /> Sustainability</label><br /> 
-<label><input type="checkbox" name="items[]" checked="checked" /> Technology</label><br /> 
-<label><input type="checkbox" name="items[]" checked="checked" /> Trends</label> 
-</p> 
-
-				  
-				  
-				      </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    URL
+                    Text field
                 </legend>
                 <label>
                     URL begin with http:// https:// or fpl://
@@ -103,81 +42,65 @@
             </fieldset>
             <fieldset>
                 <legend>
-                    Email
+                    TextArea
                 </legend>
                 <label>
-                    <span>Email address : </span>
-                    <input value="forced_error" class="validate[required,custom[email]] text-input" type="text" name="email" id="email" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    IP Address
-                </legend>
-                <label>
-                    <span>IP: </span>
-                    <input value="192.168.3." class="validate[required,custom[ipv4]] text-input" type="text" name="ip" id="ip" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    Date
-                </legend>
-                <label>
-                    ISO 8601 dates only YYYY-mm-dd
+                    URL begin with http:// https:// or fpl://
                     <br/>
-                    <span>Date: </span>
-                    <input value="201-12-01" class="validate[required,custom[date]] text-input" type="text" name="date" id="date" />
+                    <span>Enter a URL : </span>
+                    <textarea class="validate[required] text-input" rows="2" cols="20" name="ta" id="ta"></textarea>
                 </label>
             </fieldset>
             <fieldset>
                 <legend>
-                    Number
+                    Select single
                 </legend>
                 <label>
-                    a signed floating number, ie: -3849.354, 38.00, 38, .77
-                    <br/>
-                    <span>Number: </span>
-                    <input value="-33.87a" class="validate[required,custom[number]] text-input" type="text" name="number" id="number" />
+                    <select multiple="multiple" size="2">
+                        <option value="volvo">Volvo</option>
+                        <option value="saab">Saab</option>
+                        <option value="mercedes">Mercedes</option>
+                        <option value="audi">Audi</option>
+                    </select>
                 </label>
             </fieldset>
             <fieldset>
                 <legend>
-                    Integer
+                    Select mutiple
                 </legend>
                 <label>
-                    an signed integer: ie +34, 34 or -1
-                    <br/>
-                    <span>Number: </span>
-                    <input value="10.1" class="validate[required,custom[integer]] text-input" type="text" name="integer" id="integer" />
+                    <select name="sport2" id="sport2" multiple class="validate[required]" id="sport2">
+                        <option value="">Choose a sport</option>
+                        <option value="option1">Tennis</option>
+                        <option value="option2">Football</option>
+                        <option value="option3">Golf</option>
+                    </select>
                 </label>
             </fieldset>
             <fieldset>
                 <legend>
-                    NoSpecialCharacters
+                    Radio
                 </legend>
-                <label>
-                    <span>only [0-9a-zA-Z]</span>
-                    <input value="too many spaces obviously" class="validate[required,custom[noSpecialCharacters]] text-input" type="text" name="special" id="special" />
-                </label>
+                <div>
+                    <span>Radio Groupe : 
+                        <br/>
+                    </span>
+                    <span>radio 1: </span>
+                    <input class="validate[required] radio" type="radio" name="group0" id="radio1" value="5"/><span>radio 2: </span>
+                    <input class="validate[required] radio" type="radio" name="group0" id="radio2" value="3"/><span>radio 3: </span>
+                    <input class="validate[required] radio" type="radio" name="group0" id="radio3" value="9"/>
+                </div>
             </fieldset>
             <fieldset>
                 <legend>
-                    Only Numbers (char)
+                    Checkbox
                 </legend>
-                <label>
-                    <span>only [0-9] and space</span>
-                    <input value="10.1" class="validate[required,custom[onlyNumber]] text-input" type="text" name="onlynumber" id="onlynumber" />
-                </label>
-            </fieldset>
-            <fieldset>
-                <legend>
-                    OnlyLetter
-                </legend>
-                <label>
-                    <span>only ascii letters, space and '</span>
-                    <input value="this is an invalid char '.'" class="validate[required,custom[onlyLetter]] text-input" type="text" name="onlyascii" id="onlyascii" />
-                </label>
+                <div>
+                    <span>Minimum 2 checkbox : 
+                        <br/>
+                    </span>
+                    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck1" value="5"/><input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck2" value="3"/><input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck3" value="9"/>
+                </div>
             </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
         </form>
     </body>
