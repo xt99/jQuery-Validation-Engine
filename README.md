@@ -266,7 +266,7 @@ Validates if the element content size (in characters) is less or equal to the gi
 Checks if the element's value (which is implicitly a date) is earlier than the given *date*. When "NOW" is used as a parameter, the date will be calculate in the browser. Note that this may be different that the server date. Dates use the ISO format YYYY-MM-DD
 
     <input value="" class="validate[required,custom[date],past[now]]" type="text" id="birthdate" name="birthdate" />
-    <input value="" class="validate[required,custom[date],past['2010-01-01']]" type="text" id="appointment" name="appointment" />
+    <input value="" class="validate[required,custom[date],past[2010-01-01]]" type="text" id="appointment" name="appointment" />
 
 ### future[NOW or a date]
 
@@ -274,7 +274,7 @@ Checks if the element's value (which is implicitly a date) is greater than the g
 
     <input value="" class="validate[required,custom[date],future[now]]" type="text" id="appointment" name="appointment" />
     // a date in 2009
-    <input value="" class="validate[required,custom[date],future['2009-01-01'],past['2009-12-31']]" type="text" id="d1" name="d1" />
+    <input value="" class="validate[required,custom[date],future[2009-01-01],past[2009-12-31]]" type="text" id="d1" name="d1" />
 
 
 ### minCheckbox[integer]
