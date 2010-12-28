@@ -1,5 +1,4 @@
 
-
 (function($){
     $.fn.validationEngineLanguage = function(){
     };
@@ -12,15 +11,35 @@
                     "alertTextCheckboxMultiple": "* Selecione uma opção",
                     "alertTextCheckboxe": "* Campo obrigatório"
                 },
-                "length": {
+                "minSize": {
                     "regex": "none",
-                    "alertText": "*Entre ",
-                    "alertText2": " e ",
-                    "alertText3": " carateres permitidos"
+                    "alertText": "* Mínimo ",
+                    "alertText2": " carateres permitidos"
                 },
+                "maxSize": {
+                    "regex": "none",
+                    "alertText": "* Máximo ",
+                    "alertText2": " carateres permitidos"
+                },
+		        "min": {
+                    "regex": "none",
+                    "alertText": "* O valor mínimo é "
+                },
+                "max": {
+                    "regex": "none",
+                    "alertText": "* O valor máximo é "
+                },
+		        "past": {
+                    "regex": "none",
+                    "alertText": "* Data anterior a "
+                },
+                "future": {
+                    "regex": "none",
+                    "alertText": "* Data posterior a "
+                },	
                 "maxCheckbox": {
                     "regex": "none",
-                    "alertText": "* Foi atingido o máximo número de escolhas"
+                    "alertText": "* Foi ultrapassado o número máximo de escolhas"
                 },
                 "minCheckbox": {
                     "regex": "none",
@@ -63,33 +82,38 @@
                     "regex": /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/,
                     "alertText": "* URL inválido"
                 },
-                "onlyNumber": {
+                "onlyNumberSp": {
                     "regex": /^[0-9\ ]+$/,
                     "alertText": "* Só é permitido números"
                 },
-                "noSpecialCharacters": {
-                    "regex": /^[0-9a-zA-Z]+$/,
-                    "alertText": "* Não são permitidos carateres especiais"
-                },
-                "onlyLetter": {
+			    "onlyLetterSp": {
                     "regex": /^[a-zA-Z\ \']+$/,
-                    "alertText": "* Só são permitidas letras"
+                    "alertText": "* Só é permitido letras"
                 },
-				// --- CUSTOM RULES
+                "onlyLetterNumber": {
+                    "regex": /^[0-9a-zA-Z]+$/,
+                    "alertText": "* Só é permitido letras e números"
+                },
+				// --- CUSTOM RULES -- Those are specific to the demos, they can be removed or changed to your likings
                 "ajaxUserCall": {
-                    "file": "ajaxValidateFieldName",
+                    "url": "ajaxValidateFieldUser",
+					// you may want to pass extra data on the ajax call
                     "extraData": "name=eric",
-                    "alertTextLoad": "* Em carregamento, aguarde...",
-                    "alertText": "* Nome de utilizador não disponível"
+                    "alertText": "* Nome de utilizador não disponível",
+                    "alertTextLoad": "* A validar, por favor aguarde"
                 },
                 "ajaxNameCall": {
-                    "file": "ajaxValidateFieldName",
+					// remote json service location
+                    "url": "ajaxValidateFieldName",
+					// error
                     "alertText": "* Nome não disponível",
+					// if you provide an "alertTextOk", it will show as a green prompt when the field validates
                     "alertTextOk": "* Nome disponível",
-                    "alertTextLoad": "* Em carregamento, aguarde..."
+					// speaks by itself
+                    "alertTextLoad": "* A validar, por favor aguarde"
                 },
                 "validate2fields": {
-                    "alertText": "* Por favor entrada HELLO"
+                    "alertText": "* Escreva HELLO"
                 }
             };
             
