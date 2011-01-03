@@ -379,7 +379,7 @@ Note that the selector identifies a given regular expression in the translation 
 
 ### phone
 
-a typical phone number with an optional country code and extension.
+a typical phone number with an optional country code and extension. Note that the validation is **relaxed**, please add extra validations for your specific country.
 
     49-4312 / 777 777
     +1 (305) 613-0958 x101
