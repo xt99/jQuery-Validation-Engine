@@ -32,11 +32,11 @@
                 },
 		        "past": {
                     "regex": "none",
-                    "alertText": "* Date postérieure au "
+                    "alertText": "* Date antérieure au "
                 },
                 "future": {
                     "regex": "none",
-                    "alertText": "* Date antérieure au "
+                    "alertText": "* Date postérieure au "
                 },
                 "maxCheckbox": {
                     "regex": "none",
