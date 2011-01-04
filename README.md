@@ -431,9 +431,18 @@ Only letters and numbers, no space
 Overflow
 ---
 
-REVIEW REVIEW
+Validation in overflown div and lightbox with scrollable content
+
+To get the supported mode you need to add these options when instancing your plugin:
+
+      $("#formID").validationEngine({
+        isOverflown: true,
+        overflownDIV: ".inputContainer"
+      })
+
 The big change in this method is that normally the engine will append every error boxes to the body. In this case it will append every error boxes before the input validated. This add a bit of complexity, if you want the error box to behave correctly you need to wrap the input in a div being position relative, and exactly wrapping the input width and height. The easiest way to do that is by adding float:left, like in the example provided.
 
+The default top right position is currently the only supported position. Please use this mode only in overflown div and in scollable boxes, it is slower and a bit less stable (I have been using the engine for 2 years, but only one 1 month with this method). Also, the scrolling will be applied to the overflown parent, not the document body.
 
 Customizations
 ---
