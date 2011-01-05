@@ -22,6 +22,8 @@
 .formError .formErrorContent {
 	width: 100%;
 	background: #ee0101;
+	position:relative;
+	z-index:5001;
 	color: #fff;
 	width: 150px;
 	font-family: tahoma;
@@ -48,13 +50,16 @@
 .formError .formErrorArrow {
 	width: 15px;
 	margin: -2px 0 0 13px;
-	z-index: 5001;
+  position:relative;
+  z-index: 5006;
 }
 
 .formError .formErrorArrowBottom {
-	top: 0;
-	margin: -6px;
-	z-index: 5001;
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+	margin: 0px 0 0 12px;
+  top:2px;
 }
 
 .formError .formErrorArrow div {
@@ -73,9 +78,9 @@
 }
 
 .formError .formErrorArrowBottom div {
-	box-shadow: none;
-	-moz-box-shadow: none;
-	-webkit-box-shadow: none;
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
 }
 
 .greenPopup .formErrorArrow div {
