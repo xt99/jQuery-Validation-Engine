@@ -12,7 +12,7 @@
         <script src="js/jquery.validationEngine.js" type="text/javascript" charset="utf-8">
         </script>
         <script>
-            jQuery(document).ready(function(){
+            jQuery(document).ready( function() {
                 // binds form submission and fields to the validation engine
                 jQuery("#formID").validationEngine('attach');
             });
@@ -48,7 +48,7 @@
                     URL begin with http:// https:// or fpl://
                     <br/>
                     <span>Enter a URL : </span>
-                    <textarea class="validate[required] text-input" rows="2" cols="20" name="ta" id="ta"></textarea>
+                    <textarea class="validate[required] text-input" rows="2" cols="20" name="ta" id="ta" ></textarea>
                 </label>
             </fieldset>
             <fieldset>
@@ -56,11 +56,11 @@
                     Select single
                 </legend>
                 <label>
-                    <select multiple="multiple" size="2">
-                        <option value="volvo">Volvo</option>
-                        <option value="saab">Saab</option>
-                        <option value="mercedes">Mercedes</option>
-                        <option value="audi">Audi</option>
+                    <select name="sport" id="sport" class="validate[required]">
+                        <option value="">Choose a sport</option>
+                        <option value="option1">Tennis</option>
+                        <option value="option2">Football</option>
+                        <option value="option3">Golf</option>
                     </select>
                 </label>
             </fieldset>
@@ -69,7 +69,7 @@
                     Select mutiple
                 </legend>
                 <label>
-                    <select name="sport2" id="sport2" multiple class="validate[required]" id="sport2">
+                    <select name="sport2" id="sport2" multiple="true" class="validate[required]">
                         <option value="">Choose a sport</option>
                         <option value="option1">Tennis</option>
                         <option value="option2">Football</option>
@@ -82,7 +82,7 @@
                     Radio
                 </legend>
                 <div>
-                    <span>Radio Groupe : 
+                    <span>Radio Groupe :
                         <br/>
                     </span>
                     <span>radio 1: </span>
@@ -96,12 +96,16 @@
                     Checkbox
                 </legend>
                 <div>
-                    <span>Minimum 2 checkbox : 
+                    <span>Minimum 2 checkbox :
                         <br/>
                     </span>
-                    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck1" value="5"/><input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck2" value="3"/><input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck3" value="9"/>
+                    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck1" value="5"/>
+                    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck2" value="3"/>
+                    <input class="validate[minCheckbox[2]] checkbox" type="checkbox" name="group1" id="maxcheck3" value="9"/>
                 </div>
-            </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
+            </fieldset>
+            <input class="submit" type="submit" value="Validate & Send the form!"/>
+            <hr/>
         </form>
     </body>
 </html>
