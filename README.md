@@ -177,6 +177,9 @@ Set to true when the form shows in a scrolling div, defaults to *false*.
 ### overflownDIV
 Selector used to pick the overflown container, defaults to *""*.
 
+### onValidationComplete
+Stop the form from submitting, and let you handle it after it validated via a function
+
 Validators
 ---
 
