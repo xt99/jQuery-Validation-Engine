@@ -74,7 +74,7 @@
                 //form.undelegate('[class*="validate"][type="checkbox"]', "click", methods._onFieldEvent);
 
                 // unbind form.submit
-                form.unbind("submit", methods._onSubmitEvent);
+                form.unbind("submit", methods.onAjaxFormComplete);
                 form.removeData('jqv');
             }
         },
@@ -161,6 +161,11 @@
 
                 methods._validateFormWithAjax(form, options);
                 return false;
+            }
+
+            if(options.onValidationComplete){
+              options.onValidationComplete(form, r);
+              return false;
             }
             return r;
         },
@@ -306,12 +311,12 @@
                                 }
                                 else {
                                     // the field is invalid, show the red error prompt
-									errorInForm|=true;
+									                   errorInForm|=true;
                                     if (options.allrules[msg]) {
-										var txt = options.allrules[msg].alertText;
-										if (txt) 
-											msg = txt;
-									}
+                  										var txt = options.allrules[msg].alertText;
+                  										if (txt) 
+                  											msg = txt;
+                  									}
                                     methods._showPrompt(errorField, msg, "", false, options);
                                 }
                             }
@@ -1038,8 +1043,10 @@
                 // Ajax form validation callback method: boolean onComplete(form, status, errors, options)
                 // retuns false if the form.submit event needs to be canceled.
                 onAjaxFormComplete: $.noop,
-				// called right before the ajax call, may return false to cancel
+				        // called right before the ajax call, may return false to cancel
                 onBeforeAjaxFormValidation: $.noop,
+                // Stop form from submitting and execute function assiciated with it
+                onValidationComplete: false,
 
                 // Used when the form is displayed within a scrolling DIV
                 isOverflown: false,

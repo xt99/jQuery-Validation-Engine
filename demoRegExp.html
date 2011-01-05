@@ -15,6 +15,12 @@
             jQuery(document).ready(function(){
                 // binds form submission and fields to the validation engine
                 jQuery("#formID").validationEngine('attach');
+                jQuery("#formID2").validationEngine({
+                  onValidationComplete: function(form, status){
+                    alert("The form status is: " +status+", it will never submit");
+                  }  
+                })
+                jQuery("#formID2").validationEngine('attach');
             });
         </script>
     </head>
@@ -142,5 +148,43 @@
                 </label>
             </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
         </form>
+        
+            <h2>Stop submit</h2>
+            <form id="formID2" class="formular" method="post" action="">
+            <fieldset>
+                <legend>
+                    Phone
+                </legend>
+                <label>
+                    +103-304-340-4300-043
+                    <br/>
+                    +1 305 768 23 34 ext 23
+                    <br/>
+                    +1 (305) 768-2334 extension 703
+                    <br/>
+                    +1 (305) 768-2334 x703
+                    <br/>
+                    04312 / 777 777
+                    <br/>
+                    01-47.34/32 56
+                    <br/>
+                    (01865)  123456
+                    <br/>
+                    <span>Phone : </span>
+                    <input value="+1 305 768 23 34 ext 23 BUG" class="validate[required,custom[phone]] text-input" type="text" name="telephone" id="telephone" />
+                </label>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    OnlyLetter
+                </legend>
+                <label>
+                    <span>only ascii letters, space and '</span>
+                    <input value="this is an invalid char '.'" class="validate[required,custom[onlyLetterSp]] text-input" type="text" name="onlyascii" id="onlyascii" />
+                </label>
+            </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
+        </form>
+        
+        
     </body>
 </html>
