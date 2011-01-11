@@ -14,7 +14,7 @@
         <script>
             jQuery(document).ready(function(){
                 // binds form submission and fields to the validation engine
-                jQuery("#formID").validationEngine('attach');
+                jQuery("#formID").validationEngine();
                 jQuery("#formID2").validationEngine({
                   onValidationComplete: function(form, status){
                     alert("The form status is: " +status+", it will never submit");
@@ -171,7 +171,7 @@
                     (01865)  123456
                     <br/>
                     <span>Phone : </span>
-                    <input value="+1 305 768 23 34 ext 23 BUG" class="validate[required,custom[phone]] text-input" type="text" name="telephone" id="telephone" />
+                    <input value="+1 305 768 23 34 ext 23 BUG" class="validate[required,custom[phone]] text-input" type="text" name="telephone2" id="telephone2" />
                 </label>
             </fieldset>
             <fieldset>
@@ -180,7 +180,7 @@
                 </legend>
                 <label>
                     <span>only ascii letters, space and '</span>
-                    <input value="this is an invalid char '.'" class="validate[required,custom[onlyLetterSp]] text-input" type="text" name="onlyascii" id="onlyascii" />
+                    <input value="this is an invalid char '.'" class="validate[required,custom[onlyLetterSp]] text-input" type="text" name="onlyascii2" id="onlyascii2" />
                 </label>
             </fieldset><input class="submit" type="submit" value="Validate & Send the form!"/><hr/>
         </form>
