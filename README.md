@@ -133,6 +133,13 @@ Validates the form and displays prompts accordingly.
 Returns *true* if the form validates, *false* if it contains errors. Note that if you use an ajax form validator, the actual result will be delivered asynchronously to the function *options.onAjaxFormComplete*.
 
     alert( $("#formID1").validationEngine('validate') );
+    
+### validate one field
+
+Validates one field and displays the prompt accordingly. 
+Returns *false* if the input validates, *true* if it contains errors. 
+
+    alert( $("#formID1").validationEngine('validateField', "#emailInput") );
 
 ### showPrompt (promptText, type, promptPosition, showArrow)
 

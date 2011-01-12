@@ -87,6 +87,16 @@
         validate: function() {
             return methods._validateFields(this);
         },
+                /**
+         * Validates one field, shows prompt accordingly.
+         * Note: There is no ajax form validation with this method, only field ajax validation are evaluated
+         *
+         * @return true if the form validates, false if it fails
+         */
+        validateField: function(el) {
+        		var options = $(this).data('jqv');
+            return methods._validateField($(el), options);
+        },
         /**
          * Validates the form fields, shows prompts accordingly.
          * Note: this methods performs fields and form ajax validations(if setup)
@@ -1083,7 +1093,7 @@
      * @param {String}
      *            method (optional) action
      */
-    $.fn.validationEngine = function(method) {
+    $.fn.validationEngine = function(method, action) {
 
         var form = $(this);
         // skip private methods : _samplePrivateMethod
