@@ -21,7 +21,7 @@
                     "alertText": "* Maximum ",
                     "alertText2": " characters allowed"
                 },
-		        "min": {
+                "min": {
                     "regex": "none",
                     "alertText": "* Minimum value is "
                 },
@@ -29,7 +29,7 @@
                     "regex": "none",
                     "alertText": "* Maximum value is "
                 },
-		        "past": {
+                "past": {
                     "regex": "none",
                     "alertText": "* Date prior to "
                 },
@@ -86,7 +86,7 @@
                     "regex": /^[0-9\ ]+$/,
                     "alertText": "* Numbers only"
                 },
-			    "onlyLetterSp": {
+                "onlyLetterSp": {
                     "regex": /^[a-zA-Z\ \']+$/,
                     "alertText": "* Letters only"
                 },
@@ -94,22 +94,22 @@
                     "regex": /^[0-9a-zA-Z]+$/,
                     "alertText": "* No special characters allowed"
                 },
-				// --- CUSTOM RULES -- Those are specific to the demos, they can be removed or changed to your likings
+                // --- CUSTOM RULES -- Those are specific to the demos, they can be removed or changed to your likings
                 "ajaxUserCall": {
                     "url": "ajaxValidateFieldUser",
-					// you may want to pass extra data on the ajax call
+                    // you may want to pass extra data on the ajax call
                     "extraData": "name=eric",
                     "alertText": "* This user is already taken",
                     "alertTextLoad": "* Validating, please wait"
                 },
                 "ajaxNameCall": {
-					// remote json service location
+                    // remote json service location
                     "url": "ajaxValidateFieldName",
-					// error
+                    // error
                     "alertText": "* This name is already taken",
-					// if you provide an "alertTextOk", it will show as a green prompt when the field validates
+                    // if you provide an "alertTextOk", it will show as a green prompt when the field validates
                     "alertTextOk": "* This name is available",
-					// speaks by itself
+                    // speaks by itself
                     "alertTextLoad": "* Validating, please wait"
                 },
                 "validate2fields": {

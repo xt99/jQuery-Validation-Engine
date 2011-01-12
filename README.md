@@ -72,23 +72,38 @@ For more details about validators, please refer to the section below.
 
 ### Instantiation
 
-The validator is typically instantiated by using a call of the following form:
+The validator is typically instantiated by using a call of the following forms:
+
+    $("#form.id").validationEngine();
+
+Without any parameters, the init() and attach() methods are automatically called.
 
     $("#form.id").validationEngine(action or options);
 
-The method takes one or several optional parameters, either an action (and parameters) or a list of options to customize the behavior of the engine.
+The method may take one or several parameters, either an action (and parameters) or a list of options to customize the behavior of the engine.
 
-Here comes a glimpse: say you have a form is this kind
+Here comes a glimpse: say you have a form as such:
+
     <form id="formID" method="post" action="submit.action">
         <input value="2010-12-01" class="validate[required,custom[date]]" type="text" name="date" id="date" />
     </form>
 
-The following code would instance the validation engine:
+The code below will instance the validation engine and attach it to the form:
     <script>
     $(document).ready(function(){
+        $("#formID").validationEngine();
+       });
+    </script>
+
+But the following will only initialize, attachment needs to be done manually.
+
+    <script>
+    $(document).ready(function(){
+        $("#formID").validationEngine({promptPosition : "centerRight", scroll: false});
         $("#formID").validationEngine('attach');
        });
     </script>
+
 
 Actions
 ---
@@ -506,6 +521,6 @@ Licensed under the MIT License
 Authors
 ---
 
- Copyright(c) 2010 [Cedric Dugas](https://github.com/posabsolute) [http://www.position-absolute.com](http://www.position-absolute.com)
+ Copyright(c) 2011 [Cedric Dugas](https://github.com/posabsolute) [http://www.position-absolute.com](http://www.position-absolute.com)
  
  v2.0 Rewrite by [Olivier Refalo](https://github.com/orefalo) [http://www.crionics.com](http://www.crionics.com)

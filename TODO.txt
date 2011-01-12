@@ -1,11 +1,11 @@
-TODO: Work on demo field types -> add more fields types like textarea..etc
-TODO: work on translations, other languages should b out of sync at this point
-
-TODO: hook browser resize -> reposition prompts
+TODO: Find someone to work on the Italian translation
+IDEA: hook browser resize -> reposition prompts
 BUG: multiple forms demo: positionning issue, weird pixel gaps
 BUG Arrow positioning not working for other positioning cases
-TODO: think about abording ajax field requests when form.submit happens  $.ajax().abort();
+IMPROVE: think about aborting ajax field requests when form.submit happens  $.ajax().abort();
 
+DONE: Work on demo field types -> add more fields types like textarea..etc
+DONE: work on translations, other languages should b out of sync at this point
 DONE: Test on IE, Opera, FF, Chrome and Safari
 DONE: write documentation
 MAYBE NOT: split the translation files - they hold data for the demos

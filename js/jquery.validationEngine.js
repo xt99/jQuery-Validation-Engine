@@ -1045,9 +1045,9 @@
                 // Ajax form validation callback method: boolean onComplete(form, status, errors, options)
                 // retuns false if the form.submit event needs to be canceled.
                 onAjaxFormComplete: $.noop,
-				        // called right before the ajax call, may return false to cancel
+				// called right before the ajax call, may return false to cancel
                 onBeforeAjaxFormValidation: $.noop,
-                // Stop form from submitting and execute function assiciated with it
+                // Stops form from submitting and execute function assiciated with it
                 onValidationComplete: false,
 
                 // Used when the form is displayed within a scrolling DIV
@@ -1077,7 +1077,8 @@
     /**
      * Plugin entry point.
      * You may pass an action as a parameter or a list of options.
-     * if none, the init method is being called.
+     * if none, the init and attach methods are being called.
+     * Remember: if you pass options, the attached method is NOT called automatically
      *
      * @param {String}
      *            method (optional) action
@@ -1091,7 +1092,8 @@
             methods.init.apply(form);
             return methods[method].apply(form, Array.prototype.slice.call(arguments, 1));
         } else if (typeof method === 'object' || !method) {
-            return methods.init.apply(form, arguments);
+        	methods.init.apply(form, arguments);
+            return methods.attach.apply(form);
         } else {
             $.error('Method ' + method + ' does not exist in jQuery.validationEngine');
         }
