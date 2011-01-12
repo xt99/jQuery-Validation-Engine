@@ -14,15 +14,11 @@
         <script>
         
         jQuery(document).ready(function(){
-                // binds form submission and fields to the validation engine
-                jQuery("#formID1").validationEngine({promptPosition : "centerRight"});
-				        jQuery("#formID1").validationEngine('attach');
-				        jQuery("#formID2").validationEngine({promptPosition : "bottomLeft"});
-				        jQuery("#formID2").validationEngine('attach');
-				        jQuery("#formID3").validationEngine({promptPosition : "bottomRight"});
-				        jQuery("#formID3").validationEngine('attach');
-				        jQuery("#formID4").validationEngine({promptPosition : "topLeft"});
-				        jQuery("#formID4").validationEngine('attach');
+              // binds form submission and fields to the validation engine
+              jQuery("#formID1").validationEngine({promptPosition : "centerRight"}, 'attach');
+		        jQuery("#formID2").validationEngine({promptPosition : "bottomLeft"}, 'attach');
+		        jQuery("#formID3").validationEngine({promptPosition : "bottomRight"}, 'attach');
+		        jQuery("#formID4").validationEngine({promptPosition : "topLeft"}, 'attach');
             });
         </script>
     </head>

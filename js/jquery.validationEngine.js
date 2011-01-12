@@ -1097,6 +1097,10 @@
 
         var form = $(this);
         // skip private methods : _samplePrivateMethod
+        if(action && typeof(method) === 'string' && method.charAt(0) != '_' && methods[method]) {
+            // make sure init is being called at least once
+            methods.init.apply(form);
+        }
         if (typeof(method) === 'string' && method.charAt(0) != '_' && methods[method]) {
             // make sure init is being called at least once
             methods.init.apply(form);
