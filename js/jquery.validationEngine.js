@@ -87,14 +87,14 @@
         validate: function() {
             return methods._validateFields(this);
         },
-                /**
+        /**
          * Validates one field, shows prompt accordingly.
          * Note: There is no ajax form validation with this method, only field ajax validation are evaluated
          *
          * @return true if the form validates, false if it fails
          */
         validateField: function(el) {
-        		var options = $(this).data('jqv');
+            var options = $(this).data('jqv');
             return methods._validateField($(el), options);
         },
         /**
@@ -266,9 +266,9 @@
          * @param {Map} options
          */
         _validateFormWithAjax: function(form, options){
-		
-			var data = form.serialize();
-			
+
+            var data = form.serialize();
+
             $.ajax({
                 type: "GET",
                 url: form.attr("action"),
@@ -287,11 +287,11 @@
                 success: function(json){
                 
                     if (json !== true) {
-						
-						// getting to this case doesn't necessary means that the form is invalid
-						// the server may return green or closing prompt actions
-						// this flag helps figuring it out
-						var errorInForm=false;
+            
+            // getting to this case doesn't necessary means that the form is invalid
+            // the server may return green or closing prompt actions
+            // this flag helps figuring it out
+                        var errorInForm=false;
                         for (var i = 0; i < json.length; i++) {
                             var value = json[i];
                             
@@ -321,12 +321,12 @@
                                 }
                                 else {
                                     // the field is invalid, show the red error prompt
-									                   errorInForm|=true;
+                                     errorInForm|=true;
                                     if (options.allrules[msg]) {
-                  										var txt = options.allrules[msg].alertText;
-                  										if (txt) 
-                  											msg = txt;
-                  									}
+                                      var txt = options.allrules[msg].alertText;
+                                      if (txt) 
+                                        msg = txt;
+                                    }
                                     methods._showPrompt(errorField, msg, "", false, options);
                                 }
                             }
@@ -337,8 +337,8 @@
                         options.onAjaxFormComplete(true, form, "", options);
                 }
             });
-			
-		},
+      
+    },
         /**
          * Validates field, shows prompts accordingly
          *
@@ -399,21 +399,21 @@
                     case "minSize":
                         errorMsg = methods._minSize(field, rules, i, options);
                         break;
-			        case "maxSize":
+              case "maxSize":
                         errorMsg = methods._maxSize(field, rules, i, options);
                         break;
-					case "min":
+              case "min":
                         errorMsg = methods._min(field, rules, i, options);
                         break;
-			        case "max":
+              case "max":
                         errorMsg = methods._max(field, rules, i, options);
                         break;
-			        case "past":
+              case "past":
                         errorMsg = methods._past(field, rules, i, options);
                         break;
-			        case "future":
+              case "future":
                         errorMsg = methods._future(field, rules, i, options);
-                        break;		
+                        break;    
                     case "maxCheckbox":
                         errorMsg = methods._maxCheckbox(field, rules, i, options);
                         field = $($("input[name='" + fieldName + "']"));
@@ -567,8 +567,8 @@
                 return rule.alertText + max + rule.alertText2;
             }
         },
-		
-		/**
+    
+    /**
          * Check the minimum size (in characters)
          *
          * @param {jqObject} field
@@ -587,8 +587,8 @@
                 return rule.alertText + min + rule.alertText2;
             }
         },
-		
-		/**
+    
+    /**
          * Check number minimum value
          *
          * @param {jqObject} field
@@ -607,7 +607,7 @@
                 return rule.alertText + min;
             }
         },
-		/**
+    /**
          * Check number maximum value
          *
          * @param {jqObject} field
@@ -623,11 +623,11 @@
 
             if (len >max ) {
                 var rule = options.allrules.max;
-				//orefalo: to review, also do the translations
+        //orefalo: to review, also do the translations
                 return rule.alertText + max;
             }
         },
-		/**
+    /**
          * Checks date is in the past
          *
          * @param {jqObject} field
@@ -638,8 +638,8 @@
          * @return an error string if validation failed
          */
         _past: function(field, rules, i, options) {
-			
-			var p=rules[i + 1];
+      
+      var p=rules[i + 1];
             var pdate = (p.toLowerCase() == "now")? new Date():methods._parseDate(p);
             var vdate = methods._parseDate(field.attr('value'));
 
@@ -648,7 +648,7 @@
                 return rule.alertText + methods._dateToString(pdate);
             }
         },
-		/**
+    /**
          * Checks date is in the past
          *
          * @param {jqObject} field
@@ -659,8 +659,8 @@
          * @return an error string if validation failed
          */
         _future: function(field, rules, i, options) {
-			
-			var p=rules[i + 1];
+      
+      var p=rules[i + 1];
             var pdate = (p.toLowerCase() == "now")? new Date():methods._parseDate(p);
             var vdate = methods._parseDate(field.attr('value'));
 
@@ -754,66 +754,66 @@
                         // asynchronously called on success, data is the json answer from the server
                         var errorFieldId = json[0];
                         var errorField = $($("#" + errorFieldId)[0]);
-						// make sure we found the element
-						if (errorField.length == 1) {
-							
-							var status = json[1];
-							
-							if (status === false) {
-								// Houston we got a problem
-								options.ajaxValidCache[errorFieldId] = false;
-								options.isError = true;
-								var promptText = rule.alertText;
-								methods._showPrompt(errorField, promptText, "", true, options);
-							}
-							else {
-								if (options.ajaxValidCache[errorFieldId] !== undefined) 
-									options.ajaxValidCache[errorFieldId] = true;
-								
-								// see if we should display a green prompt
-								var alertTextOk = rule.alertTextOk;
-								if (alertTextOk) 
-									methods._showPrompt(errorField, alertTextOk, "pass", true, options);
-								else 
-									methods._closePrompt(errorField);
-							}
-						}
+            // make sure we found the element
+            if (errorField.length == 1) {
+              
+              var status = json[1];
+              
+              if (status === false) {
+                // Houston we got a problem
+                options.ajaxValidCache[errorFieldId] = false;
+                options.isError = true;
+                var promptText = rule.alertText;
+                methods._showPrompt(errorField, promptText, "", true, options);
+              }
+              else {
+                if (options.ajaxValidCache[errorFieldId] !== undefined) 
+                  options.ajaxValidCache[errorFieldId] = true;
+                
+                // see if we should display a green prompt
+                var alertTextOk = rule.alertTextOk;
+                if (alertTextOk) 
+                  methods._showPrompt(errorField, alertTextOk, "pass", true, options);
+                else 
+                  methods._closePrompt(errorField);
+              }
+            }
                     }
                 });
             }
         },
-		/**
-		 * Common method to handle ajax errors
-		 * 
-		 * @param {Object} data
-		 * @param {Object} transport
-		 */
-		_ajaxError: function(data, transport) {
-		     if(data.status === 0 && transport === null)
+    /**
+     * Common method to handle ajax errors
+     * 
+     * @param {Object} data
+     * @param {Object} transport
+     */
+    _ajaxError: function(data, transport) {
+         if(data.status === 0 && transport === null)
                   alert("The page is not served from a server! ajax call failed");
              else if(console)
                   console.log("Ajax error: " + data.status + " " + transport);
-		},
-		/**
-		 * date -> string
-		 * 
-		 * @param {Object} date
-		 */
-		_dateToString: function(date) {
-			
-			return date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
-		}, 
-		/**
-		 * Parses an ISO date
-		 * @param {String} d
-		 */		
-		_parseDate: function(d) {
-			
-			var dateParts = d.split("-");
-			if(dateParts!==d)
-				dateParts = d.split("/");
-			return new Date(dateParts[0], (dateParts[1] - 1) ,dateParts[2]);
-		},
+    },
+    /**
+     * date -> string
+     * 
+     * @param {Object} date
+     */
+    _dateToString: function(date) {
+      
+      return date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
+    }, 
+    /**
+     * Parses an ISO date
+     * @param {String} d
+     */   
+    _parseDate: function(d) {
+      
+      var dateParts = d.split("-");
+      if(dateParts!==d)
+        dateParts = d.split("/");
+      return new Date(dateParts[0], (dateParts[1] - 1) ,dateParts[2]);
+    },
         /**
          * Builds or updates a prompt with the given information
          *
@@ -1102,7 +1102,7 @@
             methods.init.apply(form);
             return methods[method].apply(form, Array.prototype.slice.call(arguments, 1));
         } else if (typeof method === 'object' || !method) {
-        	methods.init.apply(form, arguments);
+          methods.init.apply(form, arguments);
             return methods.attach.apply(form);
         } else {
             $.error('Method ' + method + ' does not exist in jQuery.validationEngine');
