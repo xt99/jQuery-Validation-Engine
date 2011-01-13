@@ -36,20 +36,24 @@
         },
         /**
          * Attachs jQuery.validationEngine to form.submit and field.blur events
+         * Takes an optional params: a list of options
+         * ie. jQuery("#formID1").validationEngine('attach', {promptPosition : "centerRight"});
          */
-        attach: function() {
+        attach: function(userOptions) {
             var form = this;
-            var options = form.data('jqv');
+            
+            var options;
+            
+            if(userOptions)
+               options = methods._saveOptions(form, userOptions);
+            else
+               options = form.data('jqv');
+               
             if (!options.binded) {
 
                 // bind fields
                 form.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTrigger, methods._onFieldEvent);
                 form.find("[class*=validate][type=checkbox]").bind("click", methods._onFieldEvent);
-
-                // orefalo: it doesn' work: ajax demo in firefox
-                //form.delegate('[class*=validate]:not[type=checkbox]', options.validationEventTrigger, methods._onFieldEvent);
-                // Delegate performs a lot better tahn bind on multiple nodes and we keep the context
-                //form.delegate('[class*=validate][type=checkbox]', "click", methods._onFieldEvent);
 
                 // bind form.submit
                 form.bind("submit", methods._onSubmitEvent);
@@ -68,10 +72,6 @@
                 // unbind fields
                 form.find("[class*=validate]").not("[type=checkbox]").unbind(options.validationEventTrigger, methods._onFieldEvent);
                 form.find("[class*=validate][type=checkbox]").unbind("click", methods._onFieldEvent);
-
-                // orefalo: this doesn't work see ajax demo in firefox
-                //form.undelegate('[class*="validate"]:not[type="checkbox"]', options.validationEventTrigger, methods._onFieldEvent);
-                //form.undelegate('[class*="validate"][type="checkbox"]', "click", methods._onFieldEvent);
 
                 // unbind form.submit
                 form.unbind("submit", methods.onAjaxFormComplete);
@@ -1050,12 +1050,12 @@
                 // topRight, bottomLeft, centerRight, bottomRight
                 promptPosition: "topRight",
 
-				// if set to true, the form data is sent asynchronously via ajax to the form.action url (get)
+                // if set to true, the form data is sent asynchronously via ajax to the form.action url (get)
                 ajaxFormValidation: false,
                 // Ajax form validation callback method: boolean onComplete(form, status, errors, options)
                 // retuns false if the form.submit event needs to be canceled.
                 onAjaxFormComplete: $.noop,
-				// called right before the ajax call, may return false to cancel
+                // called right before the ajax call, may return false to cancel
                 onBeforeAjaxFormValidation: $.noop,
                 // Stops form from submitting and execute function assiciated with it
                 onValidationComplete: false,
