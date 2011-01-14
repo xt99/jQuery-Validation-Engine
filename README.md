@@ -202,6 +202,9 @@ Selector used to pick the overflown container, defaults to *""*.
 ### onValidationComplete
 Stop the form from submitting, and let you handle it after it validated via a function
 
+### bindMethod (defaut: bind)
+By default the engine bind the form and the field with bind. If you need a persistant you can also use 'live'
+
 Validators
 ---
 
