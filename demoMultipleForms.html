@@ -15,10 +15,10 @@
         
         jQuery(document).ready(function(){
               // binds form submission and fields to the validation engine
-              jQuery("#formID1").validationEngine({promptPosition : "centerRight"}, 'attach');
-		        jQuery("#formID2").validationEngine({promptPosition : "bottomLeft"}, 'attach');
-		        jQuery("#formID3").validationEngine({promptPosition : "bottomRight"}, 'attach');
-		        jQuery("#formID4").validationEngine({promptPosition : "topLeft"}, 'attach');
+              jQuery("#formID1").validationEngine('attach', {promptPosition : "centerRight"});
+		        jQuery("#formID2").validationEngine('attach', {promptPosition : "bottomLeft"});
+		        jQuery("#formID3").validationEngine('attach', {promptPosition : "bottomRight"});
+		        jQuery("#formID4").validationEngine('attach', {promptPosition : "topLeft"});
             });
         </script>
     </head>
