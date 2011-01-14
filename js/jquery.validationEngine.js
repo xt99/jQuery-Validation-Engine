@@ -50,13 +50,22 @@
                 options = form.data('jqv');
 
             if (!options.binded) {
+					if(options.bindMethod == "bind"){
+						// bind fields
+                	form.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTrigger, methods._onFieldEvent);
+                	form.find("[class*=validate][type=checkbox]").bind("click", methods._onFieldEvent);
 
-                // bind fields
-                form.find("[class*=validate]").not("[type=checkbox]").bind(options.validationEventTrigger, methods._onFieldEvent);
-                form.find("[class*=validate][type=checkbox]").bind("click", methods._onFieldEvent);
+                	// bind form.submit
+                	form.bind("submit", methods._onSubmitEvent);
+					}else if(options.bindMethod == "live"){
+						// bind fields with LIVE (for persistant state)
+                	form.find("[class*=validate]").not("[type=checkbox]").live(options.validationEventTrigger, methods._onFieldEvent);
+                	form.find("[class*=validate][type=checkbox]").live("click", methods._onFieldEvent);
 
-                // bind form.submit
-                form.bind("submit", methods._onSubmitEvent);
+                	// bind form.submit
+                	form.live("submit", methods._onSubmitEvent);
+					}
+
                 options.binded = true;
             }
 
@@ -72,9 +81,16 @@
                 // unbind fields
                 form.find("[class*=validate]").not("[type=checkbox]").unbind(options.validationEventTrigger, methods._onFieldEvent);
                 form.find("[class*=validate][type=checkbox]").unbind("click", methods._onFieldEvent);
-
                 // unbind form.submit
                 form.unbind("submit", methods.onAjaxFormComplete);
+                
+               
+                // unbind live fields (kill)
+                form.find("[class*=validate]").not("[type=checkbox]").die(options.validationEventTrigger, methods._onFieldEvent);
+                form.find("[class*=validate][type=checkbox]").die("click", methods._onFieldEvent);
+                // unbind form.submit
+                form.die("submit", methods.onAjaxFormComplete);
+                
                 form.removeData('jqv');
             }
         },
@@ -210,7 +226,7 @@
             var errorFound = false;
 
             // first, evaluate status of non ajax fields
-            form.find('[class*=validate]').each( function() {
+            form.find('[class*=validate]').not(':hidden').each( function() {
                 var field = $(this);
                 // fields being valiated though ajax are marked with 'ajaxed',
                 // skip them
@@ -873,12 +889,12 @@
                 }
             }
 
-            //orefalo: ca marche bien sans le test, a verifier ds IE
+            //Cedric: Needed if a container is in position:relative
             // insert prompt in the form or in the overflown container?
-            //if (options.isOverflown)
-            field.before(prompt);
-            // else
-            //    $("body").append(prompt);
+            if (options.isOverflown)
+            	field.before(prompt);
+            else
+               $("body").append(prompt);
 
             var pos = methods._calculatePosition(field, prompt, options);
             prompt.css({
@@ -1044,6 +1060,7 @@
                 // Opening box position, possible locations are: topLeft,
                 // topRight, bottomLeft, centerRight, bottomRight
                 promptPosition: "topRight",
+                bindMethod:"bind",
 
                 // if set to true, the form data is sent asynchronously via ajax to the form.action url (get)
                 ajaxFormValidation: false,
