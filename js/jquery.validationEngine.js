@@ -245,8 +245,8 @@
 
                     // look for the visually top prompt
                     var destination = Number.MAX_VALUE;
-
-                    var lst = form.find(".formError:not('.greenPopup')");
+						  console.log(form)
+                    var lst = $(".formError:not('.greenPopup')");
                     for (var i = 0; i < lst.length; i++) {
                         var d = $(lst[i]).offset().top;
                         if (d < destination)
